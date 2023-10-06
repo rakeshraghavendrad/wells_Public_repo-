@@ -1,0 +1,18 @@
+SELECT
+    CASE
+        WHEN t1.ip_addr = t2.ip_addr THEN 'Same Ip_addr'
+        ELSE 'Different Ip_addr'
+    END AS ip_addr_type,
+    COUNT(DISTINCT t1.cust_ecn) AS customer_count
+FROM
+    your_table_name t1
+JOIN
+    your_table_name t2
+ON
+    t1.cust_ecn = t2.cust_ecn
+AND
+    t1.evnt_id = t2.evnt_id - 1
+WHERE
+    t1.evnt_start_DT_tm < t2.evnt_start_DT_tm
+GROUP BY
+    ip_addr_type;
