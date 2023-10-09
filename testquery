@@ -1,1 +1,13 @@
-Initially, I believed the total count of 700K customers was due to applied filters in the query. Upon closer inspection, I realized an additional filter was in place, requiring the "bev_evnt_id" to be unique, resulting in the 700K count. However, when I removed all filters for the month of Aug-23 and counted customers based on both the same and different IP addresses, the total reached 2.4M. Comparing this with the 2.2M distinct customers facing the issue, it made sense, as the customer "ecn" could be a repetition among customers sharing the same or different IP addresses.
+In the top drivers section, ensure that numbers in the "customer impacted" category are separated by commas.
+
+The description filter highlights the "group by" feature, but there's a need for a dynamic comment section where users can input their comments.
+
+Display a graph for the sample event ratio in the designated section.
+
+Implement dynamic inputs, including:
+
+Color coding: Introduce a column to indicate priority levels, such as top-priority, medium-priority, and low-priority.
+Comments: Allow users to provide dynamic comments relevant to the context.
+Combine Android and iOS data into a unified view with a filter for easier analysis.
+
+Apply filters specifically on multiple logins and frequent password resets within authentication flow projects, covering Android, iOS, and desktop platforms.
