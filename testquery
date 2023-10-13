@@ -1,13 +1,25 @@
-Certainly! Here's a summary based on the themes of building, enabling, and delivering:
+Build:
 
-Built:
-- Developed a highly efficient diagnostic model pipeline, significantly reducing execution time from 7 days to just 12 hours.
-- Converted pipeline components into 9 versatile and reusable modules, enhancing scalability and usability.
+I understood the various data center placed in various locations.
+I had to self-scale up on this technology.
+I had to completely translate the Teradata query to PySpark query in order to create the pipeline on OSDS.
+The dashboard was initiated with the bi-team.
+From the pipelines developed 9 versatile components are created as a reusable component for the cross-function team.
+This task just not enhanced the cross-functional teams' capabilities also enhanced the scalability and reusability of modules with the company’s system.
+Enable:
 
-Enabled:
-- Empowered cross-functional teams by providing them access to the converted generic modules, enabling them to leverage the technology for their respective projects.
-- Conducted in-depth analysis of customer IP usage, providing valuable insights to the US team, contributing to informed decision-making.
+The communication to servers was mainly done on Teradata and PySpark on OSDS.
+The model helped to reduce the execution time.
+During this process, I had to completely translate the Teradata query to PySpark query.
+The complete KT was provided to data engineering teams and empowered them on the reusable versatile modules.
+This task has brought into the limelight of the company’s system.
+Whenever the team needs the analysis my time for this was given promptly.
+Deliver:
 
-Delivered:
-- Delivered exceptional results in execution, leading to the recognition and receipt of a Team Spotlight Award.
-- Successfully met the request from the Line of Business (LOB) for detailed IP analysis, demonstrating a proactive approach and delivering on specific demands.
+The model gives the output.
+The required reports were gathered.
+This effort has saved a lot of manpower time and improved and highly efficient way of reporting.
+I have been awarded a Team Spotlight Award.
+I was also involved in Swart analysis which needed a complex SQL query to be developed to get the required results.
+I delivered the projects within the deadline.
+
