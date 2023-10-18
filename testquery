@@ -1,10 +1,21 @@
-An important consideration when applying descriptive statistics is:
+Consider a recent dataset with the following 5 transactions:
+
+[Sanitizer, Gloves]
+[Sanitizer, Masks, Gloves]
+[Handwash, Masks, Toilet paper]
+[Handwash, Sanitizer, Masks, Gloves]
+[Handwash, Toilet paper]
+
+Assume that the frequency values larger than (but not equal to) 2 are considered as frequent. Which of the following is (are) frequent 2-itemset(s)?
+
+ 
+
 Answer choices
 Select only one option
-the size of the dataset
+[Sanitizer, Gloves]
 
-the format used to store the data
+[Gloves, Masks]
 
-the type of data we are describing
+[Sanitizer, Masks, Gloves]
 
-None of above
+None of Above
