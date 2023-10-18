@@ -1,5 +1,3 @@
-Assume you have to mine association rules for a very large transaction database with 1,000,000 transactions.
+Association rule mining algorithms like Apriori face challenges in large databases due to the exponential growth of itemsets and rules. This growth leads to substantial memory usage, multiple scans of the entire dataset, and the computational burden of generating and evaluating infrequent itemsets. Moreover, the sheer volume of transactions in databases like the one with 1,000,000 entries exacerbates these challenges.
 
-What might be the challenges for association rule mining algorithms such as Apriori? Provide specific analysis based on algorithm understanding [1.5 marks]
-
-How could you speed up association rule mining? Give a sketch of an approach which speeds up association rule mining which uses sampling! [1.5 marks]
+To speed up association rule mining, a practical approach involves random sampling. By selecting a representative subset of transactions from the large database, Apriori can be applied to this smaller sample, reducing the dataset size for faster computation. Frequent itemsets and association rules are then derived from this sampled data. Adjusting support and confidence values based on sample proportions ensures meaningful rules. While this approach significantly improves speed and resource efficiency, it requires careful consideration of sampling bias and finding the right trade-off between speed and accuracy. Adjusting the sampling size based on the specific analysis needs can help strike this balance effectively.
