@@ -1,15 +1,10 @@
-Certainly! Here are the reformulated statements for better clarity:
+What is (are) the technological reason(s) for the continued increase in lack of privacy?
+Answer choices
+Select only one option
+he flow of technology makes surveillance easier unless some particular measures are set in place.
 
-1. **Join Data:** I encountered a module error while attempting to join the data. Upon inspecting the module, I realized there's no module named "join."
+the increase in cybercrime and terrorism makes it a necessity
 
-2. **Data Sample:** I'm facing the same "no module found" error as mentioned above.
+the open internet and the cloud removes privacy
 
-3. **Splitting the Data into Train and Test Sets:** To enhance clarity, we've named the variables as `train_date_range`, `test_date_range`, and `validation_date_range` for better understanding.
-
-4. **Sum of Last N Days:** The code displays forward N dates but doesn't represent the previous N dates. If it does, please specify the column to check.
-
-5. **Filling Missing Data with a Certain Value:** The provided code effectively fills in missing values in the "group" column. However, it should also fill the same value in the "ID" column, considering it's a unique value for each row. I attempted converting the ID column to a string, but the code didn't work as expected.
-
-6. **Categorical Feature Missing Data:** Using the mode-filling method for the "group" column works well. However, when I try the same method for filling the "ID" column (any categorical variable), the data is not being populated.
-
-Feel free to let me know if you need further assistance with any of these points!
+it follows from Moore’s Law
