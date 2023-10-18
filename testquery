@@ -1,19 +1,10 @@
-Consider a recent dataset with the following 5 transactions:
-
-[Sanitizer, Gloves]
-[Sanitizer, Masks, Gloves]
-[Handwash, Masks, Toilet paper]
-[Handwash, Sanitizer, Masks, Gloves]
-[Handwash, Toilet paper]
-
-Assume that the frequency values larger than (but not equal to) 1 are considered as frequent. Which of the following is (are) frequent 3-itemset(s)?
-
+In this transaction dataset, which of the following association rule is (are) frequent and also with 100% confidence
 Answer choices
-Select only one option
-[Sanitizer, Gloves]
+Select correct option(s)
+If Handwash and Masks, then Gloves
 
-[Sanitizer, Masks]
+If Sanitizer and Masks, then Gloves
 
-[Sanitizer, Masks, Gloves]
+If Masks and Gloves, then Sanitizer
 
-[Handwash, Sanitizer, Masks]
+None of Above
