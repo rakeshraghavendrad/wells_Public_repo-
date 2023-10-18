@@ -1,52 +1,5 @@
-a) Two Different Approaches to Anomaly Detection:
+Assume you have to mine association rules for a very large transaction database with 1,000,000 transactions.
 
-Statistical Methods (e.g., Z-Score, IQR):
-Suitability: Statistical methods like Z-Score or Interquartile Range (IQR) are suitable for detecting anomalies in numeric data. These methods work well when the data is normally distributed and assumes that the outliers deviate significantly from the mean of the data. Z-Score measures how many standard deviations away from the mean a data point is, while IQR looks at the spread of the middle 50% of the data.
-Machine Learning Models (e.g., Isolation Forest, One-Class SVM):
-Suitability: Machine learning models, particularly unsupervised algorithms like Isolation Forest and One-Class SVM, are suitable for detecting anomalies in complex and high-dimensional datasets. These models can capture intricate patterns and relationships in the data, making them effective for identifying outliers in situations where simple statistical methods might fail.
-b) Using Isolation Forest for Anomaly Detection:
+What might be the challenges for association rule mining algorithms such as Apriori? Provide specific analysis based on algorithm understanding [1.5 marks]
 
-In this context, I will use the Isolation Forest algorithm to detect outliers. The Isolation Forest algorithm is an effective machine learning approach for anomaly detection, especially in high-dimensional datasets. It works by isolating anomalies rather than profiling normal data points. Let's proceed with detecting outliers using Isolation Forest.
-
-python
-Copy code
-from sklearn.ensemble import IsolationForest
-import pandas as pd
-
-# Load the dataset (assuming it is stored in a variable 'data')
-# Assuming the numeric columns are from column 0 to column 13
-numeric_columns = list(range(14))
-
-# Extract numeric data for anomaly detection
-numeric_data = data.iloc[:, numeric_columns]
-
-# Initialize the Isolation Forest model
-isolation_forest = IsolationForest(contamination=0.1, random_state=42)  # Contamination parameter is the expected proportion of outliers
-
-# Fit the model and predict outliers
-outliers = isolation_forest.fit_predict(numeric_data)
-
-# Add the outlier predictions to the original dataset
-data['Outlier'] = outliers
-
-# Extract rows where 'Outlier' column is -1 (indicating an outlier)
-outlier_data = data[data['Outlier'] == -1]
-
-# Display intermediate results (outlier data)
-print(outlier_data)
-c) Justification and Potential Problems:
-
-Justification:
-The Isolation Forest algorithm is suitable for this dataset because it can handle high-dimensional data, which is common in real-world datasets like income data. It isolates anomalies efficiently, making it effective even when the dataset contains mixed types of features (both numeric and categorical).
-
-Potential Problems:
-
-Contamination Parameter: Setting the contamination parameter (proportion of outliers) is critical. If set too high, it might include too many normal data points as outliers, and if set too low, it might miss some actual outliers.
-
-Handling Categorical Data: Isolation Forest mainly works with numeric data. If there are important categorical features in the dataset, they need to be properly encoded or handled to avoid losing valuable information during anomaly detection.
-
-Scalability: While Isolation Forest is efficient for most datasets, it might face scalability issues with extremely large datasets.
-
-Interpretability: Isolation Forest doesn't provide insight into why a particular data point is considered an outlier, which might be important for understanding the data context.
-
-Imbalanced Classes: If the dataset is highly imbalanced (i.e., very few outliers compared to normal data points), the model might struggle to accurately detect outliers due to the lack of representative examples.
+How could you speed up association rule mining? Give a sketch of an approach which speeds up association rule mining which uses sampling! [1.5 marks]
