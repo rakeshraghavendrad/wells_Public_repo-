@@ -1,13 +1,10 @@
-Below is the function of min_max_scaler for spark dataframe, which of the following statement is correct:
-
-UE-1.png
-
+For the analysis of the anomaly detection by using isolation forest. Select the correct statement(s) from below:
 Answer choices
 Select only one option
-The code will return the spark dataframe with two new columns (min and max).
+Isolation forest is clustering method, so it could be replaced by kmeans (another clustering method) to finish the task in assignment 2
 
-The code will return error because the input and output use the same object name “df”
+Isolation forest returns the value and the higher value means higher chance of being anomaly
 
-The code will return spark dataframe with new column names and the shape the dataframe is same as the input
+Isolation forest could work with parameter searching method to find out the best model with the object function on error metrics such as accuracy.
 
-The code will return error because it can not return dataframe
+Isolation forest would still work if your time series data is not stationary
