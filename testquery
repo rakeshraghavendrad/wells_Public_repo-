@@ -1,10 +1,1 @@
-For the analysis of the anomaly detection by using isolation forest. Select the correct statement(s) from below:
-Answer choices
-Select only one option
-Isolation forest is clustering method, so it could be replaced by kmeans (another clustering method) to finish the task in assignment 2
-
-Isolation forest returns the value and the higher value means higher chance of being anomaly
-
-Isolation forest could work with parameter searching method to find out the best model with the object function on error metrics such as accuracy.
-
-Isolation forest would still work if your time series data is not stationary
+print(df.groupby('main_category').count())
