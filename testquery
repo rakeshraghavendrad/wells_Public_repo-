@@ -1,10 +1,13 @@
-In this transaction dataset, which of the following association rule is (are) frequent and also with 100% confidence
+Below is the function of min_max_scaler for spark dataframe, which of the following statement is correct:
+
+UE-1.png
+
 Answer choices
-Select correct option(s)
-If Handwash and Masks, then Gloves
+Select only one option
+The code will return the spark dataframe with two new columns (min and max).
 
-If Sanitizer and Masks, then Gloves
+The code will return error because the input and output use the same object name “df”
 
-If Masks and Gloves, then Sanitizer
+The code will return spark dataframe with new column names and the shape the dataframe is same as the input
 
-None of Above
+The code will return error because it can not return dataframe
