@@ -1,3 +1,7 @@
-Association rule mining algorithms like Apriori face challenges in large databases due to the exponential growth of itemsets and rules. This growth leads to substantial memory usage, multiple scans of the entire dataset, and the computational burden of generating and evaluating infrequent itemsets. Moreover, the sheer volume of transactions in databases like the one with 1,000,000 entries exacerbates these challenges.
+In cyber security, encryption is the essential process (such as ) to ensure that the data is only accessible by those with the right credentials. Imagine that you can collect sufficient number of data in the form of (clear text, encrypted text).
 
-To speed up association rule mining, a practical approach involves random sampling. By selecting a representative subset of transactions from the large database, Apriori can be applied to this smaller sample, reducing the dataset size for faster computation. Frequent itemsets and association rules are then derived from this sampled data. Adjusting support and confidence values based on sample proportions ensures meaningful rules. While this approach significantly improves speed and resource efficiency, it requires careful consideration of sampling bias and finding the right trade-off between speed and accuracy. Adjusting the sampling size based on the specific analysis needs can help strike this balance effectively.
+Whether it is possible for data science platform with the right data analytics (or machine learning) algorithms to reveal the function that can maps the encrypted text to the clear text? [1 mark]
+If yes, please state why and how? If not, please state why and under which situation it will be possible.
+[2 marks]
+(Note: If you are familiar with encryption, you can divide the cases as “with a secret key” and “without a
+secret key”.)
