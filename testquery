@@ -1,7 +1,7 @@
-In cyber security, encryption is the essential process (such as ) to ensure that the data is only accessible by those with the right credentials. Imagine that you can collect sufficient number of data in the form of (clear text, encrypted text).
+1. Symmetric Key Encryption (With a Secret Key):
+In symmetric key encryption, the same secret key is used for both encryption and decryption. With a sufficient amount of encrypted and corresponding clear text data, it is not possible for a data science platform, regardless of its analytics or machine learning capabilities, to reveal the function that maps the encrypted text to the clear text. This is because a properly designed symmetric encryption algorithm ensures that the relationship between the encrypted text and the clear text is extremely complex and non-linear. The encryption algorithms are specifically designed to make it computationally infeasible to derive the original clear text without the correct secret key.
 
-Whether it is possible for data science platform with the right data analytics (or machine learning) algorithms to reveal the function that can maps the encrypted text to the clear text? [1 mark]
-If yes, please state why and how? If not, please state why and under which situation it will be possible.
-[2 marks]
-(Note: If you are familiar with encryption, you can divide the cases as “with a secret key” and “without a
-secret key”.)
+2. Asymmetric Key Encryption (Without a Secret Key):
+In asymmetric key encryption, there is a pair of public and private keys. The public key is used for encryption, and the private key is used for decryption. Even with access to the public key and a large dataset of encrypted texts, it is not possible to reveal the function that maps the encrypted text to the clear text. The encryption process in asymmetric cryptography relies on mathematical functions that are one-way functions, meaning they are easy to compute in one direction (encryption) but computationally infeasible to reverse without the private key (decryption).
+
+However, there is a situation in which encrypted text could potentially be mapped to clear text, and that is when the encryption algorithm itself is flawed or weak. If a cryptographic algorithm has vulnerabilities, it might be possible for an attacker to exploit these weaknesses and decrypt the data. This is why it's crucial to use well-established, peer-reviewed encryption algorithms and to keep software and systems updated to ensure the latest security patches are applied.
