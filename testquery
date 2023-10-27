@@ -1,28 +1,3 @@
-Ethical Dilemmas in Big Data Analytics (1.5 marks):
-Privacy Concerns:
-One of the significant ethical dilemmas in big data analytics is the invasion of privacy. Collecting and analyzing large volumes of data can lead to the identification of individuals, raising concerns about how personal information is used, stored, and shared. This is particularly true in cases where data is anonymized but can be re-identified when combined with other datasets.
-
-Bias and Discrimination:
-Big data analytics can perpetuate existing biases present in the data, leading to discriminatory outcomes. Biased algorithms can result in unfair treatment of certain groups, reinforcing societal prejudices. For instance, biased hiring algorithms might favor specific demographics, leading to unequal opportunities.
-
-Data Misuse and Security:
-There is a risk of data misuse, including unauthorized access, data breaches, or even malicious use of insights derived from big data. Ensuring the security of vast datasets is a significant challenge, and breaches can have severe consequences for individuals and organizations alike.
-
-Ensuring Responsible and Ethical Use of Big Data (1.5 marks):
-Transparent Practices:
-Organizations should be transparent about their data collection methods, purposes, and the algorithms used. Transparent practices build trust with users and stakeholders, allowing them to understand how their data is being used.
-
-Ethical Algorithm Development:
-Data scientists and analysts need to be aware of biases in the data and work to mitigate them during algorithm development. Regular audits of algorithms can identify and rectify biased patterns, ensuring fair and unbiased results.
-
-Data Anonymization and Encryption:
-Employing robust anonymization techniques and encryption methods can protect individual privacy. Organizations should invest in technologies that secure data both during storage and transmission.
-
-Legal Compliance and Regulations:
-Adhering to data protection regulations such as GDPR (General Data Protection Regulation) and other local laws is crucial. Compliance ensures that organizations handle data responsibly, respecting individuals' rights and privacy.
-
-Ethics Training and Awareness:
-Training employees about ethical considerations in data analytics is vital. Creating a culture of ethics within the organization ensures that everyone involved understands the importance of responsible data handling and analysis.
-
-Engaging Stakeholders:
-Involving diverse stakeholders, including ethicists, privacy experts, and community representatives, can provide valuable perspectives. Collaboration with external experts ensures a more comprehensive evaluation of potential ethical dilemmas.
+SELECT date_time, COUNT(DISTINCT cust_num) AS num_customers
+FROM your_table_name
+GROUP BY date_time;
