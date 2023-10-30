@@ -1,15 +1,8 @@
 
-I want to write teradata query for the following table 
+Certainly! Here's a rephrased version of your sentences for your email:
 
-cust_num  date_time 
-1234	  9/1/2023
-1234	  9/1/2023
-1234	  9/2/2023
-2345	  9/3/2023
-2345	  9/3/2023
-2345	  9/3/2023
-4567	  9/5/2023
-4567	  9/6/2023
+"We have conducted a daily analysis of customer impact throughout July '23, August '23, and September '23.
 
+Additionally, we categorized the affected customers according to their operating systems, distinguishing between iOS and Android users.
 
-I want to write a sql query to group by date and count the distinct cust_num 
+I trust this information is helpful. Should you require further assistance, please do not hesitate to reach out. Thank you."
