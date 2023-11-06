@@ -1,8 +1,11 @@
+Certainly! In the process of investigating the customer login issues, it was identified that customers faced challenges when attempting to access their accounts through digital channels. These challenges arose from logging issues, making it difficult for customers to comprehend the root causes of the problem.
 
-Certainly! Here's a rephrased version of your sentences for your email:
+To address this, the team embarked on a detailed analysis to distinguish between events (successful logins) and non-events (failed logins). This analysis involved sharing crucial customer information, including their ECN and session IDs, for both successful and unsuccessful login attempts. By doing so, the team aimed to gain deeper insights into the nature of these login issues.
 
-"We have conducted a daily analysis of customer impact throughout July '23, August '23, and September '23.
+To conduct a more comprehensive analysis, a specialized team called SWART was formed. This team was tasked with delving further into the identified login issues. They examined patterns related to login attempts, focusing on customers who experienced problems. Notably, they found that a significant portion of these customers encountered difficulties when logging in within a narrow time frame of 20 seconds. These customers used different IP addresses but the same device, indicating a specific pattern associated with the login challenges.
 
-Additionally, we categorized the affected customers according to their operating systems, distinguishing between iOS and Android users.
+Furthermore, daily analyses were conducted spanning from July 23 to September 23. During this period, the team categorized affected customers based on their operating systems, distinguishing between iOS and Android users. This categorization was crucial in understanding the varying experiences of customers based on their devices. 
 
-I trust this information is helpful. Should you require further assistance, please do not hesitate to reach out. Thank you."
+A key observation was made on August 24, where a remarkable spike in login issues was recorded. This spike highlighted a critical moment when a substantial number of customers faced difficulties accessing their accounts. 
+
+Armed with these in-depth analyses, the findings were meticulously compiled and presented to the LOB (Line of Business). The LOB is currently in the process of reviewing these analyses, using the insights provided to devise appropriate strategies and solutions to tackle the login problems effectively.
