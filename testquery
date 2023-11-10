@@ -1,20 +1,6 @@
-from pyspark.sql import SparkSession
+import pandas as pd
+import random
 
-spark = SparkSession.builder \
-    .appName("ExcelReadExample") \
-    .config("spark.jars.packages", "com.crealytics:spark-excel_2.12:0.14.2") \
-    .getOrCreate()
-
-excel_file_path = "path/to/your/excel/file.xlsx"
-
-sheet1_df = spark.read.format("com.crealytics.spark.excel") \
-    .option("sheetName", "Sheet1") \
-    .option("useHeader", "true") \
-    .option("inferSchema", "true") \
-    .load(excel_file_path)
-
-# Repeat for other sheets (Sheet2, Sheet3, etc.)
-
-# Perform operations on the DataFrames as needed
-
-spark.stop()  # Stop the Spark session when done
+# Assuming df is your DataFrame
+generated_number = random.randint(100000000, 999999999)
+df['pk'] = generated_number
