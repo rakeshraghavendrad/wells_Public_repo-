@@ -1,6 +1,6 @@
-import pandas as pd
-import random
+# Function to generate random 9-digit numbers
+def generate_random_number():
+    return np.random.randint(100000000, 999999999)
 
-# Assuming df is your DataFrame
-generated_number = random.randint(100000000, 999999999)
-df['pk'] = generated_number
+# Add a new column with random 9-digit numbers
+df['RandomColumn'] = [generate_random_number() for _ in range(len(df))]
