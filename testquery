@@ -1,32 +1,20 @@
 from pyspark.sql import SparkSession
 
-# Create a Spark session
-spark = SparkSession.builder.appName("ExcelReadExample").getOrCreate()
-
-# Define the Excel file path
-excel_file_path = "your_excel_file.xlsx"
-
-# Read each sheet into a separate DataFrame
-df1 = spark.read.format("com.crealytics.spark.excel") \
-    .option("location", excel_file_path) \
-    .option("useHeader", "true") \
-    .option("sheetName", "Sheet1") \
-    .load()
-
-df2 = spark.read.format("com.crealytics.spark.excel") \
-    .option("location", excel_file_path) \
-    .option("useHeader", "true") \
-    .option("sheetName", "Sheet2") \
-    .load()
-
-df3 = spark.read.format("com.crealytics.spark.excel") \
-    .option("location", excel_file_path) \
-    .option("useHeader", "true") \
-    .option("sheetName", "Sheet3") \
-    .load()
-
-
 spark = SparkSession.builder \
     .appName("ExcelReadExample") \
     .config("spark.jars.packages", "com.crealytics:spark-excel_2.12:0.14.2") \
     .getOrCreate()
+
+excel_file_path = "path/to/your/excel/file.xlsx"
+
+sheet1_df = spark.read.format("com.crealytics.spark.excel") \
+    .option("sheetName", "Sheet1") \
+    .option("useHeader", "true") \
+    .option("inferSchema", "true") \
+    .load(excel_file_path)
+
+# Repeat for other sheets (Sheet2, Sheet3, etc.)
+
+# Perform operations on the DataFrames as needed
+
+spark.stop()  # Stop the Spark session when done
