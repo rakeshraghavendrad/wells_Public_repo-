@@ -24,3 +24,9 @@ df3 = spark.read.format("com.crealytics.spark.excel") \
     .option("useHeader", "true") \
     .option("sheetName", "Sheet3") \
     .load()
+
+
+spark = SparkSession.builder \
+    .appName("ExcelReadExample") \
+    .config("spark.jars.packages", "com.crealytics:spark-excel_2.12:0.14.2") \
+    .getOrCreate()
