@@ -1,6 +1,12 @@
-# Function to generate random 9-digit numbers
-def generate_random_number():
-    return np.random.randint(100000000, 999999999)
 
-# Add a new column with random 9-digit numbers
-df['RandomColumn'] = [generate_random_number() for _ in range(len(df))]
+Certainly! Here's a reformulation:
+
+The provided data includes an analysis of call statistics, specifically focusing on the distinct count of customers' ECN.
+
+Examining the trend of login issues in June, July, August, and September, it becomes evident that August experienced the highest number of login problems.
+
+Contrastingly, when analyzing the call patterns of customers facing login issues in August, we observe an increased frequency of calls.
+
+This suggests a direct correlation between customer calls and login issues, particularly in the context of multiple logins.
+
+Digging deeper into daily customer call patterns, a recurring trend emerges, showing a dip in calls every 3-5 days.
