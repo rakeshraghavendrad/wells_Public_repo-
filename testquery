@@ -12,3 +12,26 @@ for sheet_name in excel_file.sheet_names:
 
 # Now, dfs contains a data frame for each sheet in the Excel file
 # You can access them like this: dfs['sheet1'], dfs['sheet2'], etc.
+
+import pandas as pd
+
+# Assuming df_new_sheet1, df_new_sheet2, and df_new_sheet3 contain your new data for each sheet
+df_new_sheet1 = ...
+df_new_sheet2 = ...
+df_new_sheet3 = ...
+
+# Assuming you have existing DataFrames for each sheet
+df_existing_sheet1 = pd.read_excel('your_existing_data.xlsx', sheet_name='Sheet1')
+df_existing_sheet2 = pd.read_excel('your_existing_data.xlsx', sheet_name='Sheet2')
+df_existing_sheet3 = pd.read_excel('your_existing_data.xlsx', sheet_name='Sheet3')
+
+# Update existing DataFrames with the new data
+df_existing_sheet1 = df_new_sheet1
+df_existing_sheet2 = df_new_sheet2
+df_existing_sheet3 = df_new_sheet3
+
+# Save the updated DataFrames back to Excel with the same sheet names
+with pd.ExcelWriter('your_existing_data_updated.xlsx', engine='xlsxwriter') as writer:
+    df_existing_sheet1.to_excel(writer, sheet_name='Sheet1', index=False)
+    df_existing_sheet2.to_excel(writer, sheet_name='Sheet2', index=False)
+    df_existing_sheet3.to_excel(writer, sheet_name='Sheet3', index=False)
