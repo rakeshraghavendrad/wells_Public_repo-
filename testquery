@@ -1,18 +1,15 @@
-gfrom pyspark.sql import SparkSession
-from pyspark.sql.functions import from_unixtime
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import min, max
 
 # Create a Spark session
-spark = SparkSession.builder.appName("example").getOrCreate()
+spark = SparkSession.builder.appName("date_min_max").getOrCreate()
 
-# Sample data
-data = [(1686268800000,), (1686355200000,), (1686441600000,)]
-columns = ["timestamp_column"]
+# Assuming your DataFrame is named 'df' and has a 'date_column'
+min_max_dates = df.agg(min("date_column").alias("min_date"), max("date_column").alias("max_date")).collect()
 
-# Create a DataFrame
-df = spark.createDataFrame(data, columns)
+# Extract the min and max dates from the result
+min_date = min_max_dates[0]["min_date"]
+max_date = min_max_dates[0]["max_date"]
 
-# Convert timestamp to date format
-df_casted = df.withColumn("date_column", from_unixtime(df["timestamp_column"] / 1000).cast("date"))
-
-# Show the result
-df_casted.show()
+print("Min Date:", min_date)
+print("Max Date:", max_date)
