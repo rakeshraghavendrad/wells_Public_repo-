@@ -1,1 +1,2 @@
 r'AUTHORIZED ON \d{2}/\d{2}\s*([A-Z&\s]+)\s*\d+'
+r"PURCHASE AUTHORIZED ON \d{2}/\d{2} (\w+)"
