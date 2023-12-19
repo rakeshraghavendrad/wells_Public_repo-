@@ -1,1 +1,5 @@
 r"PURCHASE AUTHORIZED ON \d+/\d+ ([A-Z]+(?: [A-Za-z]+)?|[a-z]+)"
+for s in data:
+    m = re.search(r"PURCHASE AUTHORIZED ON \d+/\d+ ([A-Z]+(?: [A-Za-z]+)?|[a-z]+)", s)
+    if m:
+        print(m.group(1))
