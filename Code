@@ -1,2 +1,1 @@
-r'AUTHORIZED ON \d{2}/\d{2}\s*([A-Z\s&]+)\s*\d+',  # Matches "AUTHORIZED ON MM/DD MERCHANT 123"
-        r'(\w+\s*[&\*]*\s*\w+)',
+r'AUTHORIZED ON \d{2}/\d{2}\s*([A-Z&\s]+)\s*\d+'
