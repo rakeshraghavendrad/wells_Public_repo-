@@ -1,2 +1,12 @@
 r"PURCHASE AUTHORIZED ON \d+/\d+ ([A-Z]+(?: [A-Z]+)?) \d+"
 r"PURCHASE AUTHORIZED ON \d+/\d+ ([A-Z]+(?: [A-Za-z]+)?|[a-z]+)"
+import re
+data = [
+    "transaction approval ON 09/24 ABC Y 50 420 Address Address CT Transaction-id CARDnumber 3412",
+    "transaction approval ON 08/24 CATR 55 490 Address Address CT Transaction-id CARDnumber 7631",
+    "transaction approval ON 10/24 skt Address Address ND Transaction-id CARDnumber 9801",
+]
+for s in data:
+	m = re.search(r"transaction approval ON \d+/\d+ ([A-Z]+(?: [A-Za-z]+)?|[a-z]+)", s)
+	if m:
+	    print(m.group(1))
