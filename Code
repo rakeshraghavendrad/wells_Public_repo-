@@ -2,22 +2,14 @@ import re
 import pandas as pd
 
 def extract_merchant_name(transaction_text):
-    # Define regular expression patterns to capture merchant names
-    patterns = [
-        r'AUTHORIZED ON \d{2}/\d{2}\s+(\w+)',
-        r'([A-Za-z]+)\s+P\s+[A-Za-z]+,\s+[A-Za-z]+',
-        r'MICROSOFT\.COM/BILL\s+(\w+)',
-        r'AMZN MKTP US\*\w+\s+([A-Za-z]+)'
-    ]
+    # Define a regular expression pattern to capture merchant names
+    pattern = r'\b(?:AUTHORIZED ON|PURCHASE|MICROSOFT\.COM/BILL|AMZN MKTP US\*\w+)\b\s+(.*)'
 
-    # Iterate through patterns and find matches
-    for pattern in patterns:
-        match = re.search(pattern, transaction_text)
-        if match:
-            return match.group(1)
-
-    # If no match is found, return None
-    return None
+    # Use re.search to find the first match
+    match = re.search(pattern, transaction_text)
+    
+    # If a match is found, return the captured group, otherwise return None
+    return match.group(1).strip() if match else None
 
 # Sample data
 data = [
