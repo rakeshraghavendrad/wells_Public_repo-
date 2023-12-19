@@ -1,17 +1,5 @@
 import re
-import pandas as pd
 
-def extract_merchant_name(transaction_text):
-    # Define a regular expression pattern to capture merchant names
-    pattern = r'\b(?:AUTHORIZED ON|PURCHASE|MICROSOFT\.COM/BILL|AMZN MKTP US\*\w+)\b\s+(.*)'
-
-    # Use re.search to find the first match
-    match = re.search(pattern, transaction_text)
-    
-    # If a match is found, return the captured group, otherwise return None
-    return match.group(1).strip() if match else None
-
-# Sample data
 data = [
     "PURCHASE AUTHORIZED ON 09/24 ABC Y 50 420 BOSTON P GULIFORD CT P09123543234567823 CARD 3412",
     "PURCHASE AUTHORIZED ON 08/24 CATR 55 490 TEXAS P GULIFORD CT P09123543234734132 CARD 7631",
@@ -21,11 +9,17 @@ data = [
     "AMZN MKTP US*9G9903M2 AMAMZN.com/BILLWA"
 ]
 
-# Create a DataFrame
-df = pd.DataFrame({"Transaction Text": data})
+company_names = []
 
-# Apply the extract_merchant_name function to create the "Merchant Name" column
-df["Merchant Name"] = df["Transaction Text"].apply(extract_merchant_name)
+for item in data:
+    # Look for the company name after "PURCHASE AUTHORIZED ON" or at the end of the string
+    match = re.search(r"(?<=PURCHASE AUTHORIZED ON\s\d{2}/\d{2}\s)(.*?)(?=\s|$)", item)
+    if match:
+        company_names.append(match.group(0))
+    else:
+        # If not found, look for the company name at the end of the string
+        match = re.search(r"(\b\w+\b)$", item)
+        if match:
+            company_names.append(match.group(0))
 
-# Display the result
-print(df)
+print(company_names)
