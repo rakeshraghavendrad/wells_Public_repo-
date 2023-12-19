@@ -1,39 +1,39 @@
 import re
-import pandas as pd
 
 def extract_merchant_name(transaction_text):
-    # Define regular expression patterns to capture merchant names
     patterns = [
-        r'AUTHORIZED ON \d{2}/\d{2}\s+(\w+)',
-        r'([A-Za-z]+)\s+P\s+[A-Za-z]+,\s+[A-Za-z]+',
-        r'MICROSOFT\.COM/BILL\s+(\w+)',
-        r'AMZN MKTP US\*\w+\s+([A-Za-z]+)'
+        r'AUTHORIZED ON \d{2}/\d{2} (\w+)',
+        r'(\w+)\.com/BILL|\*(\w+)\*',
+        r'(\w+)\s&',
+        r'\s(\w+)\s',
     ]
 
-    # Iterate through patterns and find matches
     for pattern in patterns:
         match = re.search(pattern, transaction_text)
         if match:
-            return match.group(1)
+            return match.group(1) or match.group(2)
 
-    # If no match is found, return None
     return None
 
-# Sample data
-data = [
+# Example usage
+data_set = [
     "PURCHASE AUTHORIZED ON 09/24 ABC Y 50 420 BOSTON P GULIFORD CT P09123543234567823 CARD 3412",
     "PURCHASE AUTHORIZED ON 08/24 CATR 55 490 TEXAS P GULIFORD CT P09123543234734132 CARD 7631",
     "PURCHASE AUTHORIZED ON 10/24 supermarket Halethorpe, Maryland ND P09123543234094512 CARD 9801",
     "MICROSOFT.COM/BILL 855-324-7985 CA",
     "ALL BANGLA SWEETS & RESTAAUSTIN TX",
-    "AMZN MKTP US*9G9903M2 AMAMZN.com/BILLWA"
+    "AMZN MKTP US*9G9903M2 AMAMZN.com/BILLWA",
 ]
 
-# Create a DataFrame
-df = pd.DataFrame({"Transaction Text": data})
+# Create a dictionary to store the results
+result_dict = {"Transaction Text": [], "Merchant Name": []}
 
-# Apply the extract_merchant_name function to create the "Merchant Name" column
-df["Merchant Name"] = df["Transaction Text"].apply(extract_merchant_name)
+# Extract merchant names and populate the dictionary
+for transaction_text in data_set:
+    merchant_name = extract_merchant_name(transaction_text)
+    result_dict["Transaction Text"].append(transaction_text)
+    result_dict["Merchant Name"].append(merchant_name)
 
 # Display the result
-print(df)
+for i in range(len(result_dict["Transaction Text"])):
+    print(f"{result_dict['Transaction Text'][i]}\t{result_dict['Merchant Name'][i]}")
