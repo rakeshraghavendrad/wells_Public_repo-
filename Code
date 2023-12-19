@@ -1,1 +1,2 @@
 r"PURCHASE AUTHORIZED ON \d+/\d+ ([A-Z]+(?: [A-Z]+)?) \d+"
+r"PURCHASE AUTHORIZED ON \d+/\d+ ([A-Z]+(?: [A-Za-z]+)?|[a-z]+)"
