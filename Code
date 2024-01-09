@@ -1,5 +1,13 @@
-r"PURCHASE AUTHORIZED ON \d+/\d+ ([A-Z]+(?: [A-Za-z]+)?|[a-z]+)"
-for s in data:
-    m = re.search(r"PURCHASE AUTHORIZED ON \d+/\d+ ([A-Z]+(?: [A-Za-z]+)?|[a-z]+)", s)
-    if m:
-        print(m.group(1))
+SELECT
+  Custnum,
+  MAX(CASE WHEN rn = 1 THEN Ip_addar END) AS first_login_ip,
+  MAX(CASE WHEN rn = 2 THEN Ip_addar END) AS second_login_ip
+FROM (
+  SELECT
+    Custnum,
+    Ip_addar,
+    ROW_NUMBER() OVER (PARTITION BY Custnum ORDER BY Evnt_start_dttm) AS rn
+  FROM multloginevnt
+) AS ranked
+WHERE rn IN (1, 2)
+GROUP BY Custnum;
