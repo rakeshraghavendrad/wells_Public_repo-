@@ -1,14 +1,16 @@
-SELECT
+kSELECT
   Custnum,
   MAX(CASE WHEN rn = 1 THEN Ip_addar END) AS first_login_ip,
   MAX(CASE WHEN rn = 2 THEN Ip_addar END) AS second_login_ip,
-  DATEDIFF(MINUTE, MAX(CASE WHEN rn = 1 THEN Evnt_start_dttm END), MAX(CASE WHEN rn = 2 THEN Evnt_start_dttm END)) AS time_difference_minutes
+  MAX(CASE WHEN rn = 1 THEN time_diff END) AS first_login_time_diff,
+  MAX(CASE WHEN rn = 2 THEN time_diff END) AS second_login_time_diff
 FROM (
   SELECT
     Custnum,
     Ip_addar,
     Evnt_start_dttm,
-    ROW_NUMBER() OVER (PARTITION BY Custnum ORDER BY Evnt_start_dttm) AS rn
+    ROW_NUMBER() OVER (PARTITION BY Custnum ORDER BY Evnt_start_dttm) AS rn,
+    Lead(Evnt_start_dttm, 1, Evnt_start_dttm) OVER (PARTITION BY Custnum ORDER BY Evnt_start_dttm) - Evnt_start_dttm AS time_diff
   FROM multloginevnt
 ) AS ranked
 WHERE rn IN (1, 2)
