@@ -1,11 +1,15 @@
 SELECT
   Custnum,
   MAX(CASE WHEN rn = 1 THEN Ip_addar END) AS first_login_ip,
-  MAX(CASE WHEN rn = 2 THEN Ip_addar END) AS second_login_ip
+  MAX(CASE WHEN rn = 2 THEN Ip_addar END) AS second_login_ip,
+  MAX(CASE WHEN rn = 1 THEN Evnt_start_dttm END) AS first_login_time,
+  MAX(CASE WHEN rn = 2 THEN Evnt_start_dttm END) AS second_login_time,
+  ABS(TIMESTAMPDIFF(SECOND, MAX(CASE WHEN rn = 1 THEN Evnt_start_dttm END), MAX(CASE WHEN rn = 2 THEN Evnt_start_dttm END))) AS time_difference_seconds
 FROM (
   SELECT
     Custnum,
     Ip_addar,
+    Evnt_start_dttm,
     ROW_NUMBER() OVER (PARTITION BY Custnum ORDER BY Evnt_start_dttm) AS rn
   FROM multloginevnt
 ) AS ranked
