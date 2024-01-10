@@ -1,14 +1,14 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, when
 
-# Create a Spark session
-spark = SparkSession.builder.appName("IPLoginComparison").getOrCreate()
+# Assuming your DataFrame is named 'your_table'
+spark = SparkSession.builder.appName("IPFlag").getOrCreate()
 
-# Assuming you have a DataFrame named 'your_table'
-# Replace 'your_table' with the actual name of your DataFrame
+# Replace 'your_table' with your actual DataFrame name
+your_table = spark.table("your_table")
 
-# Select the rows where firstiplogin and secondiplogin are the same
-same_ip_count = your_table.filter(col("firstiplogin") == col("secondiplogin")).groupBy("Custnum").count()
+# Add a new column 'flag' based on the condition
+result_df = your_table.withColumn("flag", when(col("firstiplogin") == col("secondiplogin"), 1).otherwise(0))
 
 # Show the result
-same_ip_count.show()
+result_df.show()
