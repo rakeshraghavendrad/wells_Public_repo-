@@ -1,8 +1,14 @@
-SELECT
-  Custnum,
-  MIN(Ip_addar) AS first_login_ip,
-  MAX(Ip_addar) AS second_login_ip,
-  MAX(Evnt_start_dttm) - MIN(Evnt_start_dttm) AS time_difference_sec
-FROM multloginevnt
-GROUP BY Custnum
-HAVING COUNT(DISTINCT Evnt_start_dttm) >= 2;
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+# Create a Spark session
+spark = SparkSession.builder.appName("IPLoginComparison").getOrCreate()
+
+# Assuming you have a DataFrame named 'your_table'
+# Replace 'your_table' with the actual name of your DataFrame
+
+# Select the rows where firstiplogin and secondiplogin are the same
+same_ip_count = your_table.filter(col("firstiplogin") == col("secondiplogin")).groupBy("Custnum").count()
+
+# Show the result
+same_ip_count.show()
