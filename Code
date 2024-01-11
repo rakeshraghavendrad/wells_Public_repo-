@@ -1,4 +1,10 @@
-from pyspark.sql.functions import col, split
+from pyspark.sql.functions import col, from_json
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType
 
-# Assuming "detailed score" is a string column with a delimiter
-df = df.withColumn("score", split(col("detailed score"), ',').getItem(1).cast("double"))
+# Assuming "detailed score" is a string column containing JSON
+json_schema = StructType([
+    StructField("field1", StringType()),
+    StructField("field2", DoubleType())
+])
+
+df = df.withColumn("score", from_json(col("detailed score"), json_schema).getField("field2"))
