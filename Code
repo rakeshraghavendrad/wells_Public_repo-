@@ -1,1 +1,4 @@
-df = df.withColumn("score", substring_index(col("detailed_score").cast("string"), ",", -1).cast("double"))
+from pyspark.sql.functions import col, split
+
+# Assuming "detailed score" is a string column with a delimiter
+df = df.withColumn("score", split(col("detailed score"), ',').getItem(1).cast("double"))
