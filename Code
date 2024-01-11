@@ -1,14 +1,8 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when
+import org.apache.spark.sql.functions._
 
-# Assuming your DataFrame is named 'your_table'
-spark = SparkSession.builder.appName("IPFlag").getOrCreate()
+// Assuming your DataFrame is named "yourDataFrame" and the column is named "c3"
+val resultDataFrame = yourDataFrame
+  .withColumn("newColumn", split(col("c3"), ",")(1))
+  .withColumn("newColumn", regexp_replace(col("newColumn"), "[\\(\\)]", ""))
 
-# Replace 'your_table' with your actual DataFrame name
-your_table = spark.table("your_table")
-
-# Add a new column 'flag' based on the condition
-result_df = your_table.withColumn("flag", when(col("firstiplogin") == col("secondiplogin"), 1).otherwise(0))
-
-# Show the result
-result_df.show()
+resultDataFrame.show()
