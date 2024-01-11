@@ -1,14 +1,1 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, regexp_extract
-
-# Create a Spark session
-spark = SparkSession.builder.appName("ExtractColumn").getOrCreate()
-
-# Assuming your DataFrame is named "yourDataFrame" and the column is "c3"
-yourDataFrame = yourDataFrame.withColumn(
-    "newColumn",
-    regexp_extract(col("c3"), r"\(.*, (.*?)\)", 1).cast("double")
-)
-
-# Show or save the DataFrame with the new column
-yourDataFrame.show()
+df = df.withColumn("score", substring_index(col("detailed_score").cast("string"), ",", -1).cast("double"))
