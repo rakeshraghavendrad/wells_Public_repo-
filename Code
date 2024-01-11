@@ -1,8 +1,14 @@
-import org.apache.spark.sql.functions._
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, regexp_extract
 
-// Assuming your DataFrame is named "yourDataFrame" and the column is named "c3"
-val resultDataFrame = yourDataFrame
-  .withColumn("newColumn", split(col("c3"), ",")(1))
-  .withColumn("newColumn", regexp_replace(col("newColumn"), "[\\(\\)]", ""))
+# Create a Spark session
+spark = SparkSession.builder.appName("ExtractColumn").getOrCreate()
 
-resultDataFrame.show()
+# Assuming your DataFrame is named "yourDataFrame" and the column is "c3"
+yourDataFrame = yourDataFrame.withColumn(
+    "newColumn",
+    regexp_extract(col("c3"), r"\(.*, (.*?)\)", 1).cast("double")
+)
+
+# Show or save the DataFrame with the new column
+yourDataFrame.show()
