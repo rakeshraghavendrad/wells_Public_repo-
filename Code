@@ -1,10 +1,17 @@
-from pyspark.sql.functions import col, from_json
-from pyspark.sql.types import StructType, StructField, StringType, DoubleType
+def countNumbers(arr):
+    def has_repeating_digits(num):
+        return len(set(str(num))) == len(str(num))
 
-# Assuming "detailed score" is a string column containing JSON
-json_schema = StructType([
-    StructField("field1", StringType()),
-    StructField("field2", DoubleType())
-])
+    for query in arr:
+        count_valid = sum(1 for num in range(query[0], query[1] + 1) if has_repeating_digits(num))
+        print(count_valid)
 
-df = df.withColumn("score", from_json(col("detailed score"), json_schema).getField("field2"))
+if __name__ == '__main__':
+    q = int(input().strip())  # Number of queries
+    arr = []
+
+    for _ in range(q):
+        n, m = map(int, input().strip().split())
+        arr.append([n, m])
+
+    countNumbers(arr)
