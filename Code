@@ -1,17 +1,1 @@
-def countNumbers(arr):
-    def has_repeating_digits(num):
-        return len(set(str(num))) == len(str(num))
 
-    for query in arr:
-        count_valid = sum(1 for num in range(query[0], query[1] + 1) if has_repeating_digits(num))
-        print(count_valid)
-
-if __name__ == '__main__':
-    q = int(input().strip())  # Number of queries
-    arr = []
-
-    for _ in range(q):
-        n, m = map(int, input().strip().split())
-        arr.append([n, m])
-
-    countNumbers(arr)
