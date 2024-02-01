@@ -70,3 +70,20 @@ print(f"Propensity Scores: {propensity_scores}")
 # Stop SparkSession and H2OContext
 hc.stop()
 spark.stop()
+
+
+
+
+import pandas as pd
+
+# Sample dataset
+data = {
+    'cust_num': [32312, 2343, 2423, 3412],
+    'demographic views': ['cn', 'rw', 'qa', 'xyz'],
+    'bucket': ['phone', 'transaction', 'pay', 'phone'],
+    'target': [0, 1, 1, 0]
+}
+
+df = pd.DataFrame(data)
+
+print(df)
