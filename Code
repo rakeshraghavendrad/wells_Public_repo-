@@ -1,1 +1,72 @@
-I have already requested and been granted PTO for today by discussing it with my manager. However, due to some urgent developments in my projects, I have connected remotely and started working from home.
+from pyspark.sql import SparkSession
+from pysparkling import H2OContext
+from h2o.estimators import H2OGeneralizedLinearEstimator, H2ORandomForestEstimator, H2OXGBoostEstimator
+from h2o.grid.grid_search import H2OGridSearch
+
+# Assuming you have already set up a SparkSession
+spark = SparkSession.builder.appName("PropensityScorePrediction").getOrCreate()
+
+# Start and connect to H2O
+hc = H2OContext.getOrCreate(spark)
+
+# Assuming your dataset is stored in a Spark DataFrame 'df'
+
+# Convert Spark DataFrame to H2OFrame
+h2o_df = hc.as_h2o_frame(df)
+
+# Split the H2OFrame into training and testing sets
+train, test = h2o_df.split_frame(ratios=[0.8], seed=42)
+
+# Define features and target column
+feature_cols = ['demographic views', 'bucket']
+target_col = 'target'
+
+# Logistic Regression
+lr_model = H2OGeneralizedLinearEstimator(family='binomial', lambda_search=True)
+lr_model.train(x=feature_cols, y=target_col, training_frame=train)
+
+# Decision Tree
+dt_model = H2ORandomForestEstimator(ntrees=50, max_depth=20, seed=42)
+dt_model.train(x=feature_cols, y=target_col, training_frame=train)
+
+# Random Forest
+rf_model = H2ORandomForestEstimator(ntrees=100, max_depth=15, seed=42)
+rf_model.train(x=feature_cols, y=target_col, training_frame=train)
+
+# Model Evaluation
+lr_preds = lr_model.predict(test)
+dt_preds = dt_model.predict(test)
+rf_preds = rf_model.predict(test)
+
+# Extract propensity scores
+lr_propensity_scores = lr_preds['p1'].as_data_frame()['p1'].values
+dt_propensity_scores = dt_preds['p1'].as_data_frame()['p1'].values
+rf_propensity_scores = rf_preds['p1'].as_data_frame()['p1'].values
+
+# Choose the best model based on AUC-ROC
+lr_auc = lr_model.auc(valid=True)
+dt_auc = dt_model.auc(valid=True)
+rf_auc = rf_model.auc(valid=True)
+
+best_model = max([(lr_auc, 'Logistic Regression'),
+                  (dt_auc, 'Decision Tree'),
+                  (rf_auc, 'Random Forest')])
+
+print(f"The best model is {best_model[1]} with AUC-ROC: {best_model[0]}")
+
+# Propensity Score Prediction for a specific customer number (inp)
+inp_data = h2o_df[h2o_df['cust_num'] == inp].drop(['cust_num', 'target'])
+
+# Output Propensity Scores for the best model
+if best_model[1] == 'Logistic Regression':
+    propensity_scores = lr_model.predict(inp_data)['p1'].as_data_frame()['p1'].values[0]
+elif best_model[1] == 'Decision Tree':
+    propensity_scores = dt_model.predict(inp_data)['p1'].as_data_frame()['p1'].values[0]
+else:
+    propensity_scores = rf_model.predict(inp_data)['p1'].as_data_frame()['p1'].values[0]
+
+print(f"Propensity Scores: {propensity_scores}")
+
+# Stop SparkSession and H2OContext
+hc.stop()
+spark.stop()
