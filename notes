@@ -1,52 +1,12 @@
-Frequency of Logins:
-
-Count the number of logins per customer per month.
-Calculate the monthly average login frequency for each customer.
-Identify customers with increasing or decreasing login frequency trends.
-Active Days:
-
-Analyze the distribution of active days within a month.
-Identify customers who consistently log in on specific days or irregularly.
-Session Duration:
-
-Track the duration of each login session.
-Identify trends in session duration and check for any anomalies.
-Time of Day Analysis:
-
-Analyze login times to identify peak usage hours.
-Check if there are consistent patterns in login times across months.
-Churn Rate:
-
-Identify customers who have stopped using the feature over the six months.
-Calculate the churn rate and analyze the reasons for customer disengagement.
-Cohort Analysis:
-
-Group customers based on their signup or first login date.
-Compare the engagement patterns of different cohorts over time.
-Feature-Specific Engagement:
-
-If possible, analyze the engagement specifically related to the feature in question.
-Identify how often users are accessing this specific feature.
-Device Analysis:
-
-Differentiate between logins from the mobile app and web application.
-Analyze if there are any platform-specific trends.
-User Segmentation:
-
-Segment users based on demographics or other relevant criteria.
-Analyze whether engagement patterns differ among different segments.
-Feedback and Surveys:
-
-Collect user feedback and conduct surveys to understand user satisfaction.
-Correlate feedback with login patterns to identify any issues.
-Weather or Seasonal Influence:
-
-Consider external factors such as weather or seasons that might influence user engagement.
-Retention Rate:
-
-Analyze how many customers continue to use the feature over time.
-Calculate the retention rate for each month.
-A/B Testing:
-
-Implement A/B testing to evaluate the impact of changes on user engagement.
-Compare the engagement patterns of users exposed to different versions of the feature.
+SELECT
+  schema1.customer_id,
+  schema1.customer_name AS schema1_customer_name,
+  schema2.customer_name AS schema2_customer_name
+FROM
+  schema1.customer_table schema1
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM schema2.customer_table schema2
+  WHERE schema1.customer_id = schema2.customer_id
+    AND schema1.customer_name = schema2.customer_name
+);
