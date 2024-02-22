@@ -40,3 +40,28 @@ normalized_scores = min_max_scaler.fit_transform(predicted_probabilities.reshape
 customer_propensity_score = normalized_scores.mean()
 
 print(f"Customer Propensity Score (Normalized): {customer_propensity_score}")
+
+
+Normalization Step:
+Min-Max Normalization:
+For each customer's predicted probability score, apply min-max normalization using the formula:
+
+Normalized Score
+=
+Score
+−
+Min(Scores)
+Max(Scores)
+−
+Min(Scores)
+Normalized Score= 
+Max(Scores)−Min(Scores)
+Score−Min(Scores)
+​
+ 
+
+This transforms the scores to a scale between 0 and 1.
+
+Aggregation Step:
+Aggregate Propensity Scores:
+After normalizing the scores, you can aggregate them at the customer level. This can be done by averaging the normalized scores.
