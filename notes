@@ -58,6 +58,74 @@ Normalized Score=
 Max(Scores)−Min(Scores)
 Score−Min(Scores)
 ​
+
+
+
+
+import pandas as pd
+
+# Example data
+data = {
+    'CustomerID': [1, 2, 3],
+    'Segment': ['High feature - high session', 'Low feature - high session', 'No feature - low session'],
+    'Target': [1, 1, 0]  # 1 for positive outcome, 0 for negative outcome
+}
+
+df = pd.DataFrame(data)
+
+# Assign weights to each segment
+segment_weights = {
+    'High feature - high session': 0.9,
+    'Low feature - high session': 0.8,
+    'No feature - high session': 0.7,
+    'High feature - low session': 0.6,
+    'Low feature - low session': 0.5,
+    'No feature - low session': 0.4,
+    'No feature - no session': 0.3
+}
+
+# Create a weighted target variable
+df['Weighted_Target'] = df['Segment'].map(segment_weights) * df['Target']
+
+print(df[['CustomerID', 'Segment', 'Weighted_Target']])
+
+Pass Weighted Target Variable to the Model:
+
+# Continue from the previous code
+
+# Convert segments to numerical labels
+label_encoder = LabelEncoder()
+df['Segment_Labels'] = label_encoder.fit_transform(df['Segment'])
+
+# Split data into features and target variable
+X = df[['Segment_Labels']]  # Features
+y_weighted = df['Weighted_Target']  # Weighted target variable
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y_weighted, test_size=0.2, random_state=42)
+
+# Choose a classification model (Random Forest in this example)
+model = RandomForestClassifier()
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Continue from the previous code
+
+# Make predictions on the testing set
+predicted_probabilities = model.predict_proba(X_test)[:, 1]
+
+# Continue from the previous code
+
+# Normalize the scores using Min-Max Normalization
+min_max_scaler = MinMaxScaler()
+normalized_scores = min_max_scaler.fit_transform(predicted_probabilities.reshape(-1, 1)).flatten()
+
+# Aggregate propensity scores at the customer level
+aggregated_propensity_score = normalized_scores.mean()
+
+print(f"Aggregated Propensity Score: {aggregated_propensity_score}")
+
  
 
 This transforms the scores to a scale between 0 and 1.
