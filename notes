@@ -1,12 +1,42 @@
-SELECT
-  schema1.customer_id,
-  schema1.customer_name AS schema1_customer_name,
-  schema2.customer_name AS schema2_customer_name
-FROM
-  schema1.customer_table schema1
-WHERE NOT EXISTS (
-  SELECT 1
-  FROM schema2.customer_table schema2
-  WHERE schema1.customer_id = schema2.customer_id
-    AND schema1.customer_name = schema2.customer_name
-);
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+
+# Load your data
+data = {
+    'CustomerID': [1, 2, 3],
+    'Segment': ['High feature - high session', 'Low feature - high session', 'No feature - low session'],
+    'Target': [1, 1, 0]  # 1 for positive outcome, 0 for negative outcome
+}
+
+df = pd.DataFrame(data)
+
+# Convert segments to numerical labels
+label_encoder = LabelEncoder()
+df['Segment_Labels'] = label_encoder.fit_transform(df['Segment'])
+
+# Split data into features and target variable
+X = df[['Segment_Labels']]  # Features
+y = df['Target']  # Target variable
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Choose a classification model (Random Forest in this example)
+model = RandomForestClassifier()
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Make predictions on the testing set
+predicted_probabilities = model.predict_proba(X_test)[:, 1]
+
+# Normalize the scores using Min-Max Normalization
+min_max_scaler = MinMaxScaler()
+normalized_scores = min_max_scaler.fit_transform(predicted_probabilities.reshape(-1, 1)).flatten()
+
+# Aggregate propensity scores at the customer level
+customer_propensity_score = normalized_scores.mean()
+
+print(f"Customer Propensity Score (Normalized): {customer_propensity_score}")
