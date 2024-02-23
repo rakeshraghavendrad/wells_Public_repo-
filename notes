@@ -1,16 +1,23 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
-# Load your data
-data = {
-    'CustomerID': [1, 2, 3],
-    'Segment': ['High feature - high session', 'Low feature - high session', 'No feature - low session'],
-    'Target': [1, 1, 0]  # 1 for positive outcome, 0 for negative outcome
-}
 
-df = pd.DataFrame(data)
+
+Subject: Request for Propensity Model EDL Path
+
+Dear [Recipient],
+
+I hope this message finds you well. I am currently liaising with the data injection team, and there is a specific need for an Event Data Lake (EDL) path tailored to the propensity mode.
+
+As of now, our existing path is aligned with the bal forecast, but we require confirmation if there is a designated path for the propensity model. If such a path exists, kindly provide the details at your earliest convenience.
+
+In case there isn't a predefined path, we are prepared to initiate a ticket for the creation of a new path. You can find the ticket creation link below for your reference.
+
+[Ticket Creation Link]
+
+Your prompt attention to this matter is highly appreciated.
+
+Best regards,
+[Your Name]
+[Your Contact Information]df = pd.DataFrame(data)
 
 # Convert segments to numerical labels
 label_encoder = LabelEncoder()
