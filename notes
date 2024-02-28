@@ -1,162 +1,57 @@
-from pyspark.sql import functions as f
-
-Df_sess = df_sess.withColumn("features", f.sum([f.when(f.col(c) > 0, 1).otherwise(0) for c in features]))
-
-from pyspark.sql import functions as f
-
-conditions = [f.when(f.col(c) > 0, 1).otherwise(0) for c in features]
-Df_sess = df_sess.withColumn("features", f.expr("SUM({})".format(','.join(map(str, conditions)))))
-
 from functools import reduce
 
-conditions = [f.when(f.col(c) > 0, 1).otherwise(0) for c in features]
+conditions = [f.when(f.col(c) > 0, 1).otherwise(0) for c in features]  # condition list 
+
 df_sess = df_sess.withColumn("features", reduce(lambda x, y: x + y, conditions))
 
+Let’s breakdown this code 
+
+The reduce function is used to iteratively combine the conditions in the conditions list using addition (lambda x, y: x + y).
+
+The lambda x, y: x + y is a binary function (a function taking two arguments), where x represents the accumulated result and y represents the next element in the list.
+
+reduce applies this binary function successively to the elements in the conditions list. It starts with the first two conditions, adds them together, 
+then takes that result and adds it to the next condition, and so on, until all conditions are combined.
+
+So, the purpose of using reduce and lambda x, y: x + y in this code is to combine the conditions for each column in the "features" list sequentially using addition. 
+It ensures that the final "features" column contains the sum of the conditions applied to each corresponding column.
+This approach is more flexible and allows you to combine conditions in a dynamic and sequential manner.
+
+example for reduce 
+
+numbers = [1, 2, 3, 4, 5]
+
+sum_result = reduce(lambda x, y: x + y, numbers)
+
+The lambda function lambda x, y: x + y takes two arguments, x and y.
+x represents the accumulated result, and y represents the next element in the list.
+The reduce function applies this lambda function successively to the elements in the numbers list.
+Here's how the reduce process works:
+
+Initial state: x is the first element (1) and y is the second element (2). The lambda function adds them: x + y becomes 1 + 2, resulting in 3.
+
+Next state: x is now the accumulated result (3), and y is the next element in the list (3). The lambda function adds them: x + y becomes 3 + 3, resulting in 6.
+
+This process continues until all elements in the list are processed.
+
+The final result is the sum of all elements in the list: 1 + 2 + 3 + 4 + 5 = 15.
+
+So, in this example, the lambda function lambda x, y: x + y is used with reduce to accumulate the sum of elements in the list. The role of x is to keep track of the accumulated result, and y represents the next element in the list.
+
+
+however, Lambda functions can also have 3 variables X,Y,Z depending on the use case 
 
 
 
-from pyspark.sql import functions as f
+When compared with this query 
 
-conditions = [f.when(f.col(c) > 0, 1).otherwise(0) for c in features]
-Df_sess = df_sess.withColumn("features", f.expr("SUM({})".format('+'.join(map(str, conditions)))))
+df_sess = df_sess.withColumn(
+    "features",
+    f.sum([f.when(f.col(c) > 0, 1).otherwise(0) for c in features])
+)
 
+Using f.sum Directly:
 
-Subject: Request for Propensity Model EDL Path
+Instead of using reduce, it directly uses f.sum to sum up the conditions for each column in the "features" list and The summed conditions are applied to the DataFrame, creating a new column "features" with the sum of conditions.
 
-Dear [Recipient],
-
-I hope this message finds you well. I am currently liaising with the data injection team, and there is a specific need for an Event Data Lake (EDL) path tailored to the propensity mode.
-
-As of now, our existing path is aligned with the bal forecast, but we require confirmation if there is a designated path for the propensity model. If such a path exists, kindly provide the details at your earliest convenience.
-
-In case there isn't a predefined path, we are prepared to initiate a ticket for the creation of a new path. You can find the ticket creation link below for your reference.
-
-[Ticket Creation Link]
-
-Your prompt attention to this matter is highly appreciated.
-
-Best regards,
-[Your Name]
-[Your Contact Information]df = pd.DataFrame(data)
-
-# Convert segments to numerical labels
-label_encoder = LabelEncoder()
-df['Segment_Labels'] = label_encoder.fit_transform(df['Segment'])
-
-# Split data into features and target variable
-X = df[['Segment_Labels']]  # Features
-y = df['Target']  # Target variable
-
-# Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Choose a classification model (Random Forest in this example)
-model = RandomForestClassifier()
-
-# Train the model
-model.fit(X_train, y_train)
-
-# Make predictions on the testing set
-predicted_probabilities = model.predict_proba(X_test)[:, 1]
-
-# Normalize the scores using Min-Max Normalization
-min_max_scaler = MinMaxScaler()
-normalized_scores = min_max_scaler.fit_transform(predicted_probabilities.reshape(-1, 1)).flatten()
-
-# Aggregate propensity scores at the customer level
-customer_propensity_score = normalized_scores.mean()
-
-print(f"Customer Propensity Score (Normalized): {customer_propensity_score}")
-
-
-Normalization Step:
-Min-Max Normalization:
-For each customer's predicted probability score, apply min-max normalization using the formula:
-
-Normalized Score
-=
-Score
-−
-Min(Scores)
-Max(Scores)
-−
-Min(Scores)
-Normalized Score= 
-Max(Scores)−Min(Scores)
-Score−Min(Scores)
-​
-
-
-
-
-import pandas as pd
-
-# Example data
-data = {
-    'CustomerID': [1, 2, 3],
-    'Segment': ['High feature - high session', 'Low feature - high session', 'No feature - low session'],
-    'Target': [1, 1, 0]  # 1 for positive outcome, 0 for negative outcome
-}
-
-df = pd.DataFrame(data)
-
-# Assign weights to each segment
-segment_weights = {
-    'High feature - high session': 0.9,
-    'Low feature - high session': 0.8,
-    'No feature - high session': 0.7,
-    'High feature - low session': 0.6,
-    'Low feature - low session': 0.5,
-    'No feature - low session': 0.4,
-    'No feature - no session': 0.3
-}
-
-# Create a weighted target variable
-df['Weighted_Target'] = df['Segment'].map(segment_weights) * df['Target']
-
-print(df[['CustomerID', 'Segment', 'Weighted_Target']])
-
-Pass Weighted Target Variable to the Model:
-
-# Continue from the previous code
-
-# Convert segments to numerical labels
-label_encoder = LabelEncoder()
-df['Segment_Labels'] = label_encoder.fit_transform(df['Segment'])
-
-# Split data into features and target variable
-X = df[['Segment_Labels']]  # Features
-y_weighted = df['Weighted_Target']  # Weighted target variable
-
-# Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y_weighted, test_size=0.2, random_state=42)
-
-# Choose a classification model (Random Forest in this example)
-model = RandomForestClassifier()
-
-# Train the model
-model.fit(X_train, y_train)
-
-# Continue from the previous code
-
-# Make predictions on the testing set
-predicted_probabilities = model.predict_proba(X_test)[:, 1]
-
-# Continue from the previous code
-
-# Normalize the scores using Min-Max Normalization
-min_max_scaler = MinMaxScaler()
-normalized_scores = min_max_scaler.fit_transform(predicted_probabilities.reshape(-1, 1)).flatten()
-
-# Aggregate propensity scores at the customer level
-aggregated_propensity_score = normalized_scores.mean()
-
-print(f"Aggregated Propensity Score: {aggregated_propensity_score}")
-
- 
-
-This transforms the scores to a scale between 0 and 1.
-
-Aggregation Step:
-Aggregate Propensity Scores:
-After normalizing the scores, you can aggregate them at the customer level. This can be done by averaging the normalized scores.
+In summary, both snippets create conditions for each column in the "features" list, but the first snippet uses reduce to combine conditions, while the second snippet directly uses f.sum for the same purpose.
