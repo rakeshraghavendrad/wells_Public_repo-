@@ -1,4 +1,6 @@
+from pyspark.sql import functions as f
 
+Df_sess = df_sess.withColumn("features", f.sum([f.when(f.col(c) > 0, 1).otherwise(0) for c in features]))
 
 
 Subject: Request for Propensity Model EDL Path
