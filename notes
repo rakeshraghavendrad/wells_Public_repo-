@@ -1,3 +1,11 @@
+In a business context, this scenario of a customer requiring a re-login within a 20-second timeframe highlights a potential usability concern or technical glitch in the login process. Addressing this issue is crucial to enhance user experience, ensuring seamless access to our services and preventing any inconvenience caused by frequent re-logins.
+
+
+
+
+
+
+
 from functools import reduce
 
 conditions = [f.when(f.col(c) > 0, 1).otherwise(0) for c in features]  # condition list 
