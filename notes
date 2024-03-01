@@ -1,65 +1,13 @@
-Customers experienced challenges when accessing digital channels, prompting a need to pinpoint the factors contributing to digital friction. The objective is to identify these drivers and enhance the login experience to elevate customer satisfaction.
+Implementing automated feature aggregation is crucial to eliminate potential human errors in the process, ensuring a more reliable and efficient model development.
 
+Post-training, our system conducts manual checks on Accuracy and AUC, serving as a vital step to assess model performance, guard against overfitting or underfitting, and maintain the model's generalization capability.
 
+Our system seamlessly auto-detects relevant dates, such as start and end dates, in comparison with the current month, streamlining the process and reducing manual efforts.
 
+The automated detection of optimal train and test sizes serves as a proactive measure, preventing anomalies in data ingestion and contributing to a more robust and consistent model training process.
 
+To enhance model integrity, our automation ensures a standardized 3-day window gap between train and test data, independent of the end date, promoting a more reliable evaluation framework.
 
+Automation plays a key role in identifying and downsizing non-events in relation to events, optimizing data quality by addressing imbalances. This is crucial as a high prevalence of non-events can potentially overshadow key drivers in the machine learning algorithm.
 
-
-from functools import reduce
-
-conditions = [f.when(f.col(c) > 0, 1).otherwise(0) for c in features]  # condition list 
-
-df_sess = df_sess.withColumn("features", reduce(lambda x, y: x + y, conditions))
-
-Let’s breakdown this code 
-
-The reduce function is used to iteratively combine the conditions in the conditions list using addition (lambda x, y: x + y).
-
-The lambda x, y: x + y is a binary function (a function taking two arguments), where x represents the accumulated result and y represents the next element in the list.
-
-reduce applies this binary function successively to the elements in the conditions list. It starts with the first two conditions, adds them together, 
-then takes that result and adds it to the next condition, and so on, until all conditions are combined.
-
-So, the purpose of using reduce and lambda x, y: x + y in this code is to combine the conditions for each column in the "features" list sequentially using addition. 
-It ensures that the final "features" column contains the sum of the conditions applied to each corresponding column.
-This approach is more flexible and allows you to combine conditions in a dynamic and sequential manner.
-
-example for reduce 
-
-numbers = [1, 2, 3, 4, 5]
-
-sum_result = reduce(lambda x, y: x + y, numbers)
-
-The lambda function lambda x, y: x + y takes two arguments, x and y.
-x represents the accumulated result, and y represents the next element in the list.
-The reduce function applies this lambda function successively to the elements in the numbers list.
-Here's how the reduce process works:
-
-Initial state: x is the first element (1) and y is the second element (2). The lambda function adds them: x + y becomes 1 + 2, resulting in 3.
-
-Next state: x is now the accumulated result (3), and y is the next element in the list (3). The lambda function adds them: x + y becomes 3 + 3, resulting in 6.
-
-This process continues until all elements in the list are processed.
-
-The final result is the sum of all elements in the list: 1 + 2 + 3 + 4 + 5 = 15.
-
-So, in this example, the lambda function lambda x, y: x + y is used with reduce to accumulate the sum of elements in the list. The role of x is to keep track of the accumulated result, and y represents the next element in the list.
-
-
-however, Lambda functions can also have 3 variables X,Y,Z depending on the use case 
-
-
-
-When compared with this query 
-
-df_sess = df_sess.withColumn(
-    "features",
-    f.sum([f.when(f.col(c) > 0, 1).otherwise(0) for c in features])
-)
-
-Using f.sum Directly:
-
-Instead of using reduce, it directly uses f.sum to sum up the conditions for each column in the "features" list and The summed conditions are applied to the DataFrame, creating a new column "features" with the sum of conditions.
-
-In summary, both snippets create conditions for each column in the "features" list, but the first snippet uses reduce to combine conditions, while the second snippet directly uses f.sum for the same purpose.
+Following model scoring, our system allows for a thorough check on the training and test scores, ensuring that any deviation remains within a 10% margin. This control mechanism adds an extra layer of scrutiny to guarantee consistency and reliability in model performance across different datasets.
