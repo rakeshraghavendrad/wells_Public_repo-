@@ -11,3 +11,15 @@ To enhance model integrity, our automation ensures a standardized 3-day window g
 Automation plays a key role in identifying and downsizing non-events in relation to events, optimizing data quality by addressing imbalances. This is crucial as a high prevalence of non-events can potentially overshadow key drivers in the machine learning algorithm.
 
 Following model scoring, our system allows for a thorough check on the training and test scores, ensuring that any deviation remains within a 10% margin. This control mechanism adds an extra layer of scrutiny to guarantee consistency and reliability in model performance across different datasets.
+
+
+
+
+
+1.Automate Feature aggregation to prevent human errors 
+2.We have a manual check for Accuracy, AUC after the model is trained to check for model over fitting or under fitting 
+3.Auto detect of days such as start date and ens date with compared with the current month 
+4.Auto detect the train and test size to prevent data ingestion anomaly 
+5.Ensuring that there is always  3 day window gap between train and test data irrespective of the end date 
+6. Automation to check for events and downsize non-events in accordance to events because if non events are high in the data, the ML algorithm  may not pick the drivers 
+7.After the the model scoring, we have control to check if training score and the test score does not have 10% difference 
