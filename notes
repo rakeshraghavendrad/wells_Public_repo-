@@ -1,6 +1,5 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.window import Window
 
 # Create a Spark session
 spark = SparkSession.builder.appName("feature_classification").getOrCreate()
@@ -18,12 +17,22 @@ conditions = [
      F.col("feature 5") + F.col("feature 6") >= 1, "seg2")
 ]
 
+# Additional condition for "idle" classification
+idle_condition = (
+    (F.col("feature 1") == 0) & (F.col("feature 2") == 0) & (F.col("feature 3") == 0) &
+    (F.col("feature 4") == 0) & (F.col("feature 5") == 0) & (F.col("feature 6") == 0)
+)
+
 # Apply the conditions using 'when' and 'otherwise' functions
 df_result = df.withColumn(
     "segment",
-    F.when(F.coalesce("feature 1", "feature 2", "feature 3", "feature 4", "feature 5", "feature 6") >= 4, "seg4")
-    .when(F.coalesce("feature 1", "feature 2", "feature 3", "feature 4", "feature 5", "feature 6") >= 2, "seg3")
-    .when(F.coalesce("feature 1", "feature 2", "feature 3", "feature 4", "feature 5", "feature 6") >= 1, "seg2")
+    F.when((F.col("feature 1") >= 1) | (F.col("feature 2") >= 1) | (F.col("feature 3") >= 1) |
+           (F.col("feature 4") >= 1) | (F.col("feature 5") >= 1) | (F.col("feature 6") >= 1), "seg2")
+    .when((F.col("feature 1") >= 2) | (F.col("feature 2") >= 2) | (F.col("feature 3") >= 2) |
+          (F.col("feature 4") >= 2) | (F.col("feature 5") >= 2) | (F.col("feature 6") >= 2), "seg3")
+    .when((F.col("feature 1") >= 4) | (F.col("feature 2") >= 4) | (F.col("feature 3") >= 4) |
+          (F.col("feature 4") >= 4) | (F.col("feature 5") >= 4) | (F.col("feature 6") >= 4), "seg4")
+    .when(idle_condition, "idle")
     .otherwise("unknown")
 )
 
