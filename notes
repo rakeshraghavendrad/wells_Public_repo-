@@ -1,6 +1,33 @@
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
 
-Hello,
+# Create a Spark session
+spark = SparkSession.builder.appName("CustomerSegmentTracking").getOrCreate()
 
-We are excited to inform you that we will be showcasing our models at the Showcase 2024 event. We have prepared a presentation deck for this occasion and would greatly appreciate it if you could review it. We kindly request your valuable feedback to enhance the quality of our presentation.
+# Your dataset
+data = [
+    (12345, 202301, 0, 0, 0, 0, 0, 0, 1),
+    # ... (add all your data rows here)
+]
 
-Thank you in advance for your time and consideration.
+# Define the schema
+schema = ["cust_num", "date", "feature1", "feature2", "feature3", "feature4", "feature5", "feature6", "segment"]
+
+# Create a DataFrame
+df = spark.createDataFrame(data, schema=schema)
+
+# Define a window specification to order by date
+window_spec = Window.partitionBy("cust_num").orderBy("date")
+
+# Create a new column to track the change in segment
+df = df.withColumn("segment_change", F.lag("segment").over(window_spec))
+
+# Filter the DataFrame to include only the rows where the segment changes from 1 to 4
+movement_df = df.filter((df.segment_change == 1) & (df.segment == 4))
+
+# Show the result
+movement_df.select("cust_num", "date", "segment_change", "segment").show()
+
+# Stop the Spark session
+spark.stop()
