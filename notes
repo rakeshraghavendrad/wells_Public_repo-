@@ -1,1 +1,53 @@
-result_df = result_df.withColumn("status", when((col("age") > 25) & (col("gender") == "M"), "idle")
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+
+# Create a Spark session
+spark = SparkSession.builder.appName("example").getOrCreate()
+
+# Sample data
+data = [
+    (12345, None, 202301, 0, 0, 0, 0, 0, 0, 1),
+    (None, 12345, 202302, 1, 0, 0, 0, 0, 0, 2),
+    (None, 12345, 202303, 0, 0, 0, 0, 0, 1, 2),
+    (None, 12345, 202304, 0, 0, 1, 1, 0, 0, 3),
+    (None, 12345, 202305, 0, 1, 0, 0, 0, 1, 3),
+    (None, 12345, 202306, 0, 0, 1, 1, 1, 0, 3),
+    (None, 12345, 202307, 1, 1, 1, 1, 0, 0, 4),
+    (None, 12345, 202308, 1, 1, 1, 1, 1, 0, 4)
+]
+
+# Define schema
+schema = ["cust_num_seg", "cust_num", "date", "feature1", "feature2", "feature3", "feature4", "feature5", "feature6", "segment"]
+
+# Create a DataFrame
+df = spark.createDataFrame(data, schema=schema)
+
+# Create a window specification to partition by cust_num and order by date
+window_spec = Window.partitionBy("cust_num").orderBy("date")
+
+# Use the lag function to check if any feature is used before the current row
+for i in range(1, 5):
+    feature_col = f"feature{i}"
+    lag_col = f"lag_{feature_col}"
+    df = df.withColumn(lag_col, F.lag(feature_col).over(window_spec))
+
+# Use the when function to create the segment column based on the conditions
+conditions = [
+    (F.col("feature1") == 1) | (F.col("lag_feature1") == 1),
+    (F.col("feature2") == 1) | (F.col("lag_feature2") == 1),
+    (F.col("feature3") == 1) | (F.col("lag_feature3") == 1),
+    (F.col("feature4") == 1) | (F.col("lag_feature4") == 1)
+]
+
+df = df.withColumn("segment", F.when(conditions[0], 2)
+                               .when(conditions[1], 3)
+                               .when(conditions[2], 4)
+                               .when(conditions[3], 5)
+                               .otherwise(1))
+
+# Drop the lag columns
+df = df.drop("lag_feature1", "lag_feature2", "lag_feature3", "lag_feature4")
+
+# Show the result
+df.show()
