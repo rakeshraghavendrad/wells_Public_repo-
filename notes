@@ -1,4 +1,36 @@
+
+
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+# Create a SparkSession
+spark = SparkSession.builder \
+    .appName("CustomerSegmentAnalysis") \
+    .getOrCreate()
+
+# Assuming your DataFrame is named 'df' with columns 'Cust_num', 'date', and 'segment'
+
+# Filter for customers in segment 1 in January 2023
+segment_1_jan_2023 = df.filter((col("segment") == 1) & (col("date") == "202301"))
+
+# Filter for customers who moved to segments 3 or 4 in April 2024
+segment_3_4_apr_2024 = df.filter((col("segment").isin([3, 4])) & (col("date") == "202304"))
+
+# Join the DataFrames for each month to track customer movement
+joined_df = segment_1_jan_2023.alias("jan"). \
+    join(df.alias("feb"), ["Cust_num"], "left_outer"). \
+    join(df.alias("mar"), ["Cust_num"], "left_outer"). \
+    join(segment_3_4_apr_2024.alias("apr"), ["Cust_num"], "left_outer"). \
+    select("jan.Cust_num", 
+           "jan.segment", col("feb.segment").alias("feb_segment"), 
+           col("mar.segment").alias("mar_segment"), 
+           col("apr.segment").alias("apr_segment"))
+
+# Display the DataFrame
+joined_df.show()
+
+# Stop the SparkSession
+spark.stop()from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
