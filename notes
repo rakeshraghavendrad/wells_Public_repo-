@@ -1,79 +1,19 @@
+my wife is under medical treatment since few days, This week is little crucial and 
+I need to provide my attention and support to her. I am requesting you to kindly provide me
+remote work for a week duration. This will help me 
+to provide necessary support at home without compromising on my work responsibilities.
 
 
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
 
-# Create a SparkSession
-spark = SparkSession.builder \
-    .appName("CustomerSegmentAnalysis") \
-    .getOrCreate()
+hope this message finds you well. I am writing to discuss a temporary adjustment to my work arrangements due to a 
+family matter that requires my immediate attention and support.
 
-# Assuming your DataFrame is named 'df' with columns 'Cust_num', 'date', and 'segment'
+Over the past few days, my wife has been undergoing medical treatment, 
+and this week is particularly crucial in terms of her recovery. 
+Given the circumstances, I believe it is essential f
+or me to be present and provide the necessary care and assistance to her during this time.
 
-# Filter for customers in segment 1 in January 2023
-segment_1_jan_2023 = df.filter((col("segment") == 1) & (col("date") == "202301"))
-
-# Filter for customers who moved to segments 3 or 4 in April 2024
-segment_3_4_apr_2024 = df.filter((col("segment").isin([3, 4])) & (col("date") == "202304"))
-
-# Join the DataFrames for each month to track customer movement
-joined_df = segment_1_jan_2023.alias("jan"). \
-    join(df.alias("feb"), ["Cust_num"], "left_outer"). \
-    join(df.alias("mar"), ["Cust_num"], "left_outer"). \
-    join(segment_3_4_apr_2024.alias("apr"), ["Cust_num"], "left_outer"). \
-    select("jan.Cust_num", 
-           "jan.segment", col("feb.segment").alias("feb_segment"), 
-           col("mar.segment").alias("mar_segment"), 
-           col("apr.segment").alias("apr_segment"))
-
-# Display the DataFrame
-joined_df.show()
-
-# Stop the SparkSession
-spark.stop()from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
-from pyspark.sql.window import Window
-
-# Create a Spark session
-spark = SparkSession.builder.appName("segment_classification").getOrCreate()
-
-# Sample data
-data = [
-    (12345, None, 202301, 0, 0, 0, 0, 0, 0, 1),
-    (None, 12345, 202302, 4, 0, 0, 0, 0, 0, 2),
-    (None, 12345, 202303, 0, 0, 0, 0, 0, 1, 2),
-    (None, 12345, 202304, 0, 0, 3, 1, 0, 0, 3),
-    (None, 12345, 202305, 0, 1, 0, 0, 0, 1, 3),
-    (None, 12345, 202306, 0, 0, 1, 1, 1, 0, 3),
-    (None, 12345, 202307, 1, 1, 7, 1, 0, 0, 4),
-    (None, 12345, 202308, 1, 1, 2, 1, 1, 0, 4)
-]
-
-# Define schema
-schema = ["cust_num_seg", "cust_num", "date", "feature1", "feature2", "feature3", "feature4", "feature5", "feature6", "segment"]
-
-# Create a DataFrame
-df = spark.createDataFrame(data, schema=schema)
-
-# Define a window specification based on cust_num
-window_spec = Window.partitionBy("cust_num").orderBy("date").rangeBetween(Window.unboundedPreceding, Window.currentRow)
-
-# Count the number of features used for each cust_num
-feature_columns = ["feature1", "feature2", "feature3", "feature4", "feature5", "feature6"]
-for col in feature_columns:
-    df = df.withColumn(col + "_count", F.sum(col).over(window_spec))
-
-# Determine the segment based on the feature counts
-df = df.withColumn(
-    "segment",
-    F.when(df["feature1_count"] >= 1, "seg2")
-    .when(df["feature1_count"] + df["feature2_count"] >= 2, "seg3")
-    .when(F.array([df[col + "_count"] for col in feature_columns]).sum() >= 4, "seg4")
-    .otherwise(None)
-)
-
-# Drop the temporary count columns
-df = df.drop(*[col + "_count" for col in feature_columns])
-
-# Show the result
-df.show(truncate=False)
+Therefore, I kindly request your understanding and support in allowing 
+me to work remotely for the duration of one week. Having the flexibility 
+to work from home will enable me to fulfill my family obligations while ensuring t
+hat I continue to meet my work responsibilities effectively.v
