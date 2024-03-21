@@ -12,7 +12,6 @@ Once the model is set up, you should compile it with a mean_squared_error loss a
 When you fit the training dataset, make sure to set the following values: epochs=5, batch_size=16, verbose=0
 
 Finally, you should run the predict function on the x_test dataset and print the last column of the array along with the model summary.
-
 import numpy as np
       
 def create_dataset(df):
