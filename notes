@@ -1,4 +1,21 @@
-# Apply rounding to all columns with decimal values
-for column in df.columns:
-    if 'double' in str(df.schema[column].dataType):
-        df = df.withColumn(column, round(col(column), 3))
+Campaign Effectiveness:
+
+Campaign 1: The target group showed a modest lift of 0.46% compared to the control group. However, it's notable that a higher percentage of customers who didn't open the email returned to activity (25.69%) compared to those who did (13.85%). This suggests that the effectiveness of this campaign may not be primarily driven by email opens.
+Campaign 2: Interestingly, despite a slight decrease in performance compared to the control group, there's a relatively higher percentage of customers who opened the email and returned to activity (18%) compared to those who didn't open the email (16.6%).
+Campaign Differentiation:
+
+Campaign 1 seems to rely less on email opens for re-engagement, as a higher percentage of customers who didn't open the email still returned to activity. This could imply that factors other than email content contributed to their re-engagement.
+Campaign 2 shows a more typical pattern where email opens correlate with re-engagement, with a higher percentage of opens leading to activity.
+Segment Migration:
+
+Both campaigns appear to have succeeded in migrating some portion of the idle/passive population into active segments, though the extent varies.
+Campaign 1 seems to have a higher success rate in reactivating customers who didn't open the email, while Campaign 2 shows a slightly higher success rate among those who did open the email.
+Email Open Rates vs. Activation:
+
+In Campaign 1, there's a significant disparity between email open rates and subsequent activation rates. This suggests that factors beyond email content may be influencing customer behavior.
+Campaign 2 demonstrates a more conventional relationship between email open rates and activation, though the overall impact is lower compared to Campaign 1.
+Areas for Improvement:
+
+Campaign 1 could benefit from further analysis to identify the factors contributing to re-engagement among customers who didn't open the email. Understanding these factors could help optimize future campaigns.
+Campaign 2, despite the lower overall impact, could focus on improving email content or targeting strategies to increase the effectiveness of email opens on re-engagement.
+Overall, these insights provide valuable information for optimizing future marketing campaigns, emphasizing the importance of considering various factors beyond just email opens in driving customer re-engagement.
