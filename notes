@@ -1,1 +1,1 @@
-The control system automates feature aggregation, detects relevant dates, maintains a 3-day gap between train and test data, and ensures data quality by downsizing non-events for accurate model identification.
+After scoring, testing and training scores maintain a deviation of no more than 10%, with manual checks for overfitting or underfitting in place.
