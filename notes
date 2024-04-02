@@ -1,1 +1,1 @@
-After scoring, testing and training scores maintain a deviation of no more than 10%, with manual checks for overfitting or underfitting in place.
+Driver data is screened for anomalies prior to dashboard display. Dashboard updates undergo UAT testing before production, ensuring smooth delivery; new features are seamlessly integrated for user-friendly display.
