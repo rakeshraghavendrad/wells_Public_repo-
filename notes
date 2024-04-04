@@ -1,1 +1,1 @@
-Driver data is screened for anomalies prior to dashboard display. Dashboard updates undergo UAT testing before production, ensuring smooth delivery; new features are seamlessly integrated for user-friendly display.
+Before December 2023, we followed a certain procedure, but we stopped it after that date. Presently, the dashboard isn't updating with new data due to interruptions in the flow of driver data. We require a dedicated path for Enterprise Data Lake (EDL) where we can store the data, allowing the Business Intelligence (BI) team to access it through Dremio.
