@@ -1,1 +1,23 @@
 Before December 2023, we followed a certain procedure, but we stopped it after that date. Presently, the dashboard isn't updating with new data due to interruptions in the flow of driver data. We require a dedicated path for Enterprise Data Lake (EDL) where we can store the data, allowing the Business Intelligence (BI) team to access it through Dremio.
+Start
+|
+V
+Check if analysis was conducted
+|
+V
+Was the focus on customers categorized as low engagement?
+|
+V
+Did these customers shift to high or medium engagement after marketing campaigns?
+|
+V
+Check if the campaign occurred monthly
+|
+V
+Was the campaign assessment conducted randomly?
+|
+V
+Check if migration of customers from low to high engagement was assessed for that month's campaign only
+|
+V
+End
