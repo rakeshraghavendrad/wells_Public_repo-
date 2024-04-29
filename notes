@@ -1,55 +1,14 @@
+import matplotlib.pyplot as plt
 
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, lit
+# Assuming you have the result DataFrame from the previous step
+x = result.select('sent_in').collect()
+y = result.select('num_customers').collect()
 
-# Create a SparkSession
-spark = SparkSession.builder \
-    .appName("Sum Columns") \
-    .getOrCreate()
+x_labels = [row[0] for row in x]
+y_values = [row[0] for row in y]
 
-# Sample DataFrame
-data = [(1, 10), (2, 20), (3, 30)]
-df = spark.createDataFrame(data, ["co1", "co2"])
-
-# Calculate the sum of each column
-sum_row = df.agg({"co1": "sum", "co2": "sum"})
-
-# Append the summed row to the DataFrame
-result = df.union(sum_row.select([lit("Total").alias("co1"), col("sum(co1)").alias("co1"), col("sum(co2)").alias("co2")]))
-
-result.show()
-
-
-
-
-
-
-
-
-
-
-
-
-Before December 2023, we followed a certain procedure, but we stopped it after that date. Presently, the dashboard isn't updating with new data due to interruptions in the flow of driver data. We require a dedicated path for Enterprise Data Lake (EDL) where we can store the data, allowing the Business Intelligence (BI) team to access it through Dremio.
-Start
-|
-V
-Check if analysis was conducted
-|
-V
-Was the focus on customers categorized as low engagement?
-|
-V
-Did these customers shift to high or medium engagement after marketing campaigns?
-|
-V
-Check if the campaign occurred monthly
-|
-V
-Was the campaign assessment conducted randomly?
-|
-V
-Check if migration of customers from low to high engagement was assessed for that month's campaign only
-|
-V
-End
+plt.bar(x_labels, y_values)
+plt.xlabel('sent_in')
+plt.ylabel('Number of Customers')
+plt.title('Number of Customers Grouped by sent_in')
+plt.show()
