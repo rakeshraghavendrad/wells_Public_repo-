@@ -1,14 +1,24 @@
-import matplotlib.pyplot as plt
+from pyspark.sql.functions import when, col
 
-# Assuming you have the result DataFrame from the previous step
-x = result.select('sent_in').collect()
-y = result.select('num_customers').collect()
+# Assuming df is your DataFrame with 'rate' and 'cust_num' columns
+# Define bucket boundaries
+bucket_boundaries = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
-x_labels = [row[0] for row in x]
-y_values = [row[0] for row in y]
+# Create buckets based on 'rate'
+df_with_buckets = df.withColumn("rate_bucket",
+                                when(col("rate") <= bucket_boundaries[0], "0-10") \
+                                .when((col("rate") > bucket_boundaries[0]) & (col("rate") <= bucket_boundaries[1]), "11-20") \
+                                .when((col("rate") > bucket_boundaries[1]) & (col("rate") <= bucket_boundaries[2]), "21-30") \
+                                .when((col("rate") > bucket_boundaries[2]) & (col("rate") <= bucket_boundaries[3]), "31-40") \
+                                .when((col("rate") > bucket_boundaries[3]) & (col("rate") <= bucket_boundaries[4]), "41-50") \
+                                .when((col("rate") > bucket_boundaries[4]) & (col("rate") <= bucket_boundaries[5]), "51-60") \
+                                .when((col("rate") > bucket_boundaries[5]) & (col("rate") <= bucket_boundaries[6]), "61-70") \
+                                .when((col("rate") > bucket_boundaries[6]) & (col("rate") <= bucket_boundaries[7]), "71-80") \
+                                .when((col("rate") > bucket_boundaries[7]) & (col("rate") <= bucket_boundaries[8]), "81-90") \
+                                .otherwise("91-100"))
 
-plt.bar(x_labels, y_values)
-plt.xlabel('sent_in')
-plt.ylabel('Number of Customers')
-plt.title('Number of Customers Grouped by sent_in')
-plt.show()
+# Group by 'rate_bucket' and count the distribution of 'cust_num'
+cust_num_distribution = df_with_buckets.groupBy("rate_bucket").count()
+
+# Show the distribution of 'cust_num' in each bucket
+cust_num_distribution.show()
