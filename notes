@@ -1,3 +1,35 @@
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, lit
+
+# Create a SparkSession
+spark = SparkSession.builder \
+    .appName("Sum Columns") \
+    .getOrCreate()
+
+# Sample DataFrame
+data = [(1, 10), (2, 20), (3, 30)]
+df = spark.createDataFrame(data, ["co1", "co2"])
+
+# Calculate the sum of each column
+sum_row = df.agg({"co1": "sum", "co2": "sum"})
+
+# Append the summed row to the DataFrame
+result = df.union(sum_row.select([lit("Total").alias("co1"), col("sum(co1)").alias("co1"), col("sum(co2)").alias("co2")]))
+
+result.show()
+
+
+
+
+
+
+
+
+
+
+
+
 Before December 2023, we followed a certain procedure, but we stopped it after that date. Presently, the dashboard isn't updating with new data due to interruptions in the flow of driver data. We require a dedicated path for Enterprise Data Lake (EDL) where we can store the data, allowing the Business Intelligence (BI) team to access it through Dremio.
 Start
 |
