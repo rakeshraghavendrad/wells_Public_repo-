@@ -1,3 +1,18 @@
+
+SELECT 
+    DatabaseName AS Database_Name,
+    TableName AS Table_Name,
+    SUM(CurrentPerm) / 1024 / 1024 AS Size_MB
+FROM 
+    DBC.TablesV
+WHERE 
+    TableName = 't1'
+GROUP BY 
+    DatabaseName, 
+    TableName;
+
+
+
 from pyspark.sql.functions import when, col
 
 # Assuming df is your DataFrame with 'rate' and 'cust_num' columns
