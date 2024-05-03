@@ -1,10 +1,42 @@
-SELECT 
-    TableName,
-    SUM(Rows) AS TotalRows
-FROM 
-    dbc.TablesV
-WHERE 
-    DatabaseName = 'Dow'
-    AND TableName = 'T_mat_inter'
-GROUP BY 
-    TableName;
+import pandas as pd
+from sklearn.metrics.pairwise import euclidean_distances
+
+# Sample data
+data = {
+    'cust_num': [1, 2, 3],
+    'age': [35, 40, 37],
+    'income': [50000, 55000, 52000],
+    'response_score': [80, None, 85]  # Missing score for customer 2
+}
+
+df = pd.DataFrame(data)
+
+# Calculate Euclidean distances between customers based on age and income
+distances = euclidean_distances(df[['age', 'income']])
+
+# Create buckets based on distances (for simplicity, let's say closer than 5)
+buckets = {}
+for i, row in df.iterrows():
+    bucket_key = None
+    for j, dist in enumerate(distances[i]):
+        if dist < 5 and j != i:  # Exclude the same customer
+            bucket_key = j
+            break
+    if bucket_key is not None:
+        if bucket_key not in buckets:
+            buckets[bucket_key] = []
+        buckets[bucket_key].append(row['response_score'])
+
+# Assign scores to missing response scores
+for i, row in df.iterrows():
+    if pd.isna(row['response_score']):
+        bucket_key = None
+        for j, dist in enumerate(distances[i]):
+            if dist < 5 and j != i:  # Exclude the same customer
+                bucket_key = j
+                break
+        if bucket_key is not None:
+            avg_score = sum(buckets[bucket_key]) / len(buckets[bucket_key])
+            df.at[i, 'response_score'] = avg_score
+
+print(df)
