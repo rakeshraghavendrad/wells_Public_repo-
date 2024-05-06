@@ -1,9 +1,28 @@
-from pyspark.sql import functions as F
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, when
 
-# Group by 'rate_bucket' and calculate count and average response score
-avg_response_score = df_with_buckets.groupBy("rate_bucket") \
-                                    .agg(F.count("cust_num").alias("count"),
-                                         F.avg("rate").alias("avg_response_score"))
+# Initialize SparkSession
+spark = SparkSession.builder \
+    .appName("Bucketing and Aggregating") \
+    .getOrCreate()
 
-# Show the distribution of 'cust_num' and average response score in each bucket
-avg_response_score.show()
+# Assuming your DataFrame is named 'df'
+# Bucketing predictions into 10 buckets
+bucketed_df = df.withColumn("bucket", 
+                    when((col("predictions") >= 0) & (col("predictions") < 10), "0-10") \
+                    .when((col("predictions") >= 10) & (col("predictions") < 20), "10-20") \
+                    .when((col("predictions") >= 20) & (col("predictions") < 30), "20-30") \
+                    .when((col("predictions") >= 30) & (col("predictions") < 40), "30-40") \
+                    .when((col("predictions") >= 40) & (col("predictions") < 50), "40-50") \
+                    .when((col("predictions") >= 50) & (col("predictions") < 60), "50-60") \
+                    .when((col("predictions") >= 60) & (col("predictions") < 70), "60-70") \
+                    .when((col("predictions") >= 70) & (col("predictions") < 80), "70-80") \
+                    .when((col("predictions") >= 80) & (col("predictions") < 90), "80-90") \
+                    .when((col("predictions") >= 90) & (col("predictions") <= 100), "90-100") \
+                    .otherwise("Out of range"))
+
+# Grouping by bucket and calculating average response score
+result_df = bucketed_df.groupBy("bucket").agg({"response_score": "avg"})
+
+# Showing the result
+result_df.show()
