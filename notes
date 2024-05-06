@@ -1,17 +1,26 @@
-from matplotlib_venn import venn2
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Assuming c1_values and c2_values are the sets of unique values in c1 and c2 respectively
-# You can get these sets from your DataFrame using distinct() or other operations
+# Assuming merged_df is your DataFrame after the inner join
 
-# Convert sets to lists for matplotlib_venn
-c1_list = c1_values.collect()
-c2_list = c2_values.collect()
+# Assuming you have already calculated the counts of common elements between c1 and c2
+# and stored it in a DataFrame called 'common_counts_df'
+# The DataFrame should have three columns: 'c1', 'c2', and 'count' representing the values, their counts, and their common counts
 
-# Create the Venn diagram
-venn2(subsets=(len(c1_list) - len(c2_list.intersection(c1_list)),
-               len(c2_list) - len(c2_list.intersection(c1_list)),
-               len(c2_list.intersection(c1_list))),
-      set_labels=('c1', 'c2'))
-plt.title('Venn Diagram of c1 and c2')
+# Pivot the DataFrame to create a pivot table
+pivot_table = common_counts_df.groupBy('c1').pivot('c2').agg(F.sum('count')).fillna(0)
+
+# Extract column names for heatmap axes
+c1_values = pivot_table.select('c1').rdd.flatMap(lambda x: x).collect()
+c2_values = pivot_table.columns[1:]  # Exclude the 'c1' column
+
+# Extract heatmap values
+heatmap_values = pivot_table.select(*c2_values).collect()
+
+# Create the heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(heatmap_values, cmap='YlGnBu', xticklabels=c2_values, yticklabels=c1_values, linewidths=0.5, linecolor='grey')
+plt.title('Heatmap of Common Elements between c1 and c2')
+plt.xlabel('c2 values')
+plt.ylabel('c1 values')
 plt.show()
