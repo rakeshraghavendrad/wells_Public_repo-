@@ -1,17 +1,7 @@
-import matplotlib.pyplot as plt
-import pandas as pd
+from pyspark.sql.functions import avg
 
-# Assuming df is your PySpark DataFrame
-# Select the two columns c1 and c2
-selected_cols = df.select('c1', 'c2').toPandas()
+# Group by 'rate_bucket' and calculate the average response score for each bucket
+avg_response_score = df_with_buckets.groupBy("rate_bucket").agg(avg("response_score").alias("avg_response_score"))
 
-# Define the bins for the x-axis
-bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-
-# Plot density plot with specified bins
-selected_cols.hist(column=['c1', 'c2'], bins=bins, density=True, alpha=0.5)
-plt.title('Density Plot between c1 and c2')
-plt.xlabel('Values')
-plt.ylabel('Density')
-plt.xticks(bins)  # Set x-axis ticks to match the bins
-plt.show()
+# Show the average response score for each bucket
+avg_response_score.show()
