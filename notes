@@ -1,26 +1,22 @@
 import matplotlib.pyplot as plt
-import seaborn as sns
+import pandas as pd
 
-# Assuming merged_df is your DataFrame after the inner join
+# Assuming df is your PySpark DataFrame
+# Select the two columns c1 and c2
+selected_cols = df.select('c1', 'c2').toPandas()
 
-# Assuming you have already calculated the counts of common elements between c1 and c2
-# and stored it in a DataFrame called 'common_counts_df'
-# The DataFrame should have three columns: 'c1', 'c2', and 'count' representing the values, their counts, and their common counts
+# Plot density plot
+ax = selected_cols.plot(kind='density')
+ax.set_title('Density Plot between c1 and c2')
+ax.set_xlabel('Values')
+ax.set_ylabel('Density')
 
-# Pivot the DataFrame to create a pivot table
-pivot_table = common_counts_df.groupBy('c1').pivot('c2').agg(F.sum('count')).fillna(0)
+# Define the new x-axis ticks and labels
+x_ticks = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+x_labels = ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100']
 
-# Extract column names for heatmap axes
-c1_values = pivot_table.select('c1').rdd.flatMap(lambda x: x).collect()
-c2_values = pivot_table.columns[1:]  # Exclude the 'c1' column
+# Set the x-axis ticks and labels
+ax.set_xticks(x_ticks)
+ax.set_xticklabels(x_labels)
 
-# Extract heatmap values
-heatmap_values = pivot_table.select(*c2_values).collect()
-
-# Create the heatmap
-plt.figure(figsize=(10, 8))
-sns.heatmap(heatmap_values, cmap='YlGnBu', xticklabels=c2_values, yticklabels=c1_values, linewidths=0.5, linecolor='grey')
-plt.title('Heatmap of Common Elements between c1 and c2')
-plt.xlabel('c2 values')
-plt.ylabel('c1 values')
 plt.show()
