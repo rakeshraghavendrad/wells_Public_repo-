@@ -1,16 +1,18 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
+from pyspark.sql.functions import count
 
 # Assuming merged_df is your DataFrame after the inner join
-# You may need to prepare your data appropriately before creating the heatmap
 
-# Create a pivot table to get the counts of common elements
-pivot_table = merged_df.pivot_table(index='c1', columns='c2', aggfunc='size', fill_value=0)
+# Create a pivot table-like DataFrame
+pivot_table = merged_df.groupBy('c1').pivot('c2').agg(count('*')).fillna(0)
 
-# Create the heatmap
+# Convert to Pandas DataFrame for visualization
+pivot_table_pd = pivot_table.toPandas()
+
+# Create the heatmap using Seaborn
 plt.figure(figsize=(10, 8))
-sns.heatmap(pivot_table, cmap='YlGnBu', linewidths=0.5, linecolor='grey')
+sns.heatmap(pivot_table_pd.set_index('c1'), cmap='YlGnBu', linewidths=0.5, linecolor='grey')
 plt.title('Heatmap of Common Elements between c1 and c2')
 plt.xlabel('c2 values')
 plt.ylabel('c1 values')
 plt.show()
+
