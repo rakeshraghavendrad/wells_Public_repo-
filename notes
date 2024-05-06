@@ -5,18 +5,13 @@ import pandas as pd
 # Select the two columns c1 and c2
 selected_cols = df.select('c1', 'c2').toPandas()
 
-# Plot density plot
-ax = selected_cols.plot(kind='density')
-ax.set_title('Density Plot between c1 and c2')
-ax.set_xlabel('Values')
-ax.set_ylabel('Density')
+# Define the bins for the x-axis
+bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
-# Define the new x-axis ticks and labels
-x_ticks = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-x_labels = ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100']
-
-# Set the x-axis ticks and labels
-ax.set_xticks(x_ticks)
-ax.set_xticklabels(x_labels)
-
+# Plot density plot with specified bins
+selected_cols.plot(kind='density', xlim=(0, 100), bins=bins)
+plt.title('Density Plot between c1 and c2')
+plt.xlabel('Values')
+plt.ylabel('Density')
+plt.xticks(bins)  # Set x-axis ticks to match the bins
 plt.show()
