@@ -1,3 +1,19 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Assuming df is your PySpark DataFrame
+# Select the two columns c1 and c2
+selected_cols = df.select('c1', 'c2').toPandas()
+
+# Plot density plot
+selected_cols.plot(kind='density')
+plt.title('Density Plot between c1 and c2')
+plt.xlabel('Values')
+plt.ylabel('Density')
+plt.show()
+
+
+
 import pandas as pd
 from sklearn.metrics.pairwise import euclidean_distances
 
