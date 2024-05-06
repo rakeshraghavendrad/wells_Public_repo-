@@ -9,7 +9,7 @@ selected_cols = df.select('c1', 'c2').toPandas()
 bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 # Plot density plot with specified bins
-selected_cols.plot(kind='density', xlim=(0, 100), bins=bins)
+selected_cols.hist(column=['c1', 'c2'], bins=bins, density=True, alpha=0.5)
 plt.title('Density Plot between c1 and c2')
 plt.xlabel('Values')
 plt.ylabel('Density')
