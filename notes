@@ -1,12 +1,16 @@
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Assuming df is your PySpark DataFrame
-# Select the two columns c1 and c2
-selected_cols = df.select('c1', 'c2').toPandas()
+# Assuming merged_df is your DataFrame after the inner join
+# You may need to prepare your data appropriately before creating the heatmap
 
-# Plot scatter plot
-plt.scatter(selected_cols['c1'], selected_cols['c2'])
-plt.title('Scatter Plot between c1 and c2')
-plt.xlabel('c1 values')
-plt.ylabel('c2 values')
+# Create a pivot table to get the counts of common elements
+pivot_table = merged_df.pivot_table(index='c1', columns='c2', aggfunc='size', fill_value=0)
+
+# Create the heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(pivot_table, cmap='YlGnBu', linewidths=0.5, linecolor='grey')
+plt.title('Heatmap of Common Elements between c1 and c2')
+plt.xlabel('c2 values')
+plt.ylabel('c1 values')
 plt.show()
