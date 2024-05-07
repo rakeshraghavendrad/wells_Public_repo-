@@ -1,19 +1,32 @@
+
+
+
+  
+import matplotlib.pyplot as plt
+import seaborn as sns
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when
 
 # Initialize SparkSession
 spark = SparkSession.builder \
-    .appName("Bucketing and Aggregating") \
+    .appName("Density Plot") \
     .getOrCreate()
 
-# Assuming your DataFrame is named 'df'
-# Bucketing predictions into 10 buckets
-bucketed_df = df.withColumn("bucket", 
-                    when((col("predictions") >= 0) & (col("predictions") < 10), "0-10") \
-                    .when((col("predictions") >= 10) & (col("predictions") < 20), "10-20") \
-                    .when((col("predictions") >= 20) & (col("predictions") < 30), "20-30") \
-                    .when((col("predictions") >= 30) & (col("predictions") < 40), "30-40") \
-                    .when((col("predictions") >= 40) & (col("predictions") < 50), "40-50") \
+# Assuming df is your DataFrame containing the data
+# Replace 'column1' and 'column2' with your actual column names
+column1_data = df.select("column1").rdd.flatMap(lambda x: x).collect()
+column2_data = df.select("column2").rdd.flatMap(lambda x: x).collect()
+
+# Create a seaborn density plot
+sns.kdeplot(column1_data, column2_data, cmap="Blues", shade=True, shade_lowest=False)
+
+# Show the plot
+plt.show()
+
+# Stop SparkSession
+spark.stop()
+
+
+when((col("predictions") >= 40) & (col("predictions") < 50), "40-50") \
                     .when((col("predictions") >= 50) & (col("predictions") < 60), "50-60") \
                     .when((col("predictions") >= 60) & (col("predictions") < 70), "60-70") \
                     .when((col("predictions") >= 70) & (col("predictions") < 80), "70-80") \
