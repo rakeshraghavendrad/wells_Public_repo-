@@ -26,3 +26,20 @@ result_df = bucketed_df.groupBy("bucket").agg({"response_score": "avg"})
 
 # Showing the result
 result_df.show()
+
+
+
+
+
+
+
+# Calculating mode for each bucket
+mode_df = bucketed_df.groupBy("bucket").agg({"response_score": "count"}).withColumnRenamed("count(response_score)", "count")
+mode_df = mode_df.join(bucketed_df, ["bucket"])
+mode_df = mode_df.groupBy("bucket").agg({"response_score": "count"})
+mode_df = mode_df.withColumnRenamed("count(response_score)", "max_count")
+mode_df = mode_df.join(bucketed_df, ["bucket"])
+mode_df = mode_df.groupBy("bucket", "response_score").agg({"response_score": "count"})
+mode_df = mode_df.withColumnRenamed("count(response_score)", "count")
+mode_df = mode_df.withColumn("rank", dense_rank().over(Window.partitionBy("bucket").orderBy(col("count").desc())))
+mode_df = mode_df.filter(col("rank") == 1).drop("rank")
