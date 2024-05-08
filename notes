@@ -1,5 +1,9 @@
+from pyspark.sql.functions import expr, asc
 
+df_bkt.groupBy("banner_bucket").agg(expr('percentile_approx(rate, 0.5)').alias('median_rate')).orderBy(asc('banner_bucket'))
+from pyspark.sql.functions import expr, asc
 
+df_bkt.groupBy("banner_bucket").agg(expr('mode(rate)').alias('mode_rate')).orderBy(asc('banner_bucket'))
 
   
 import matplotlib.pyplot as plt
