@@ -1,4 +1,39 @@
-from pyspark.sql.functions import expr, asc
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+# Initialize SparkSession
+spark = SparkSession.builder \
+    .appName("Bucketing and Averaging Propensity Score") \
+    .getOrCreate()
+
+# Assuming your data is stored in a DataFrame called df
+# Replace 'df' with the name of your DataFrame
+
+# Define the number of buckets
+num_buckets = 10
+
+# Calculate the bucket size
+max_cust_num = df.agg({"cust_num": "max"}).collect()[0][0]
+bucket_size = max_cust_num / num_buckets
+
+# Add a new column for bucket number
+df_with_buckets = df.withColumn("bucket", (col("cust_num") / bucket_size).cast("int"))
+
+# Group by bucket and calculate average propensity score
+average_propensity_scores = df_with_buckets.groupBy("bucket") \
+    .agg({"propensity": "avg"}) \
+    .withColumnRenamed("avg(propensity)", "avg_propensity_score") \
+    .orderBy("bucket")
+
+# Show the resulting DataFrame
+average_propensity_scores.show()
+
+
+
+
+
+
+from pyspark.sql.functions import , asc
 
 df_bkt.groupBy("banner_bucket").agg(expr('percentile_approx(rate, 0.5)').alias('median_rate')).orderBy(asc('banner_bucket'))
 from pyspark.sql.functions import expr, asc
