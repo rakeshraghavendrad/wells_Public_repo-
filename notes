@@ -1,97 +1,11 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+# Sample DataFrame
+data = [("John", 25), ("Alice", 30), ("Bob", 35)]
+columns = ["Name", "Age"]
+df = spark.createDataFrame(data, columns)
 
-# Initialize SparkSession
-spark = SparkSession.builder \
-    .appName("Bucketing and Averaging Propensity Score") \
-    .getOrCreate()
+# Add index
+windowSpec = Window.orderBy("Name")  # Define window specification
+df = df.withColumn("Index", row_number().over(windowSpec))
 
-# Assuming your data is stored in a DataFrame called df
-# Replace 'df' with the name of your DataFrame
-
-# Define the number of buckets
-num_buckets = 10
-
-# Calculate the bucket size
-max_cust_num = df.agg({"cust_num": "max"}).collect()[0][0]
-bucket_size = max_cust_num / num_buckets
-
-# Add a new column for bucket number
-df_with_buckets = df.withColumn("bucket", (col("cust_num") / bucket_size).cast("int"))
-
-# Group by bucket and calculate average propensity score
-average_propensity_scores = df_with_buckets.groupBy("bucket") \
-    .agg({"propensity": "avg"}) \
-    .withColumnRenamed("avg(propensity)", "avg_propensity_score") \
-    .orderBy("bucket")
-
-# Show the resulting DataFrame
-average_propensity_scores.show()
-
-
-
-
-
-
-from pyspark.sql.functions import , asc
-
-df_bkt.groupBy("banner_bucket").agg(expr('percentile_approx(rate, 0.5)').alias('median_rate')).orderBy(asc('banner_bucket'))
-from pyspark.sql.functions import expr, asc
-
-df_bkt.groupBy("banner_bucket").agg(expr('mode(rate)').alias('mode_rate')).orderBy(asc('banner_bucket'))
-
-  
-import matplotlib.pyplot as plt
-import seaborn as sns
-from pyspark.sql import SparkSession
-
-# Initialize SparkSession
-spark = SparkSession.builder \
-    .appName("Density Plot") \
-    .getOrCreate()
-
-# Assuming df is your DataFrame containing the data
-# Replace 'column1' and 'column2' with your actual column names
-column1_data = df.select("column1").rdd.flatMap(lambda x: x).collect()
-column2_data = df.select("column2").rdd.flatMap(lambda x: x).collect()
-
-# Create a seaborn density plot
-sns.kdeplot(column1_data, column2_data, cmap="Blues", shade=True, shade_lowest=False)
-
-# Show the plot
-plt.show()
-
-# Stop SparkSession
-spark.stop()
-
-
-when((col("predictions") >= 40) & (col("predictions") < 50), "40-50") \
-                    .when((col("predictions") >= 50) & (col("predictions") < 60), "50-60") \
-                    .when((col("predictions") >= 60) & (col("predictions") < 70), "60-70") \
-                    .when((col("predictions") >= 70) & (col("predictions") < 80), "70-80") \
-                    .when((col("predictions") >= 80) & (col("predictions") < 90), "80-90") \
-                    .when((col("predictions") >= 90) & (col("predictions") <= 100), "90-100") \
-                    .otherwise("Out of range"))
-
-# Grouping by bucket and calculating average response score
-result_df = bucketed_df.groupBy("bucket").agg({"response_score": "avg"})
-
-# Showing the result
-result_df.show()
-
-
-
-
-
-
-
-# Calculating mode for each bucket
-mode_df = bucketed_df.groupBy("bucket").agg({"response_score": "count"}).withColumnRenamed("count(response_score)", "count")
-mode_df = mode_df.join(bucketed_df, ["bucket"])
-mode_df = mode_df.groupBy("bucket").agg({"response_score": "count"})
-mode_df = mode_df.withColumnRenamed("count(response_score)", "max_count")
-mode_df = mode_df.join(bucketed_df, ["bucket"])
-mode_df = mode_df.groupBy("bucket", "response_score").agg({"response_score": "count"})
-mode_df = mode_df.withColumnRenamed("count(response_score)", "count")
-mode_df = mode_df.withColumn("rank", dense_rank().over(Window.partitionBy("bucket").orderBy(col("count").desc())))
-mode_df = mode_df.filter(col("rank") == 1).drop("rank")
+# Show DataFrame with index
+df.show()
