@@ -1,3 +1,7 @@
+from pyspark.sql.window import Window
+from pyspark.sql.functions import row_number
+
+
 # Sample DataFrame
 data = [("John", 25), ("Alice", 30), ("Bob", 35)]
 columns = ["Name", "Age"]
