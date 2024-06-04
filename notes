@@ -1,13 +1,15 @@
 
-
-
 from pyspark.sql import SparkSession
+import time
 
 spark = SparkSession.builder \
     .appName("MyApp") \
     .config("spark.driver.extraClassPath", "/path/to/teradatajdbc4.jar") \
     .config("spark.executor.extraClassPath", "/path/to/teradatajdbc4.jar") \
     .getOrCreate()
+
+# Adding a delay to ensure Spark picks up the jars correctly
+time.sleep(5)
 
 # Now you can run your code
 df = spark.read.format("jdbc") \
@@ -18,14 +20,4 @@ df = spark.read.format("jdbc") \
     .option("query", "select * from table") \
     .load()
 
-
-
-
-
-df = spark.read.format("jdbc") \
-    .option("url", "jdbc:teradata://pqm3.abc.com/database=xyz,tmode=abc,charset=utf8,logmech=Bcap") \
-    .option("user", "username") \
-    .option("password", "abcd@1234") \
-    .option("driver", "com.teradata.jdbc.TeraDriver") \
-    .option("query", "select * from table") \
-    .load()
+ 
