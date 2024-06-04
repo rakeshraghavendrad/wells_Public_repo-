@@ -1,1 +1,15 @@
-In this evaluation period, I have demonstrated a collaborative and proactive approach, engaging with multiple cross-functional teams to gain a comprehensive understanding of our data warehouse architecture and marketing campaigns. My focus on innovative and data-driven methods has allowed me to design effective strategies for evaluating marketing performance, particularly in terms of lift and churn. I have proven to be detail-oriented and strategic, improving data interpretation techniques and ensuring accurate marketing responses. My efforts in enhancing monitoring setups and developing advanced analytical methods have been recognized by the team. Additionally, I have contributed to our research initiatives with multiple patent filings. I am committed to continuous learning and professional development, striving to stay ahead of industry trends and innovations. My adaptability, effective communication skills, and results-oriented mindset make me a valuable asset to the team, poised for future leadership opportunities.
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+    .appName("MyApp") \
+    .config("spark.jars", "/path/to/teradatajdbc4.jar") \
+    .getOrCreate()
+
+# Now you can run your code
+df = spark.read.format("jdbc") \
+    .option("url", "jdbc:teradata://pqm3.abc.com/database=xyz,tmode=abc,charset=utf8,logmech=Bcap") \
+    .option("user", "username") \
+    .option("password", "abcd@1234") \
+    .option("driver", "com.teradata.jdbc.TeraDriver") \
+    .option("query", "select * from table") \
+    .load()
