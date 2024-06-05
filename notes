@@ -1,20 +1,2 @@
 
-from pyspark.sql import SparkSession
-
-spark = SparkSession.builder \
-    .appName("Teradata JDBC Example") \
-    .config("spark.jars", "/path/to/Teradatajdbc4.jar") \
-    .config("spark.driver.extraJavaOptions", "-verbose:class") \
-    .config("spark.executor.extraJavaOptions", "-verbose:class") \
-    .getOrCreate()
-
-df = spark.read.format("jdbc") \
-    .option("url", "jdbc:teradata://pqm3.abc.com/database=xyz,tmode=abc,charset=utf8,logmech=Bcap") \
-    .option("user", "username") \
-    .option("password", "abcd@1234") \
-    .option("driver", "com.teradata.jdbc.TeraDriver") \
-    .option("query", "select * from table") \
-    .load()
-
-df.show()
- 
+ find /usr -name tdgssconfig.jar 2>/dev/null
