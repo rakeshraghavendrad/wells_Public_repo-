@@ -9,3 +9,9 @@ spark = SparkSession.builder \
 
 # Import the driver class explicitly
 java_import(spark._jvm, "com.teradata.jdbc.TeraDriver")
+
+try:
+    spark._jvm.Class.forName("com.teradata.jdbc.TeraDriver")
+    print("Driver found")
+except Exception as e:
+    print(f"Driver not found: {e}")
