@@ -1,19 +1,9 @@
-from pyspark.sql import SparkSession
-from py4j.java_gateway import java_import
-
-# Initialize Spark session
 spark = SparkSession.builder \
-    .appName("TeradataJDBCExample") \
-    .config("spark.driver.extraClassPath", "/path/to/Teradatajdbc4.jar:/path/to/teradatajar2.jar:/path/to/teradatajar3.jar") \
-    .config("spark.executor.extraClassPath", "/path/to/Teradatajdbc4.jar:/path/to/teradatajar2.jar:/path/to/teradatajar3.jar") \
+    .master('yarn') \
+    .appName('simple_app') \
+    .config('spark.executor.instances', '5') \
+    .config('spark.executor.memory', '4g') \
+    .config('spark.sql.parquet.writeLegacyFormat', 'true') \
+    .config('spark.jars', '/opt/jar1.jar,/opt/jar2.jar,/opt/jar3.jar') \
+    .enableHiveSupport() \
     .getOrCreate()
-
-# Explicitly import the driver class
-java_import(spark._jvm, "com.teradata.jdbc.TeraDriver")
-
-# Verify if the driver class can be found
-try:
-    spark._jvm.Class.forName("com.teradata.jdbc.TeraDriver")
-    print("Driver found")
-except Exception as e:
-    print(f"Driver not found: {e}")
