@@ -1,18 +1,16 @@
-import os
+import zipfile
 
-# Define the paths to your JAR files
-jdbc_paths = ["/path/to/terajdbc4.jar", "/path/to/other_jars"]
-
-# Function to check permissions for each JAR file
-def check_permissions(jar_paths):
-    for jar_path in jar_paths:
-        if os.path.exists(jar_path):
-            if os.access(jar_path, os.R_OK):
-                print(f"File '{jar_path}' has read permission.")
+def check_jar_contents(jar_path):
+    print(f"Contents of JAR file '{jar_path}':")
+    try:
+        with zipfile.ZipFile(jar_path, 'r') as zip_ref:
+            contents = zip_ref.namelist()
+            if "com/teradata/jdbc/TeraDriver.class" in contents:
+                print("The required class 'com.teradata.jdbc.TeraDriver' is present.")
             else:
-                print(f"Warning: File '{jar_path}' does not have read permission.")
-        else:
-            print(f"Warning: File '{jar_path}' does not exist.")
+                print("Warning: The required class 'com.teradata.jdbc.TeraDriver' is not present.")
+    except zipfile.BadZipFile:
+        print("Error: Invalid JAR file.")
 
-# Check permissions for each JAR file
-check_permissions(jdbc_paths)
+# Replace '/path/to/terajdbc4.jar' with the actual path to your JAR file
+check_jar_contents('/path/to/terajdbc4.jar')
