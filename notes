@@ -1,16 +1,12 @@
-import zipfile
+# Function to print executor logs
+def print_executor_logs():
+    # Fetch executor logs
+    executor_logs = spark.sparkContext.parallelize([""]).map(lambda x: spark.sparkContext.getConf().get("spark.executor.logs.rolling.strategy")).collect()
 
-def check_jar_contents(jar_path):
-    print(f"Contents of JAR file '{jar_path}':")
-    try:
-        with zipfile.ZipFile(jar_path, 'r') as zip_ref:
-            contents = zip_ref.namelist()
-            if "com/teradata/jdbc/TeraDriver.class" in contents:
-                print("The required class 'com.teradata.jdbc.TeraDriver' is present.")
-            else:
-                print("Warning: The required class 'com.teradata.jdbc.TeraDriver' is not present.")
-    except zipfile.BadZipFile:
-        print("Error: Invalid JAR file.")
+    # Print executor logs
+    logger.info("Executor Logs:")
+    for log in executor_logs:
+        logger.info(log)
 
-# Replace '/path/to/terajdbc4.jar' with the actual path to your JAR file
-check_jar_contents('/path/to/terajdbc4.jar')
+# Print executor logs
+print_executor_logs()
