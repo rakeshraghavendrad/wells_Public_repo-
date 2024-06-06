@@ -1,9 +1,18 @@
-spark = SparkSession.builder \
-    .master('yarn') \
-    .appName('simple_app') \
-    .config('spark.executor.instances', '5') \
-    .config('spark.executor.memory', '4g') \
-    .config('spark.sql.parquet.writeLegacyFormat', 'true') \
-    .config('spark.jars', '/opt/jar1.jar,/opt/jar2.jar,/opt/jar3.jar') \
-    .enableHiveSupport() \
-    .getOrCreate()
+import os
+
+# Define the paths to your JAR files
+jdbc_paths = ["/path/to/terajdbc4.jar", "/path/to/other_jars"]
+
+# Function to check permissions for each JAR file
+def check_permissions(jar_paths):
+    for jar_path in jar_paths:
+        if os.path.exists(jar_path):
+            if os.access(jar_path, os.R_OK):
+                print(f"File '{jar_path}' has read permission.")
+            else:
+                print(f"Warning: File '{jar_path}' does not have read permission.")
+        else:
+            print(f"Warning: File '{jar_path}' does not exist.")
+
+# Check permissions for each JAR file
+check_permissions(jdbc_paths)
