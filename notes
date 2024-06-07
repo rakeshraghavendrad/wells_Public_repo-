@@ -1,12 +1,6 @@
-# Function to print executor logs
-def print_executor_logs():
-    # Fetch executor logs
-    executor_logs = spark.sparkContext.parallelize([""]).map(lambda x: spark.sparkContext.getConf().get("spark.executor.logs.rolling.strategy")).collect()
+I hope this message finds you well.
 
-    # Print executor logs
-    logger.info("Executor Logs:")
-    for log in executor_logs:
-        logger.info(log)
+I am [Your Name] from Digital CX, currently working on [Project Name]. I have submitted a request for the table in AWBlade, and I understand that you are the designated approver.
 
-# Print executor logs
-print_executor_logs()
+As we are approaching our project deadline, I kindly request your prompt assistance in approving the table. Your timely support will be greatly appreciated.
+
