@@ -1,3 +1,11 @@
+columns_to_check = ['c1', 'c2', 'c3']
+
+# Get the list of columns in the DataFrame
+df_columns = DF.columns
+
+# Check if all required columns exist in the DataFrame
+columns_exist = all(column in df_columns for column in columns_to_check)
+
 # Print the result
 if columns_exist:
     print("All columns exist in the DataFrame")
