@@ -1,4 +1,6 @@
-I am writing to inform you that I have recently undergone a minor medical procedure. As a result, I have been advised by my doctor to rest and avoid commuting for a few days to ensure a smooth recovery.
-
-To maintain productivity and continue fulfilling my responsibilities, I would like to request permission to work from home from [start date] to [end date]. During this period, I will be fully accessible via email, phone, and any other necessary communication platforms, and I will ensure that all my tasks and projects are managed effectively.
-
+# Print the result
+if columns_exist:
+    print("All columns exist in the DataFrame")
+else:
+    missing_columns = [column for column in columns_to_check if column not in df_columns]
+    print(f"The following columns are missing: {missing_columns}")
