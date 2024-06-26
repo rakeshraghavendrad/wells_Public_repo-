@@ -11,9 +11,12 @@ spark = SparkSession.builder \
 current_date = datetime.now()
 
 # Calculate start date (first day of the month one year before the current month)
-start_date = (datetime(current_date.year, current_date.month, 1) - relativedelta(years=1))
+start_date = (datetime(current_date.year, current_date.month, 1) - relativedelta(months=12))
 start_date_str = start_date.strftime('%Y-%m-%d')
 
-# Calculate end date (first day of the next month)
-end_date = datetime(current_date.year, current_date.month + 1, 1)
+# Calculate end date (first day of the current month)
+end_date = datetime(current_date.year, current_date.month, 1)
 end_date_str = end_date.strftime('%Y-%m-%d')
+
+print("Start Date:", start_date_str)
+print("End Date:", end_date_str)
