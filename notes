@@ -13,3 +13,7 @@ current_date = datetime.now()
 # Calculate start date (first day of the month one year before the current month)
 start_date = (datetime(current_date.year, current_date.month, 1) - relativedelta(years=1))
 start_date_str = start_date.strftime('%Y-%m-%d')
+
+# Calculate end date (last day of the current month)
+end_date = (datetime(current_date.year, current_date.month + 1, 1) - timedelta(days=1))
+end_date_str = end_date.strftime('%Y-%m-%d')
