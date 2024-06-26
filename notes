@@ -1,47 +1,11 @@
-from pyspark.sql import SparkSession
+Sure, here's a refined version of your text:
 
-# Initialize Spark session
-spark = SparkSession.builder.appName("CheckColumns").getOrCreate()
+---
 
-# Assuming DF is already defined, for example:
-# DF = spark.read.csv("path_to_your_file.csv", header=True, inferSchema=True)
+This table is updated daily. For instance, if we want to retrieve data for June 24, 2024, we should query the table around July 3, 2024, to account for the update lag. Therefore, we need to wait until July 3 to access the data.
 
-# List of columns to check
-columns_to_check = ['c1', 'c2', 'c3']
+The second table's data becomes accessible every second week of the following month. For example, to access June 24, 2024, data, we should query the table in the second week of July 2024, around July 15.
 
-# Get the list of columns in the DataFrame
-df_columns = DF.columns
+I have also learned that the tables, which are updated monthly, have different names but contain the same data. The table names include a date stamp indicating their creation date. For example, Table 1 might contain data for six months, while the new Table 2 will include data for seven months.
 
-# Define functions for each column
-def c1_col():
-    print('Function for missing column c1 executed')
-
-def c2_col():
-    print('Function for missing column c2 executed')
-
-def c3_col():
-    print('Function for missing column c3 executed')
-
-# Map column names to functions
-functions_map = {
-    'c1': c1_col,
-    'c2': c2_col,
-    'c3': c3_col
-}
-
-# Check if all required columns exist in the DataFrame
-columns_exist = all(column in df_columns for column in columns_to_check)
-
-# Print the result and execute missing column functions if any
-if columns_exist:
-    print("All columns exist in the DataFrame")
-else:
-    missing_columns = [column for column in columns_to_check if column not in df_columns]
-    print(f"The following columns are missing: {missing_columns}")
-    
-    # Execute the function for each missing column
-    for column in missing_columns:
-        functions_map[column]()
-
-# Return the DataFrame
-DF
+To address this issue, we contacted the Amos team. Their suggestion is to star the date, along with the month and year, so the latest file will be automatically selected.
