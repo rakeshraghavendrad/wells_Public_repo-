@@ -1,11 +1,23 @@
-Sure, here's a refined version of your text:
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, expr
+from datetime import datetime, timedelta
 
----
+# Initialize Spark session
+spark = SparkSession.builder \
+    .appName("Date Range Calculation") \
+    .getOrCreate()
 
-This table is updated daily. For instance, if we want to retrieve data for June 24, 2024, we should query the table around July 3, 2024, to account for the update lag. Therefore, we need to wait until July 3 to access the data.
+# Current date
+current_date = datetime.now()
 
-The second table's data becomes accessible every second week of the following month. For example, to access June 24, 2024, data, we should query the table in the second week of July 2024, around July 15.
+# Calculate start date (1 year before the first day of the current month)
+start_date = datetime(current_date.year, current_date.month, 1) - timedelta(days=365)
+# Calculate end date (last day of the current month)
+end_date = datetime(current_date.year, current_date.month + 1, 1) - timedelta(days=1)
 
-I have also learned that the tables, which are updated monthly, have different names but contain the same data. The table names include a date stamp indicating their creation date. For example, Table 1 might contain data for six months, while the new Table 2 will include data for seven months.
+# Create a DataFrame with the start and end dates
+data = [(start_date, end_date)]
+df = spark.createDataFrame(data, ["start_date", "end_date"])
 
-To address this issue, we contacted the Amos team. Their suggestion is to star the date, along with the month and year, so the latest file will be automatically selected.
+# Show the DataFrame
+df.show()
