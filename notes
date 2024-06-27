@@ -1,22 +1,11 @@
-from pyspark.sql import SparkSession
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
+# Sample date string
+date_str = "2023-05-01"
 
-# Initialize Spark session
-spark = SparkSession.builder \
-    .appName("Date Range Calculation") \
-    .getOrCreate()
+# Create a DataFrame with the date string
+df = spark.createDataFrame([(date_str,)], ["date"])
 
-# Current date
-current_date = datetime.now()
+# Transform the date string to yyyymm format
+df_transformed = df.withColumn("yyyymm", date_format(lit(date_str), "yyyyMM"))
 
-# Calculate start date (first day of the month one year before the current month)
-start_date = (datetime(current_date.year, current_date.month, 1) - relativedelta(months=12))
-start_date_str = start_date.strftime('%Y-%m-%d')
-
-# Calculate end date (first day of the current month)
-end_date = datetime(current_date.year, current_date.month, 1)
-end_date_str = end_date.strftime('%Y-%m-%d')
-
-print("Start Date:", start_date_str)
-print("End Date:", end_date_str)
+# Collect the result into a variable
+yyyymm = df_transformed.collect()[0]["yyyymm"]
