@@ -1,11 +1,29 @@
-# Sample date string
-date_str = "2023-05-01"
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import hash, col
 
-# Create a DataFrame with the date string
-df = spark.createDataFrame([(date_str,)], ["date"])
+# Initialize Spark Session
+spark = SparkSession.builder.appName("DataFrame Comparison").getOrCreate()
 
-# Transform the date string to yyyymm format
-df_transformed = df.withColumn("yyyymm", date_format(lit(date_str), "yyyyMM"))
+# Sample data
+data1 = [("A",), ("B",), ("C",)]
+data2 = [("X",), ("B",), ("C",)]
 
-# Collect the result into a variable
-yyyymm = df_transformed.collect()[0]["yyyymm"]
+columns1 = ["col1"]
+columns2 = ["col2"]
+
+# Create DataFrames
+df1 = spark.createDataFrame(data1, columns1)
+df2 = spark.createDataFrame(data2, columns2)
+
+# Hash the columns
+df1_hashed = df1.withColumn("col1_hash", hash(col("col1")))
+df2_hashed = df2.withColumn("col2_hash", hash(col("col2")))
+
+# Join DataFrames on hashes
+comparison_df = df1_hashed.join(df2_hashed, df1_hashed.col1_hash == df2_hashed.col2_hash, "outer")
+
+# Select relevant columns
+comparison_df = comparison_df.select(df1_hashed.col1, df2_hashed.col2, df1_hashed.col1_hash, df2_hashed.col2_hash)
+
+# Show the results
+comparison_df.show()
