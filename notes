@@ -1,29 +1,30 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import hash, col
+from pyspark.sql.functions import sum as spark_sum
 
-# Initialize Spark Session
-spark = SparkSession.builder.appName("DataFrame Comparison").getOrCreate()
+total_count = comparison_df.count()
+match_count = comparison_df.filter(col("is_match") == True).count()
+match_percentage = (match_count / total_count) * 100
 
-# Sample data
-data1 = [("A",), ("B",), ("C",)]
-data2 = [("X",), ("B",), ("C",)]
+print(f"Total Rows: {total_count}")
+print(f"Matching Rows: {match_count}")
+print(f"Matching Percentage: {match_percentage:.2f}%")
 
-columns1 = ["col1"]
-columns2 = ["col2"]
 
-# Create DataFrames
-df1 = spark.createDataFrame(data1, columns1)
-df2 = spark.createDataFrame(data2, columns2)
+import matplotlib.pyplot as plt
 
-# Hash the columns
-df1_hashed = df1.withColumn("col1_hash", hash(col("col1")))
-df2_hashed = df2.withColumn("col2_hash", hash(col("col2")))
+# Collect data to driver
+match_stats = comparison_df.groupBy("is_match").count().collect()
+match_dict = {row["is_match"]: row["count"] for row in match_stats}
 
-# Join DataFrames on hashes
-comparison_df = df1_hashed.join(df2_hashed, df1_hashed.col1_hash == df2_hashed.col2_hash, "outer")
+matching_count = match_dict.get(True, 0)
+non_matching_count = match_dict.get(False, 0)
 
-# Select relevant columns
-comparison_df = comparison_df.select(df1_hashed.col1, df2_hashed.col2, df1_hashed.col1_hash, df2_hashed.col2_hash)
+# Plotting
+labels = ['Matching', 'Non-Matching']
+counts = [matching_count, non_matching_count]
 
-# Show the results
-comparison_df.show()
+plt.figure(figsize=(8, 6))
+plt.bar(labels, counts, color=['green', 'red'])
+plt.xlabel('Comparison Result')
+plt.ylabel('Count')
+plt.title('Comparison of DataFrames')
+plt.show()
