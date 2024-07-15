@@ -1,3 +1,15 @@
+# Select relevant columns and add a column to indicate matching hash values
+comparison_df = comparison_df.select(df1_hashed.col1, df2_hashed.col2, df1_hashed.col1_hash, df2_hashed.col2_hash)
+comparison_df = comparison_df.withColumn(
+    "is_match",
+    when(col("col1_hash") == col("col2_hash"), True).otherwise(False)
+)
+
+# Show the results
+comparison_df.show()
+
+
+
 from pyspark.sql.functions import sum as spark_sum
 
 total_count = comparison_df.count()
