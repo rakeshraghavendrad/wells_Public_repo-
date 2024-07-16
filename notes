@@ -1,26 +1,32 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, when
 
-# Initialize a Spark session
-spark = SparkSession.builder.appName("RenameColumns").getOrCreate()
+# Create Spark session
+spark = SparkSession.builder.appName("ColumnComparison").getOrCreate()
 
-# Create a sample DataFrame
-data = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
-columns = ["col1", "col2", "col3"]
-df = spark.createDataFrame(data, columns)
+# Sample data for DF1
+data1 = [(1, 'A', 101), (2, 'B', 102), (3, 'C', 103), (4, 'D', 104)]
+columns1 = ["C1", "C2", "C3"]
+DF1 = spark.createDataFrame(data1, columns1)
 
-# Print the original DataFrame schema
-print("Original schema:")
-df.printSchema()
+# Sample data for DF2
+data2 = [(1, 'X', 101), (2, 'Y', 102), (3, 'C', 103), (5, 'Z', 105)]
+columns2 = ["D1", "D2", "D3"]
+DF2 = spark.createDataFrame(data2, columns2)
 
-# List of columns to rename
-columns_to_rename = df.columns
+# Combine both dataframes based on row index
+DF1 = DF1.withColumn("row_idx", F.monotonically_increasing_id())
+DF2 = DF2.withColumn("row_idx", F.monotonically_increasing_id())
 
-# Create an expression to rename columns
-exprs = [f"{col} as {col}_dw" for col in columns_to_rename]
+combined_df = DF1.join(DF2, "row_idx", "inner").drop("row_idx")
 
-# Rename columns using selectExpr
-df = df.selectExpr(*exprs)
+# List of column pairs to compare
+column_pairs = [("C1", "D1"), ("C2", "D2"), ("C3", "D3")]
 
-# Print the modified DataFrame schema
-print("Modified schema:")
-df.printSchema()
+# Loop through the column pairs and add comparison columns
+for col1, col2 in column_pairs:
+    comparison_col_name = f"{col1}_{col2}_is_match"
+    combined_df = combined_df.withColumn(comparison_col_name, when(col(col1) == col(col2), True).otherwise(False))
+
+# Show the result
+combined_df.show()
