@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when
+from pyspark.sql.functions import col, when, monotonically_increasing_id
 
 # Create Spark session
 spark = SparkSession.builder.appName("ColumnComparison").getOrCreate()
@@ -14,28 +14,21 @@ data2 = [(1, 'X', 101), (2, 'Y', 102), (3, 'C', 103), (5, 'Z', 105)]
 columns2 = ["D1", "D2", "D3"]
 DF2 = spark.createDataFrame(data2, columns2)
 
-# Combine both dataframes based on row index
-DF1 = DF1.withColumn("row_idx", F.monotonically_increasing_id())
-DF2 = DF2.withColumn("row_idx", F.monotonically_increasing_id())
+# Add a row index column to both dataframes to align rows for comparison
+DF1 = DF1.withColumn("row_idx", monotonically_increasing_id())
+DF2 = DF2.withColumn("row_idx", monotonically_increasing_id())
 
+# Join the two dataframes based on the row index
 combined_df = DF1.join(DF2, "row_idx", "inner").drop("row_idx")
 
 # List of column pairs to compare
 column_pairs = [("C1", "D1"), ("C2", "D2"), ("C3", "D3")]
 
-# Loop through the column pairs and add comparison columns
-for col1, col2 in column_pairs:
-    comparison_col_name = f"{col1}_{col2}_is_match"
-    combined_df = combined_df.withColumn(comparison_col_name, when(col(col1) == col(col2), True).otherwise(False))
+# Generate the comparison expressions
+comparison_exprs = [when(col(col1) == col(col2), True).otherwise(False).alias(f"{col1}_{col2}_is_match") for col1, col2 in column_pairs]
+
+# Select original columns and add comparison columns
+result_df = combined_df.select(*combined_df.columns, *comparison_exprs)
 
 # Show the result
-combined_df.show()
-
-
-
-
-
-# Select and display the relevant columns
-columns_to_show = DF1.columns + DF2.columns + [f"{col1}_{col2}_is_match" for col1, col2 in column_pairs]
-combined_df.select(columns_to_show).show()
-
+result_df.show()
