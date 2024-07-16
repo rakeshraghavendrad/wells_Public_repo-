@@ -13,11 +13,13 @@ print("Original schema:")
 df.printSchema()
 
 # List of columns to rename
-columns_to_rename = ["col1", "col2", "col3"]
+columns_to_rename = df.columns
 
-# Loop to rename columns
-for col in columns_to_rename:
-    df = df.withColumnRenamed(col, f"{col}_dw")
+# Create an expression to rename columns
+exprs = [f"{col} as {col}_dw" for col in columns_to_rename]
+
+# Rename columns using selectExpr
+df = df.selectExpr(*exprs)
 
 # Print the modified DataFrame schema
 print("Modified schema:")
