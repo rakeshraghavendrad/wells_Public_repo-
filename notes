@@ -32,3 +32,38 @@ result_df = combined_df.select(*combined_df.columns, *comparison_exprs)
 
 # Show the result
 result_df.show()
+
+
+
+
+ Calculate and plot matching statistics for each column pair
+for col1, col2 in column_pairs:
+    comparison_col_name = f"{col1}_{col2}_is_match"
+    
+    # Calculate matching statistics
+    total_count = combined_df.count()
+    match_count = combined_df.filter(col(comparison_col_name) == True).count()
+    match_percentage = (match_count / total_count) * 100
+
+    print(f"Column Pair: {col1} vs {col2}")
+    print(f"Total Rows: {total_count}")
+    print(f"Matching Rows: {match_count}")
+    print(f"Matching Percentage: {match_percentage:.2f}%")
+
+    # Collect data to driver
+    match_stats = combined_df.groupBy(comparison_col_name).count().collect()
+    match_dict = {row[comparison_col_name]: row["count"] for row in match_stats}
+
+    matching_count = match_dict.get(True, 0)
+    non_matching_count = match_dict.get(False, 0)
+
+    # Plotting
+    labels = ['Matching', 'Non-Matching']
+    counts = [matching_count, non_matching_count]
+
+    plt.figure(figsize=(8, 6))
+    plt.bar(labels, counts, color=['green', 'red'])
+    plt.xlabel('Comparison Result')
+    plt.ylabel('Count')
+    plt.title(f'Comparison of {col1} and {col2}')
+    plt.show()
