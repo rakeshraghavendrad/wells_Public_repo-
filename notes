@@ -30,3 +30,12 @@ for col1, col2 in column_pairs:
 
 # Show the result
 combined_df.show()
+
+
+
+
+
+# Select and display the relevant columns
+columns_to_show = DF1.columns + DF2.columns + [f"{col1}_{col2}_is_match" for col1, col2 in column_pairs]
+combined_df.select(columns_to_show).show()
+
