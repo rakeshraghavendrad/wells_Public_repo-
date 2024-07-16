@@ -1,42 +1,24 @@
-# Select relevant columns and add a column to indicate matching hash values
-comparison_df = comparison_df.select(df1_hashed.col1, df2_hashed.col2, df1_hashed.col1_hash, df2_hashed.col2_hash)
-comparison_df = comparison_df.withColumn(
-    "is_match",
-    when(col("col1_hash") == col("col2_hash"), True).otherwise(False)
-)
+from pyspark.sql import SparkSession
 
-# Show the results
-comparison_df.show()
+# Initialize a Spark session
+spark = SparkSession.builder.appName("RenameColumns").getOrCreate()
 
+# Create a sample DataFrame
+data = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+columns = ["col1", "col2", "col3"]
+df = spark.createDataFrame(data, columns)
 
+# Print the original DataFrame schema
+print("Original schema:")
+df.printSchema()
 
-from pyspark.sql.functions import sum as spark_sum
+# List of columns to rename
+columns_to_rename = ["col1", "col2", "col3"]
 
-total_count = comparison_df.count()
-match_count = comparison_df.filter(col("is_match") == True).count()
-match_percentage = (match_count / total_count) * 100
+# Loop to rename columns
+for col in columns_to_rename:
+    df = df.withColumnRenamed(col, f"{col}_dw")
 
-print(f"Total Rows: {total_count}")
-print(f"Matching Rows: {match_count}")
-print(f"Matching Percentage: {match_percentage:.2f}%")
-
-
-import matplotlib.pyplot as plt
-
-# Collect data to driver
-match_stats = comparison_df.groupBy("is_match").count().collect()
-match_dict = {row["is_match"]: row["count"] for row in match_stats}
-
-matching_count = match_dict.get(True, 0)
-non_matching_count = match_dict.get(False, 0)
-
-# Plotting
-labels = ['Matching', 'Non-Matching']
-counts = [matching_count, non_matching_count]
-
-plt.figure(figsize=(8, 6))
-plt.bar(labels, counts, color=['green', 'red'])
-plt.xlabel('Comparison Result')
-plt.ylabel('Count')
-plt.title('Comparison of DataFrames')
-plt.show()
+# Print the modified DataFrame schema
+print("Modified schema:")
+df.printSchema()
