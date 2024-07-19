@@ -1,14 +1,61 @@
-# Group the DataFrame by the 'is_match' column and count the occurrences of True and False
-match_stats = comparison_df.groupBy("is_match").count().collect()
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import hash, col, when, sum as spark_sum
+import matplotlib.pyplot as plt
 
-# Convert the collected data into a dictionary where the key is the 'is_match' value (True/False)
-# and the value is the count of rows with that 'is_match' value
+# Initialize Spark Session
+spark = SparkSession.builder.appName("DataFrame Comparison").getOrCreate()
+
+# Sample data
+data1 = [("A",), ("B",), ("C",)]
+data2 = [("X",), ("B",), ("C",)]
+
+columns1 = ["col1"]
+columns2 = ["col2"]
+
+# Create DataFrames
+df1 = spark.createDataFrame(data1, columns1)
+df2 = spark.createDataFrame(data2, columns2)
+
+# Hash the columns
+df1_hashed = df1.withColumn("col1_hash", hash(col("col1")))
+df2_hashed = df2.withColumn("col2_hash", hash(col("col2")))
+
+# Join DataFrames on hashes
+comparison_df = df1_hashed.join(df2_hashed, df1_hashed.col1_hash == df2_hashed.col2_hash, "outer")
+
+# Select relevant columns and add a column to indicate matching hash values
+comparison_df = comparison_df.select(df1_hashed.col1, df2_hashed.col2, df1_hashed.col1_hash, df2_hashed.col2_hash)
+comparison_df = comparison_df.withColumn(
+    "is_match",
+    when(col("col1_hash") == col("col2_hash"), True).otherwise(False)
+)
+
+# Show the results
+comparison_df.show()
+
+# Calculate matching statistics
+total_count = comparison_df.count()
+match_count = comparison_df.filter(col("is_match") == True).count()
+match_percentage = (match_count / total_count) * 100
+
+print(f"Total Rows: {total_count}")
+print(f"Matching Rows: {match_count}")
+print(f"Matching Percentage: {match_percentage:.2f}%")
+
+# Collect data to driver
+match_stats = comparison_df.groupBy("is_match").count().collect()
 match_dict = {row["is_match"]: row["count"] for row in match_stats}
 
-# Get the count of matching rows (True) from the dictionary
-# If there are no matching rows, default to 0
 matching_count = match_dict.get(True, 0)
-
-# Get the count of non-matching rows (False) from the dictionary
-# If there are no non-matching rows, default to 0
 non_matching_count = match_dict.get(False, 0)
+
+# Plotting
+labels = ['Matching', 'Non-Matching']
+counts = [matching_count, non_matching_count]
+
+plt.figure(figsize=(8, 6))
+plt.bar(labels, counts, color=['green', 'red'])
+plt.xlabel('Comparison Result')
+plt.ylabel('Count')
+plt.title('Comparison of DataFrames')
+plt.show()
