@@ -1,5 +1,5 @@
 
-from pyspark.sql.functions import col, when
+from pyspark.sql.functions import col, expr
 
 # Join the DataFrames on the 'id' column
 df_combined = df1.alias("df1").join(df2.alias("df2"), on="id")
@@ -7,24 +7,15 @@ df_combined = df1.alias("df1").join(df2.alias("df2"), on="id")
 # List of columns to compare (excluding the join column)
 columns_to_compare = ["col1", "col2"]
 
-# Create a new DataFrame to show non-matching columns
-non_matching_columns = df_combined.select("id", *[
-    when(col(f"df1.{col}") != col(f"df2.{col}"), col(f"df1.{col}")).alias(f"{col}_non_matching")
-    for col in columns_to_compare
-])
+# Create expressions for checking non-matching columns
+comparison_exprs = [expr(f"IF(df1.{col} != df2.{col}, '{col}', NULL) AS {col}_non_matching") for col in columns_to_compare]
 
-# Filter out rows where all compared columns match
-non_matching_columns = non_matching_columns.filter(
+# Select 'id' and the comparison expressions
+non_matching_columns = df_combined.select("id", *comparison_exprs)
+
+# Filter out rows where all compared columns match (i.e., all are NULL)
+non_matching_columns_filtered = non_matching_columns.filter(
     " OR ".join([f"{col}_non_matching IS NOT NULL" for col in columns_to_compare])
 )
 
-non_matching_columns.show()Plotting
-labels = ['Matching', 'Non-Matching']
-counts = [matching_count, non_matching_count]
-
-plt.figure(figsize=(8, 6))
-plt.bar(labels, counts, color=['green', 'red'])
-plt.xlabel('Comparison Result')
-plt.ylabel('Count')
-plt.title('Comparison of DataFrames')
-plt.show()
+non_matching_columns_filtered.show()
