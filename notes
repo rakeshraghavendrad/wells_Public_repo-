@@ -1,14 +1,37 @@
+from pyspark.sql import SparkSession
 
-from pyspark.sql.functions import col, expr
+# Create a Spark session
+spark = SparkSession.builder.appName("ConvertColumnsToString").getOrCreate()
 
-# Join the DataFrames on the 'id' column
-df_combined = df1.alias("df1").join(df2.alias("df2"), on="id")
+# Sample data
+data = [
+    (1, 1.0),
+    (2, 3.5),
+    (3, 3.0),
+    (4, 5.1),
+    (5, 5.0)
+]
 
-# List of columns to compare (excluding the join column)
-columns_to_compare = ["col1", "col2"]
+# Create DataFrame
+df = spark.createDataFrame(data, ["Column1", "Column2"])
 
-# Create expressions for checking non-matching columns
-comparison_exprs = [expr(f"IF(df1.{col} != df2.{col}, '{col}', NULL) AS {col}_non_matching") for col in columns_to_compare]
+# Convert all columns to string type
+string_df = df.selectExpr(*[f"cast({col} as string) as {col}" for col in df.columns])
+
+# Show the DataFrame with columns converted to string
+string_df.printSchema()
+string_df.show()
+
+
+
+
+
+
+
+
+
+
+
 
 # Select 'id' and the comparison expressions
 non_matching_columns = df_combined.select("id", *comparison_exprs)
