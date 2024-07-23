@@ -1,44 +1,26 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import round, col
 
 # Create a Spark session
-spark = SparkSession.builder.appName("ConvertColumnsToString").getOrCreate()
+spark = SparkSession.builder.appName("RoundColumns").getOrCreate()
 
 # Sample data
 data = [
-    (1, 1.0),
-    (2, 3.5),
-    (3, 3.0),
-    (4, 5.1),
-    (5, 5.0)
+    (1.123456, 2.654321, 3.987654),
+    (4.123456, 5.654321, 6.987654),
+    (7.123456, 8.654321, 9.987654),
+    (10.123456, 11.654321, 12.987654)
 ]
 
 # Create DataFrame
-df = spark.createDataFrame(data, ["Column1", "Column2"])
+df = spark.createDataFrame(data, ["Column1", "Column2", "Column3"])
 
-# Convert all columns to string type
-string_df = df.selectExpr(*[f"cast({col} as string) as {col}" for col in df.columns])
-
-# Show the DataFrame with columns converted to string
-string_df.printSchema()
-string_df.show()
-
-
-
-
-
-
-
-
-
-
-
-
-# Select 'id' and the comparison expressions
-non_matching_columns = df_combined.select("id", *comparison_exprs)
-
-# Filter out rows where all compared columns match (i.e., all are NULL)
-non_matching_columns_filtered = non_matching_columns.filter(
-    " OR ".join([f"{col}_non_matching IS NOT NULL" for col in columns_to_compare])
+# Round specific columns to 3 decimal places
+columns_to_round = ["Column1", "Column2"]
+rounded_df = df.select(
+    *[round(col(c), 3).alias(c) if c in columns_to_round else col(c) for c in df.columns]
 )
 
-non_matching_columns_filtered.show()
+# Show the DataFrame with specified columns rounded to 3 decimal places
+rounded_df.printSchema()
+rounded_df.show()
