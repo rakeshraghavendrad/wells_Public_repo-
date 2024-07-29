@@ -1,1 +1,26 @@
-In our system, customers perform two types of transactions: trial transactions and complete transactions. We need a reliable method to identify and confirm whether the same customer is responsible for both types of transactions by matching each transaction against our customer database.
+REPLACE PROCEDURE SelectFromAllTables (IN pattern VARCHAR(50))
+BEGIN
+    DECLARE sql_query VARCHAR(10000);
+    DECLARE table_name VARCHAR(100);
+    DECLARE cursor FOR SELECT TableName FROM dbc.TablesV WHERE TableName LIKE :pattern;
+
+    SET sql_query = '';
+
+    FOR cursor AS c CURSOR FOR 
+        SELECT TRIM(DatabaseName) || '.' || TRIM(TableName) AS TableName
+        FROM dbc.TablesV 
+        WHERE TableName LIKE :pattern
+    DO
+        SET sql_query = sql_query || 'SELECT * FROM ' || c.TableName || ' UNION ALL ';
+    END FOR;
+
+    -- Remove the last 'UNION ALL'
+    SET sql_query = SUBSTRING(sql_query FROM 1 FOR CHARACTER_LENGTH(sql_query) - 11) || ';';
+
+    -- Execute the dynamically created query
+    CALL DBC.SysExecSQL(sql_query);
+END;
+
+
+
+CALL SelectFromAllTables('na_psh_ecn_all_%');
