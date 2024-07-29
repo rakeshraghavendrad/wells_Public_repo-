@@ -1,31 +1,4 @@
-CREATE PROCEDURE DynamicQuery()
-BEGIN
-    DECLARE sql_query VARCHAR(10000);
-    DECLARE finished INTEGER DEFAULT 0;
-    DECLARE tbl_name VARCHAR(100) DEFAULT '';
-    DECLARE cur CURSOR FOR 
-        SELECT TableName
-        FROM DBC.TablesV
-        WHERE DatabaseName = 'tbl1004'
-        AND TableName LIKE 'na_push_enn_all_%';
-
-    OPEN cur;
-    
-    SET sql_query = '';
-
-    FETCH cur INTO tbl_name;
-    
-    WHILE finished = 0 DO
-        SET sql_query = sql_query || 'SELECT * FROM tbl1004.' || tbl_name;
-        
-        FETCH cur INTO tbl_name;
-        
-        IF finished = 0 THEN
-            SET sql_query = sql_query || ' UNION ALL ';
-        END IF;
-    END WHILE;
-
-    CLOSE cur;
-
-    CALL DBC.SysExecSQL(sql_query);
-END;
+SELECT TableName
+FROM DBC.TablesV
+WHERE DatabaseName = 'tbl1004'
+  AND TableName LIKE 'na_push_enn_all_%';
