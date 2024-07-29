@@ -1,26 +1,31 @@
-REPLACE PROCEDURE SelectFromAllTables (IN pattern VARCHAR(50))
+CREATE PROCEDURE DynamicQuery()
 BEGIN
     DECLARE sql_query VARCHAR(10000);
-    DECLARE table_name VARCHAR(100);
-    DECLARE cursor FOR SELECT TableName FROM dbc.TablesV WHERE TableName LIKE :pattern;
+    DECLARE finished INTEGER DEFAULT 0;
+    DECLARE tbl_name VARCHAR(100) DEFAULT '';
+    DECLARE cur CURSOR FOR 
+        SELECT TableName
+        FROM DBC.TablesV
+        WHERE DatabaseName = 'tbl1004'
+        AND TableName LIKE 'na_push_enn_all_%';
 
+    OPEN cur;
+    
     SET sql_query = '';
 
-    FOR cursor AS c CURSOR FOR 
-        SELECT TRIM(DatabaseName) || '.' || TRIM(TableName) AS TableName
-        FROM dbc.TablesV 
-        WHERE TableName LIKE :pattern
-    DO
-        SET sql_query = sql_query || 'SELECT * FROM ' || c.TableName || ' UNION ALL ';
-    END FOR;
+    FETCH cur INTO tbl_name;
+    
+    WHILE finished = 0 DO
+        SET sql_query = sql_query || 'SELECT * FROM tbl1004.' || tbl_name;
+        
+        FETCH cur INTO tbl_name;
+        
+        IF finished = 0 THEN
+            SET sql_query = sql_query || ' UNION ALL ';
+        END IF;
+    END WHILE;
 
-    -- Remove the last 'UNION ALL'
-    SET sql_query = SUBSTRING(sql_query FROM 1 FOR CHARACTER_LENGTH(sql_query) - 11) || ';';
+    CLOSE cur;
 
-    -- Execute the dynamically created query
     CALL DBC.SysExecSQL(sql_query);
 END;
-
-
-
-CALL SelectFromAllTables('na_psh_ecn_all_%');
