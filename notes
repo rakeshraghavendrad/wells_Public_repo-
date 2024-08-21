@@ -1,5 +1,5 @@
 Abstract
 This paper explores the dynamic customization of user interfaces (UI) on a bank's digital platform, focusing on enhancing user experience through personalized design. The customization framework is driven by both user-driven and system-driven approaches, leveraging Generative AI and Reinforcement Learning to tailor the interface according to customer preferences. The study categorizes users into three segments—Minimal, Intermediate, and Expert—based on their sophistication level and interaction with digital banking services. Additionally, the paper delves into two primary types of UI customization: cluster-level interaction, which groups users based on shared preferences, and feature-level interaction, which provides hyper-personalized experiences centered on specific user interests. The results demonstrate that dynamic UI customization can significantly improve user engagement and satisfaction, offering a responsive and adaptive digital banking environment.
 
-Keywords
-Dynamic UI customization, digital banking platform, user-driven approach, system-driven approach, Generative AI, Reinforcement Learning, cluster-level interaction, feature-level interaction, user experience, personalization.
+find / -name "*.jar" 2>/dev/null | xargs -I {} sh -c 'jar -tf {} | grep -q "com/dremio/jdbc/Driver.class" && echo {}'
+
