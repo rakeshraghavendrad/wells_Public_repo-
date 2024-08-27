@@ -1,23 +1,15 @@
-SELECT 
-    t1.a, 
-    t1.b, 
-    t1.c, 
-    t1.d, 
-    t2.f, 
-    t2.g
-FROM 
-    t1
-INNER JOIN 
-    t2 
-ON 
-    REGEXP_INSTR(TRIM(t1.b), '^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$') = 1
-AND 
-    REGEXP_INSTR(TRIM(t1.c), '^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$') = 1
-AND 
-    REGEXP_INSTR(TRIM(t2.b), '^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$') = 1
-AND 
-    REGEXP_INSTR(TRIM(t2.c), '^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$') = 1
-AND 
-    CAST(t1.b AS FLOAT) = CAST(t2.b AS FLOAT) 
-AND 
-    CAST(t1.c AS FLOAT) = CAST(t2.c AS FLOAT);
+When implementing dynamic UI customization driven by user feedback and AI technologies in banking platforms, there are several limitations to consider.
+
+Privacy and Security Concerns: One of the major challenges is ensuring the privacy and security of customer data. As these systems rely on extensive data collection and analysis, customers may be concerned about how their data is used and whether it is adequately protected. Any data breaches or misuse could result in significant financial and reputational damage to the bank.
+
+Data Accuracy and Bias: The effectiveness of AI-driven customization depends heavily on the quality and accuracy of the data collected. If the data is biased or inaccurate, it could lead to flawed recommendations and a poor user experience. Moreover, biased data can perpetuate existing inequalities, leading to unfair treatment of certain customer segments.
+
+Complexity of Implementation: Implementing such advanced AI systems requires significant resources in terms of technology, expertise, and time. Banks may face challenges in integrating these systems with existing infrastructure and ensuring that the AI models are explainable and align with regulatory requirements. The complexity of these systems also means they require ongoing monitoring and maintenance to remain effective and compliant.
+
+Customer Acceptance and Trust: While dynamic customization offers significant benefits, not all customers may be comfortable with AI-driven interactions. Some users might prefer traditional banking methods or may be skeptical about the recommendations provided by AI, especially if they do not fully understand how these decisions are made.
+
+Addressing these limitations requires a careful balance between leveraging AI's capabilities and maintaining customer trust and data integrity. Banks must adopt a transparent, customer-centric approach and ensure that any AI-driven solutions are implemented with robust ethical standards and governance in place​(
+Finextra Research
+,
+Virtusa Innovation
+).
