@@ -1,3 +1,25 @@
 https://www.finextra.com/blogposting/24314/generative-ai-in-banking-benefits-outcomes-use-cases
 
-https://www.virtusa.com/digital-themes/generative-ai-in-banking-and-financial-services
+https://www.virtusa.com/digital-themes/generative-ai-in-banking-and-financi
+
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import count
+
+# Create Spark session
+spark = SparkSession.builder.appName("GroupByCountExample").getOrCreate()
+
+# Sample DataFrame
+data = [("John", "Math"), ("John", "Science"), ("Alice", "Math"), 
+        ("Alice", "Math"), ("Bob", "Science")]
+
+columns = ["Name", "Subject"]
+
+df = spark.createDataFrame(data, columns)
+
+# Group by 'Name' column and count occurrences of 'Subject' column
+result_df = df.groupBy("Name").agg(count("Subject").alias("Subject_Count"))
+
+# Show the result
+result_df.show()
+
