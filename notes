@@ -1,25 +1,18 @@
-https://www.finextra.com/blogposting/24314/generative-ai-in-banking-benefits-outcomes-use-cases
-
-https://www.virtusa.com/digital-themes/generative-ai-in-banking-and-financi
-
-
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import count
+from pyspark.sql.functions import col, expr
 
-# Create Spark session
-spark = SparkSession.builder.appName("GroupByCountExample").getOrCreate()
+# Create a Spark session
+spark = SparkSession.builder.master("local").appName("MinMaxDate").getOrCreate()
 
-# Sample DataFrame
-data = [("John", "Math"), ("John", "Science"), ("Alice", "Math"), 
-        ("Alice", "Math"), ("Bob", "Science")]
+# Sample data
+data = [("2023-01-01",), ("2023-06-01",), ("2023-03-15",), ("2023-09-30",)]
+df = spark.createDataFrame(data, ["date_column"])
 
-columns = ["Name", "Subject"]
-
-df = spark.createDataFrame(data, columns)
-
-# Group by 'Name' column and count occurrences of 'Subject' column
-result_df = df.groupBy("Name").agg(count("Subject").alias("Subject_Count"))
+# Finding min and max date using expr
+result = df.agg(
+    expr("min(date_column)").alias("min_date"),
+    expr("max(date_column)").alias("max_date")
+)
 
 # Show the result
-result_df.show()
-
+result.show()
