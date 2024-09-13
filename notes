@@ -1,9 +1,6 @@
-from pyspark.sql import SparkSession
-
-
-
-SELECT *
+from pyspark.sql import SELECT DatabaseName, TableName
 FROM DBC.TablesV
-WHERE TableKind = 'T'
-AND TableName = 'your_table_name'
-AND DatabaseName = 'your_database_name';
+WHERE TableName = 'your_table_name';
+
+
+
