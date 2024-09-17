@@ -1,6 +1,16 @@
-During Q1, the team was split, and I was supporting four projects in parallel. 
-Two were at the scoping stage, and two was a regular project. 
-After the split, one of the projects was transferred to the parallel team, where I had to focus most of my efforts throughout the quarter. 
-The parallel team acknowledged my contributions by sending me an e-card. 
-However, I later realized that similar efforts were recognized with a Q1 Pillar Award, which my colleagues received.This made me feel that my contributions went unnoticed. 
-Nevertheless, I still believe Wells Fargo is a great place to work, and I remain hopeful that my efforts will be recognized in the future.
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+    .appName("LargeScaleDataPull") \
+    .config("spark.sql.shuffle.partitions", "2000") \  # Increase partitions for larger shuffles
+    .config("spark.executor.instances", "10") \  # Number of executors (adjust based on your cluster size)
+    .config("spark.executor.cores", "8") \  # Number of CPU cores per executor
+    .config("spark.executor.memory", "16g") \  # Executor memory (increase based on available cluster resources)
+    .config("spark.driver.memory", "32g") \  # Driver memory for large data handling
+    .config("spark.memory.fraction", "0.8") \  # Use 80% of JVM heap for execution and storage tasks
+    .config("spark.memory.storageFraction", "0.3") \  # Allocate more memory for caching
+    .config("spark.network.timeout", "800s") \  # Handle large data by increasing network timeout
+    .config("spark.executor.heartbeatInterval", "200s") \  # Increase the heartbeat interval to prevent timeouts
+    .config("spark.dynamicAllocation.enabled", "true") \  # Enable dynamic allocation of resources
+    .config("spark.dynamicAllocation.maxExecutors", "50") \  # Set the max number of executors dynamically
+    .getOrCreate()
