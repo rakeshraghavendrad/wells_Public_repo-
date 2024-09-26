@@ -1,4 +1,30 @@
 https://towardsdatascience.com/graph-rag-a-conceptual-introduction-41cd0d431375
 
 
+from pyspark.sql import functions as F
+from pyspark.sql.types import StringType
+from fuzzywuzzy import fuzz
+
+# UDF for fuzzy matching
+def fuzzy_match(name1, name2):
+    return fuzz.ratio(name1, name2)
+
+fuzzy_udf = F.udf(fuzzy_match, StringType())
+
+# Normalizing input: Removing spaces between letters
+input_first_name = "John"
+input_middle_name = "Doe"
+
+input_first_name_normalized = F.regexp_replace(input_first_name, "\\s+", "")
+input_middle_name_normalized = F.regexp_replace(input_middle_name, "\\s+", "")
+
+# Fuzzy matching with swapped names and spaces removed
+matched_data = spark_df.filter(
+    (fuzzy_udf(F.col('first_name'), input_first_name_normalized) >= 80) & 
+    (fuzzy_udf(F.col('middle_name'), input_middle_name_normalized) >= 80) |
+    (fuzzy_udf(F.col('first_name'), input_middle_name_normalized) >= 80) & 
+    (fuzzy_udf(F.col('middle_name'), input_first_name_normalized) >= 80)
+)
+
+matched_data.show()
 
