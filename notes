@@ -9,6 +9,16 @@ for col in df.columns:
         # Create a new column with '_encoded' suffix and apply LabelEncoder
         df[col + '_encoded'] = le.fit_transform(df[col].astype(str))
 
+# Select columns that end with '_encoded'
+encoded_columns = [col for col in df.columns if col.endswith('_encoded')]
+
+# Create a new DataFrame with only the encoded columns
+df_encoded = df[encoded_columns]
+
+# Display the DataFrame with only encoded columns
+print(df_encoded.head())
+
+
 # Encoding categorical columns
 df['first_name_encoded'] = le.fit_transform(df['first_name_db1'].astype(str))
 df['second_name_encoded'] = le.fit_transform(df['second_name_db1'].astype(str))
