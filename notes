@@ -3,6 +3,12 @@ from sklearn.preprocessing import LabelEncoder
 # Initialize the label encoder
 le = LabelEncoder()
 
+for col in df.columns:
+    # Check if the column data type is 'object' (string)
+    if df[col].dtype == 'object':
+        # Create a new column with '_encoded' suffix and apply LabelEncoder
+        df[col + '_encoded'] = le.fit_transform(df[col].astype(str))
+
 # Encoding categorical columns
 df['first_name_encoded'] = le.fit_transform(df['first_name_db1'].astype(str))
 df['second_name_encoded'] = le.fit_transform(df['second_name_db1'].astype(str))
