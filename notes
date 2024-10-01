@@ -5,4 +5,30 @@ As I continue to grow in my career,
 I would greatly appreciate your continued mentorship and guidance. Your insights have been invaluable,
 and I look forward to learning more under your direction.
 
-Thank you for everything.
+Thank you import pandas as pd
+from pyspark.sql import SparkSession
+
+# Initialize Spark session
+spark = SparkSession.builder.appName("Pandas to Spark").getOrCreate()
+
+# Read the file into pandas DataFrame
+pandas_df = pd.read_csv('input_file.csv')
+
+# Get the original column names from the pandas DataFrame
+original_columns = pandas_df.columns.tolist()
+
+# Convert pandas DataFrame to Spark DataFrame
+spark_df = spark.createDataFrame(pandas_df)
+
+# Manually set the column names in Spark DataFrame to match the original pandas DataFrame
+spark_df = spark_df.toDF(*original_columns)
+
+# Check if the column names are correct before writing
+print("Column names before writing:", spark_df.columns)
+
+# Write the Spark DataFrame to CSV and retain original column names
+spark_df.write.csv('output_file.csv', header=True, mode='overwrite')
+
+# Verify the written file to check if the column names are retained
+written_df = spark.read.csv('output_file.csv', header=True)
+print("Column names after writing:", written_df.columns)
