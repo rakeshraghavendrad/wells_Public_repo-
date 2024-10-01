@@ -32,10 +32,11 @@ df_encoded = df[encoded_columns]
 print(df_encoded.head())
 
 
+# Select columns where all values are null
+null_columns = [col for col in df.columns if df[col].isnull().all()]
 
-
-
-
+# Display the columns with only null values
+print("Columns with only null values:", null_columns)
 
 
 
