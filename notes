@@ -15,6 +15,24 @@ for col in df.columns:
         # Create a new column with '_encoded' suffix and apply LabelEncoder
         df[col + '_encoded'] = le.fit_transform(df[col].astype(str))
 
+
+# Select columns that end with '_encoded' and are not of type 'object'
+encoded_columns = [col for col in df.columns if col.endswith('_encoded') and df[col].dtype != 'object']
+
+# Create a new DataFrame with only the encoded columns that are not of type 'object'
+df_encoded = df[encoded_columns]
+
+# Display the DataFrame with only encoded columns
+print(df_encoded.head())
+
+
+
+
+
+
+
+
+
 # Encode the target variable 'profile_match'
 df['profile_match_encoded'] = df['profile_match'].map({'Profile_matched': 1, 'Profile_notmatched': 0}).fillna(-1)  # Fill NaN with -1 for missing values
 
