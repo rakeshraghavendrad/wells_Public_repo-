@@ -1,58 +1,29 @@
-from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 
-# Initialize the label encoder
-le = LabelEncoder()
+# Encode the target column
+df['profile_match_encoded'] = df['profile_match'].map({'Profile_matched': 1, 'Profile_notmatched': 0}).fillna(0)
 
-from sklearn.preprocessing import LabelEncoder
+# Label encoding for categorical features (for simplicity, you can use one-hot encoding as well)
+df['first_name_encoded'] = df['first_name_db1'].astype('category').cat.codes
+df['second_name_encoded'] = df['second_name_db1'].astype('category').cat.codes
 
-# Initialize the label encoder
-le = LabelEncoder()
+# Define features (X) and target (y)
+X = df[['first_name_encoded', 'second_name_encoded']]
+y = df['profile_match_encoded']
 
-# Loop through each column in the dataframe
-for col in df.columns:
-    # Check if the column data type is 'object' (string)
-    if df[col].dtype == 'object':
-        # Create a new column with '_encoded' suffix and apply LabelEncoder
-        df[col + '_encoded'] = le.fit_transform(df[col].astype(str))
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
+# Train Random Forest model
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
 
-# Select columns that end with '_encoded' and are not of type 'object'
-encoded_columns = [col for col in df.columns if col.endswith('_encoded') and df[col].dtype != 'object']
+# Get feature importance
+importances = rf.feature_importances_
+feature_names = X.columns
+feature_importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': importances})
 
-# Create a list of corresponding original columns by removing '_encoded' and adding 'col2'
-original_columns_with_col2 = [col[:-8] + 'col2' for col in encoded_columns]
-
-# Combine both lists
-combined_columns = encoded_columns + original_columns_with_col2
-
-# Create a new DataFrame with only the encoded columns that are not of type 'object'
-df_encoded = df[encoded_columns]
-
-# Display the DataFrame with only encoded columns
-print(df_encoded.head())
-
-
-# Select columns where all values are null
-null_columns = [col for col in df.columns if df[col].isnull().all()]
-
-# Display the columns with only null values
-print("Columns with only null values:", null_columns)
-
-
-
-# Encode the target variable 'profile_match'
-df['profile_match_encoded'] = df['profile_match'].map({'Profile_matched': 1, 'Profile_notmatched': 0}).fillna(-1)  # Fill NaN with -1 for missing values
-
-
-# Calculate correlation matrix
-correlation_matrix = df[['first_name_encoded', 'second_name_encoded', 'email_encoded', 'zip_code_db1', 'profile_match_encoded']].corr()
-
-# Display the full correlation matrix
-print("Correlation Matrix:\n", correlation_matrix)
-
-
-# Get the correlations with the target variable 'profile_match_encoded'
-correlations_with_target = correlation_matrix['profile_match_encoded'].sort_values(ascending=False)
-print("\nCorrelations with 'profile_match_encoded':\n", correlations_with_target)
-
-
+# Sort by importance
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+print(feature_importance_df)
