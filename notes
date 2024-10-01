@@ -1,45 +1,33 @@
-# Import necessary libraries
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
 
-# Assuming df is your Spark DataFrame converted to Pandas for visualization
-# For large datasets, you can sample down if necessary
-df = spark_df.toPandas()  # If using Spark DataFrame
+# Initialize the label encoder
+le = LabelEncoder()
 
-# List of critical columns
-critical_columns = ['first_name', 'second_name', 'third_name', 'address', 'email', 'city', 'zip_code', 'state_code']
+from sklearn.preprocessing import LabelEncoder
 
-# 1. Check for null values in critical columns
-null_counts = df[critical_columns].isnull().sum()
-null_percentage = (null_counts / len(df)) * 100
+# Initialize the label encoder
+le = LabelEncoder()
 
-# Display the counts and percentages of null values
-print("Null Value Counts:")
-print(null_counts)
+# Loop through each column in the dataframe
+for col in df.columns:
+    # Check if the column data type is 'object' (string)
+    if df[col].dtype == 'object':
+        # Create a new column with '_encoded' suffix and apply LabelEncoder
+        df[col + '_encoded'] = le.fit_transform(df[col].astype(str))
 
-print("\nNull Value Percentage:")
-print(null_percentage)
+# Encode the target variable 'profile_match'
+df['profile_match_encoded'] = df['profile_match'].map({'Profile_matched': 1, 'Profile_notmatched': 0}).fillna(-1)  # Fill NaN with -1 for missing values
 
-# 2. Visualize the distribution of null values using a bar plot
-plt.figure(figsize=(10, 6))
-sns.barplot(x=null_counts.index, y=null_percentage.values)
-plt.title('Percentage of Null Values in Critical Columns')
-plt.ylabel('Percentage of Null Values')
-plt.xticks(rotation=45)
-plt.show()
 
-# 3. Optional: Visualize a heatmap to show null values across rows
-plt.figure(figsize=(12, 8))
-sns.heatmap(df[critical_columns].isnull(), cbar=False, cmap='viridis')
-plt.title('Heatmap of Null Values in Critical Columns')
-plt.show()
+# Calculate correlation matrix
+correlation_matrix = df[['first_name_encoded', 'second_name_encoded', 'email_encoded', 'zip_code_db1', 'profile_match_encoded']].corr()
 
-# 4. Correlate null values with Profile_notmatched
-plt.figure(figsize=(10, 6))
-null_profile_relation = df[df['Profile_notmatched'].notnull()][critical_columns].isnull().mean() * 100
-sns.barplot(x=null_profile_relation.index, y=null_profile_relation.values)
-plt.title('Null Values in Profile_notmatched Entries')
-plt.ylabel('Percentage of Null Values')
-plt.xticks(rotation=45)
-plt.show()
+# Display the full correlation matrix
+print("Correlation Matrix:\n", correlation_matrix)
+
+
+# Get the correlations with the target variable 'profile_match_encoded'
+correlations_with_target = correlation_matrix['profile_match_encoded'].sort_values(ascending=False)
+print("\nCorrelations with 'profile_match_encoded':\n", correlations_with_target)
+
+
