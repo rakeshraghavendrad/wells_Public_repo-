@@ -1,7 +1,29 @@
-# Count occurrences of 'Profile_matched', 'Profile_notmatched', and Null (None)
-match_counts = df['profile_match'].value_counts(dropna=False)
-print("Counts of each match status:\n", match_counts)
+from sklearn.preprocessing import LabelEncoder
 
-# Calculate percentages of each category
-match_percentages = (match_counts / len(df)) * 100
-print("\nPercentage of each match status:\n", match_percentages)
+# Initialize the label encoder
+le = LabelEncoder()
+
+# Encoding categorical columns
+df['first_name_encoded'] = le.fit_transform(df['first_name_db1'].astype(str))
+df['second_name_encoded'] = le.fit_transform(df['second_name_db1'].astype(str))
+df['email_encoded'] = le.fit_transform(df['email_db1'].astype(str))  # Encode email
+
+# Encode the target variable 'profile_match'
+df['profile_match_encoded'] = df['profile_match'].map({'Profile_matched': 1, 'Profile_notmatched': 0}).fillna(-1)  # Fill NaN with -1 for missing values
+
+
+# Calculate correlation matrix
+correlation_matrix = df[['first_name_encoded', 'second_name_encoded', 'email_encoded', 'zip_code_db1', 'profile_match_encoded']].corr()
+
+# Display the full correlation matrix
+print("Correlation Matrix:\n", correlation_matrix)
+
+
+# Get the correlations with the target variable 'profile_match_encoded'
+correlations_with_target = correlation_matrix['profile_match_encoded'].sort_values(ascending=False)
+print("\nCorrelations with 'profile_match_encoded':\n", correlations_with_target)
+
+# Set a threshold for strong correlations (e.g., above 0.2 or below -0.2)
+strong_correlations = correlations_with_target[abs(correlations_with_target) > 0.2]
+print("\nStrong Correlations (>|0.2|):\n", strong_correlations)
+
