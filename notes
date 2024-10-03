@@ -1,29 +1,44 @@
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+# Define the parameter grid for Grid Search
+param_grid = {
+    'n_estimators': [100, 200, 300],  # Number of trees in the forest
+    'max_depth': [10, 20, 30, None],  # Maximum depth of the tree
+    'min_samples_split': [2, 5, 10],  # Minimum number of samples required to split a node
+    'min_samples_leaf': [1, 2, 4],    # Minimum number of samples required at each leaf node
+    'bootstrap': [True, False]        # Method of selecting samples for training
+}
 
-# Encode the target column
-df['profile_match_encoded'] = df['profile_match'].map({'Profile_matched': 1, 'Profile_notmatched': 0}).fillna(0)
 
-# Label encoding for categorical features (for simplicity, you can use one-hot encoding as well)
-df['first_name_encoded'] = df['first_name_db1'].astype('category').cat.codes
-df['second_name_encoded'] = df['second_name_db1'].astype('category').cat.codes
+# Initialize the Random Forest Classifier
+rf = RandomForestClassifier(random_state=42)
 
-# Define features (X) and target (y)
-X = df[['first_name_encoded', 'second_name_encoded']]
-y = df['profile_match_encoded']
+# Initialize Grid Search with cross-validation
+grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, 
+                           cv=5,  # 5-fold cross-validation
+                           n_jobs=-1,  # Use all available processors
+                           verbose=2)  # Print progress
 
-# Split data into training and testing sets
+# Split your data into training and testing sets (if not done already)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# Train Random Forest model
-rf = RandomForestClassifier(n_estimators=100, random_state=42)
-rf.fit(X_train, y_train)
+# Fit the grid search to the data
+grid_search.fit(X_train, y_train)
 
-# Get feature importance
-importances = rf.feature_importances_
-feature_names = X.columns
-feature_importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': importances})
+# Get the best parameters from the grid search
+best_params = grid_search.best_params_
+print(f"Best Parameters: {best_params}")
 
-# Sort by importance
-feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
-print(feature_importance_df)
+
+# Train the Random Forest with the best hyperparameters
+best_rf = grid_search.best_estimator_
+
+# Predict on the test data
+y_pred = best_rf.predict(X_test)
+
+# Calculate the accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Test Accuracy: {accuracy * 100:.2f}%")
+
+
+
+
+
