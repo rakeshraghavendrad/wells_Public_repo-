@@ -1,13 +1,3 @@
-import pyspark.sql.functions as f
+I’m Rakesh from the Digital Customer Experience team. I have designed the banner response based on the table data, and I noticed that the IA_ECN column is populated for August 2024, but it remains empty for September 2024.
 
-# Filter the DataFrame to get rows between specific dates
-df_filtered = df.filter((f.col('column1') >= '2024-09-01') & (f.col('column1') <= '2024-09-30'))
-
-# Extract the date from the datetime column (assuming 'column1' is a timestamp)
-df_with_date = df_filtered.withColumn('date', f.to_date(f.col('column1')))
-
-# Group by the 'date' column and count the occurrences of 'column5'
-df_daily_count = df_with_date.groupBy('date').agg(f.count('column5').alias('count_column5'))
-
-# Show the result
-df_daily_count.show()
+Could you kindly update the table to include the IA_ECN data for September 2024 as well?
