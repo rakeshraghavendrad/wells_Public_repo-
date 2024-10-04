@@ -1,13 +1,29 @@
-Hi Team,
 
-I wanted to provide an update regarding the t_mat table (banner table). It appears that the table contains cust_num entries only up to August 24, with no entries from after that date.
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StringType, StructType, StructField
 
-To investigate further, I have raised a support ticket. According to the response, the cust_num field in the t_mat table was decommissioned after being in use for over 10 years. However, the support team has provided an alternative method to populate the cust_num. I’m still in the process of testing this new approach to ensure its validity.
+# Initialize Spark session
+spark = SparkSession.builder.master("local").appName("JoinExample").getOrCreate()
 
-At this point, I see two potential solutions:
+# Create sample data for DF1 and DF2
+data1 = [("A", "Data1_A1", "Data1_A2"), ("B", "Data1_B1", "Data1_B2"), ("C", "Data1_C1", "Data1_C2")]
+data2 = [("A", "Data2_A1", "Data2_A2"), (None, "Data2_Null", "Data2_Null"), ("B", "Data2_B1", "Data2_B2")]
 
-Delay the rollout: We could allow for a month’s delay, during which we would test the new approach, implement the necessary code changes in production, re-ingest the t_mat data, and validate both the data and the response.
+# Define schema
+schema1 = StructType([StructField("col1", StringType(), True), 
+                      StructField("col2", StringType(), True), 
+                      StructField("col3", StringType(), True)])
 
-Proceed without the banner response for now: Alternatively, we could move forward without including the banner response in the current model release, and address this in phase 2 with the necessary corrections.
+schema2 = StructType([StructField("col1", StringType(), True), 
+                      StructField("col4", StringType(), True), 
+                      StructField("col5", StringType(), True)])
 
-Please advise on how you'd like to proceed.
+# Create DataFrames
+df1 = spark.createDataFrame(data1, schema1)
+df2 = spark.createDataFrame(data2, schema2)
+
+# Perform inner join
+joined_df = df1.join(df2, df1.col1 == df2.col1, "inner")
+
+# Show the result
+joined_df.show()
