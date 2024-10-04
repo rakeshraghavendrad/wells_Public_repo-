@@ -1,3 +1,13 @@
-I’m Rakesh from the Digital Customer Experience team. I have designed the banner response based on the table data, and I noticed that the IA_ECN column is populated for August 2024, but it remains empty for September 2024.
+Hi Team,
 
-Could you kindly update the table to include the IA_ECN data for September 2024 as well?
+I wanted to provide an update regarding the t_mat table (banner table). It appears that the table contains cust_num entries only up to August 24, with no entries from after that date.
+
+To investigate further, I have raised a support ticket. According to the response, the cust_num field in the t_mat table was decommissioned after being in use for over 10 years. However, the support team has provided an alternative method to populate the cust_num. I’m still in the process of testing this new approach to ensure its validity.
+
+At this point, I see two potential solutions:
+
+Delay the rollout: We could allow for a month’s delay, during which we would test the new approach, implement the necessary code changes in production, re-ingest the t_mat data, and validate both the data and the response.
+
+Proceed without the banner response for now: Alternatively, we could move forward without including the banner response in the current model release, and address this in phase 2 with the necessary corrections.
+
+Please advise on how you'd like to proceed.
