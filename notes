@@ -1,2 +1,3 @@
-Each month, we receive new data, which we use to retrain three models: XGBoost (XGB), Generalized Linear Model (GLM), and Random Forest (RF). 
-After training, we evaluate the performance metrics of each model and select the one with the best results to diagnose the issue.
+As part of the model segmentation process, once the data for a given month is received, it is divided based on dates. 
+For example, in a 30-day month, data from days 1 to 25 is used as the training set,
+while data from days 28 to 30 is reserved as the test set for evaluation purposes.
