@@ -1,3 +1,2 @@
-As part of the model segmentation process, once the data for a given month is received, it is divided based on dates. 
-For example, in a 30-day month, data from days 1 to 25 is used as the training set,
-while data from days 28 to 30 is reserved as the test set for evaluation purposes.
+Since the model undergoes monthly retraining, it has not yet been deployed and remains in the development environment.
+The results generated from the model are sent to a BI dashboard for analysis.
