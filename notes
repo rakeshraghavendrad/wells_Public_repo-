@@ -1,17 +1,5 @@
-Leadership in Marketing Response Creation
-I successfully led the development of a comprehensive marketing response model, working closely with multiple cross-functional teams. Initially, I navigated through ticket-based systems to map out dependencies and identify key stakeholders. By connecting these dots, I developed a deep understanding of the data and successfully carved out a robust marketing response.
+Data Validation Before Production Deployment:
+Before deploying the marketing response model, I identified a missing field in a key table, preventing inaccurate data from going live and ensuring a smooth, error-free deployment.
 
-Cross-functional Integration: CAP DB and Teradata
-Through collaboration with various teams, I integrated the CAP database into Teradata to streamline marketing data extraction. This process involved coordinating across teams responsible for different components, such as the JDBC driver, integration methodology, and database maintenance. I pieced these elements together, achieving a successful integration, which was fully documented and passed to the Support team for inclusion in their AWS Confluence playbook.
-
-EDL Architecture Proficiency
-I gained a solid understanding of the EDL architecture within Wells Fargo and established connections to pull data into the required clusters. Collaborating with cross-functional teams, I ensured the smooth navigation and integration of data within the system.
-
-Model Deployment Data Validation
-Before the marketing response model was deployed to production, I conducted a thorough data validation from the development to production environment. During this process, I identified a missing field in a table used for calculating the marketing response score, highlighting this discrepancy to the team. Necessary precautions were taken to resolve the issue, ensuring a smooth deployment.
-
-Support for Transaction Factory Labeling
-I provided support in manual labeling for the Transaction Factory, improving data accuracy and contributing to the project’s workflow efficiency.
-
-Recognition in Gen-AI Research
-I successfully published a micro-paper on Generative AI (Gen-AI), which was shortlisted for external conferences. This recognition highlights my innovative contributions in the AI domain.
+Documentation for Risk Mitigation:
+By fully documenting the CAP-Teradata integration and passing it to the Support team, I ensured long-term risk reduction, enabling future teams to avoid missteps and maintain consistent standards.
