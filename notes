@@ -1,1 +1,35 @@
-authentication
+import pandas as pd
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Sample data for db1 and db2
+db1 = pd.DataFrame({'First Name': ['John', 'Alice', 'Michael'],
+                    'Last Name': ['Smith', 'Brown', 'Johnson']})
+
+db2 = pd.DataFrame({'First Name': ['Jon', 'Alyce', 'Michel'],
+                    'Last Name': ['Smithe', 'Brown', 'Johnsn']})
+
+# 1. Convert to lowercase
+db1['First Name'] = db1['First Name'].str.lower()
+db1['Last Name'] = db1['Last Name'].str.lower()
+
+db2['First Name'] = db2['First Name'].str.lower()
+db2['Last Name'] = db2['Last Name'].str.lower()
+
+# 2. (Optional) Remove unwanted characters using regex (if needed)
+db1['First Name'] = db1['First Name'].apply(lambda x: re.sub(r'[^a-z]', '', x))
+db2['First Name'] = db2['First Name'].apply(lambda x: re.sub(r'[^a-z]', '', x))
+
+# 3. Define a function to calculate similarity using TfidfVectorizer and cosine similarity
+def compute_similarity(name1, name2):
+    vectorizer = TfidfVectorizer().fit_transform([name1, name2])
+    vectors = vectorizer.toarray()
+    return cosine_similarity(vectors)[0, 1] * 100  # Convert similarity score to percentage
+
+# Apply the function to check similarity
+for i in range(len(db1)):
+    fn_score = compute_similarity(db1.iloc[i]['First Name'], db2.iloc[i]['First Name'])
+    ln_score = compute_similarity(db1.iloc[i]['Last Name'], db2.iloc[i]['Last Name'])
+    
+    print(f"First Name Similarity: {fn_score:.2f}%, Last Name Similarity: {ln_score:.2f}%")
