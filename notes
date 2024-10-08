@@ -27,9 +27,14 @@ def compute_similarity(name1, name2):
     vectors = vectorizer.toarray()
     return cosine_similarity(vectors)[0, 1] * 100  # Convert similarity score to percentage
 
-# Apply the function to check similarity
+# Create new columns for first and last name similarity in db1
+db1['First Name Similarity'] = None
+db1['Last Name Similarity'] = None
+
+# Apply the function to check similarity and store it in new columns
 for i in range(len(db1)):
-    fn_score = compute_similarity(db1.iloc[i]['First Name'], db2.iloc[i]['First Name'])
-    ln_score = compute_similarity(db1.iloc[i]['Last Name'], db2.iloc[i]['Last Name'])
-    
-    print(f"First Name Similarity: {fn_score:.2f}%, Last Name Similarity: {ln_score:.2f}%")
+    db1.at[i, 'First Name Similarity'] = compute_similarity(db1.iloc[i]['First Name'], db2.iloc[i]['First Name'])
+    db1.at[i, 'Last Name Similarity'] = compute_similarity(db1.iloc[i]['Last Name'], db2.iloc[i]['Last Name'])
+
+# Display the updated db1 DataFrame
+print(db1)
