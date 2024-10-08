@@ -1,16 +1,2 @@
-import pandas as pd
-
-# Sample DataFrame
-data = {
-    'col1': ['A', 'B', 'C'],
-    'col2': ['1', '2', '3']
-}
-df = pd.DataFrame(data)
-
-# Merge col1 and col2 into a new column 'merged'
-df['merged'] = df.apply(lambda row: f"{row['col1']}_{row['col2']}", axis=1)
-
-# Optional: If you want to drop col2 and keep only the merged column
-df = df.drop(columns=['col1', 'col2'])
-
-print(df)
+# Label average > 95 as 1, others as 0
+df['label'] = df['average'].apply(lambda x: 1 if x > 95 else 0)
