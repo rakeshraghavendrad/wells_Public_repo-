@@ -1,19 +1,27 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
 
-# Combine relevant fields into a single string for each record
-db1['combined'] = db1.apply(lambda x: ' '.join(x), axis=1)
-db2['combined'] = db2.apply(lambda x: ' '.join(x), axis=1)
+# Sample DataFrame
+data = {
+    'firstname.30': ['John', 'Alice', 'Bob', 'Jane'],
+    'firstname.90': ['Johnny', 'Alicia', 'Bobby', 'Janet']
+}
 
-# Create a TfidfVectorizer to convert the combined strings into vectors
-vectorizer = TfidfVectorizer()
+df1 = pd.DataFrame(data)
 
-# Fit the vectorizer to both datasets
-tfidf_matrix = vectorizer.fit_transform(pd.concat([db1['combined'], db2['combined']]))
+# Function to compute cosine similarity
+def cosine_similarity(str1, str2):
+    # Create CountVectorizer to convert the text to vectors
+    vectorizer = CountVectorizer().fit_transform([str1, str2])
+    vectors = vectorizer.toarray()
+    
+    # Compute the cosine similarity
+    cosine_sim = np.dot(vectors[0], vectors[1]) / (np.linalg.norm(vectors[0]) * np.linalg.norm(vectors[1]))
+    return cosine_sim
 
-# Compute cosine similarity
-cosine_sim_matrix = cosine_similarity(tfidf_matrix[:len(db1)], tfidf_matrix[len(db1):])
+# Apply the function to the specified columns
+df1['cosine_similarity'] = df1.apply(lambda row: cosine_similarity(row['firstname.30'], row['firstname.90']), axis=1)
 
-# Create a DataFrame for cosine similarity results
-cosine_sim_df = pd.DataFrame(cosine_sim_matrix, columns=db2.index, index=db1.index)
-print(cosine_sim_df)
+# Display the DataFrame with cosine similarity scores
+print(df1[['firstname.30', 'firstname.90', 'cosine_similarity']])
