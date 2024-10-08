@@ -1,27 +1,16 @@
 import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
 
 # Sample DataFrame
 data = {
-    'firstname.30': ['John', 'Alice', 'Bob', 'Jane'],
-    'firstname.90': ['Johnny', 'Alicia', 'Bobby', 'Janet']
+    'col1': ['A', 'B', 'C'],
+    'col2': ['1', '2', '3']
 }
+df = pd.DataFrame(data)
 
-df1 = pd.DataFrame(data)
+# Merge col1 and col2 into a new column 'merged'
+df['merged'] = df.apply(lambda row: f"{row['col1']}_{row['col2']}", axis=1)
 
-# Function to compute cosine similarity
-def cosine_similarity(str1, str2):
-    # Create CountVectorizer to convert the text to vectors
-    vectorizer = CountVectorizer().fit_transform([str1, str2])
-    vectors = vectorizer.toarray()
-    
-    # Compute the cosine similarity
-    cosine_sim = np.dot(vectors[0], vectors[1]) / (np.linalg.norm(vectors[0]) * np.linalg.norm(vectors[1]))
-    return cosine_sim
+# Optional: If you want to drop col2 and keep only the merged column
+df = df.drop(columns=['col1', 'col2'])
 
-# Apply the function to the specified columns
-df1['cosine_similarity'] = df1.apply(lambda row: cosine_similarity(row['firstname.30'], row['firstname.90']), axis=1)
-
-# Display the DataFrame with cosine similarity scores
-print(df1[['firstname.30', 'firstname.90', 'cosine_similarity']])
+print(df)
