@@ -1,40 +1,19 @@
-import pandas as pd
-import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Sample data for db1 and db2
-db1 = pd.DataFrame({'First Name': ['John', 'Alice', 'Michael'],
-                    'Last Name': ['Smith', 'Brown', 'Johnson']})
+# Combine relevant fields into a single string for each record
+db1['combined'] = db1.apply(lambda x: ' '.join(x), axis=1)
+db2['combined'] = db2.apply(lambda x: ' '.join(x), axis=1)
 
-db2 = pd.DataFrame({'First Name': ['Jon', 'Alyce', 'Michel'],
-                    'Last Name': ['Smithe', 'Brown', 'Johnsn']})
+# Create a TfidfVectorizer to convert the combined strings into vectors
+vectorizer = TfidfVectorizer()
 
-# 1. Convert to lowercase
-db1['First Name'] = db1['First Name'].str.lower()
-db1['Last Name'] = db1['Last Name'].str.lower()
+# Fit the vectorizer to both datasets
+tfidf_matrix = vectorizer.fit_transform(pd.concat([db1['combined'], db2['combined']]))
 
-db2['First Name'] = db2['First Name'].str.lower()
-db2['Last Name'] = db2['Last Name'].str.lower()
+# Compute cosine similarity
+cosine_sim_matrix = cosine_similarity(tfidf_matrix[:len(db1)], tfidf_matrix[len(db1):])
 
-# 2. (Optional) Remove unwanted characters using regex (if needed)
-db1['First Name'] = db1['First Name'].apply(lambda x: re.sub(r'[^a-z]', '', x))
-db2['First Name'] = db2['First Name'].apply(lambda x: re.sub(r'[^a-z]', '', x))
-
-# 3. Define a function to calculate similarity using TfidfVectorizer and cosine similarity
-def compute_similarity(name1, name2):
-    vectorizer = TfidfVectorizer().fit_transform([name1, name2])
-    vectors = vectorizer.toarray()
-    return cosine_similarity(vectors)[0, 1] * 100  # Convert similarity score to percentage
-
-# Create new columns for first and last name similarity in db1
-db1['First Name Similarity'] = None
-db1['Last Name Similarity'] = None
-
-# Apply the function to check similarity and store it in new columns
-for i in range(len(db1)):
-    db1.at[i, 'First Name Similarity'] = compute_similarity(db1.iloc[i]['First Name'], db2.iloc[i]['First Name'])
-    db1.at[i, 'Last Name Similarity'] = compute_similarity(db1.iloc[i]['Last Name'], db2.iloc[i]['Last Name'])
-
-# Display the updated db1 DataFrame
-print(db1)
+# Create a DataFrame for cosine similarity results
+cosine_sim_df = pd.DataFrame(cosine_sim_matrix, columns=db2.index, index=db1.index)
+print(cosine_sim_df)
