@@ -1,5 +1,1 @@
-I agree with the approach of focusing on name and date of birth (DOB) to generate a confidence score. However, since we are dealing with both first and last names, the initial ask was to provide separate confidence scores for each, along with scores for email, phone, and address, as some downstream applications will be consuming these scores, as confirmed by the line of business (LOB).
-
-You mentioned that we can include these additional scores in the payload. Could you clarify which method we are using to calculate these scores? Are we simply aggregating similarity scores, or is there another technique you're considering?
-
-I would appreciate your insights on this.
+While we are focusing on names and DOB for matching, there's a possibility that two individuals could have the same name and DOB (though I haven’t encountered this in the sample data provided). In such cases, how do we ensure we can accurately differentiate between customers?
