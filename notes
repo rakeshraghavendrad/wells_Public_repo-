@@ -1,1 +1,6 @@
-df.columns = df.columns.str.replace(r'[.\s()]+', '', regex=True)
+old_ls = df.columns
+new_ls = ['col1', 'col2']  # New column names, make sure it matches the length of old_ls
+
+# Use a loop to rename columns
+for old_name, new_name in zip(old_ls, new_ls):
+    df = df.withColumnRenamed(old_name, new_name)
