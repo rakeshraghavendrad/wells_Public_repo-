@@ -1,1 +1,13 @@
-While we are focusing on names and DOB for matching, there's a possibility that two individuals could have the same name and DOB (though I haven’t encountered this in the sample data provided). In such cases, how do we ensure we can accurately differentiate between customers?
+import pandas as pd
+
+# Sample DataFrame
+data = {
+    'fullname.30': ['John Paul Doe', 'Jane Marie Smith', 'Jim Bob Brown'],
+    'fullname.90': ['John Paul Doe', 'Jane Smith', 'Jim Brown']
+}
+df = pd.DataFrame(data)
+
+# Convert entire DataFrame to lowercase
+df_lower = df.applymap(lambda x: x.lower() if isinstance(x, str) else x)
+
+print(df_lower)
