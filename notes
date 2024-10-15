@@ -1,10 +1,29 @@
-# Define the score bins and labels
-bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-labels = ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-0.5', 
-          '0.5-0.6', '0.6-0.7', '0.7-0.8', '0.8-0.9', '0.9-1.0']
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-# Create a new column for the score range
-df['score_range'] = pd.cut(df['jarowinkler_score'], bins=bins, labels=labels, include_lowest=True)
+# Sample data
+data = {
+    'fullname.30': ['John Doe', 'Jane Smith', 'Alice Johnson'],
+    'fullname.90': ['Johnathan Doe', 'Jane S. Smith', 'A. Johnson']
+}
 
-# Group by the score range and get the count
-result = df.groupby('score_range').size().reset_index(name='count')
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Initialize CountVectorizer
+vectorizer = CountVectorizer()
+
+# Fit and transform the text data for both columns
+vector_30 = vectorizer.fit_transform(df['fullname.30'])
+vector_90 = vectorizer.transform(df['fullname.90'])
+
+# Calculate the cosine similarity between the vectors
+cosine_sim = cosine_similarity(vector_30, vector_90)
+
+# Add the cosine similarity values to the DataFrame
+df['cosine_similarity'] = [cosine_sim[i, i] for i in range(len(df))]
+
+# Show the DataFrame
+print(df)
+
