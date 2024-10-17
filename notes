@@ -1,29 +1,77 @@
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+ from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer
 
-# Sample data
-data = {
-    'fullname.30': ['John Doe', 'Jane Smith', 'Alice Johnson'],
-    'fullname.90': ['Johnathan Doe', 'Jane S. Smith', 'A. Johnson']
-}
+# Initialize a pre-trained sentence transformer model
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Create a DataFrame
-df = pd.DataFrame(data)
+# Dummy dataset
+data = [
+    {"firstname.db1": "John", "lastname.db1": "Doe", "email.db1": "john.doe@example.com",
+     "firstname.db2": "Jon", "lastname.db2": "Do", "email.db2": "jon.d@example.com"},
+    {"firstname.db1": "Jane", "lastname.db1": "Smith", "email.db1": "jane.smith@gmail.com",
+     "firstname.db2": "Janet", "lastname.db2": "Smyth", "email.db2": "jane.s@example.com"},
+    {"firstname.db1": "Michael", "lastname.db1": "Brown", "email.db1": "mike.brown@yahoo.com",
+     "firstname.db2": "Micheal", "lastname.db2": "Browne", "email.db2": "m.brown@yahoo.com"}
+]
 
-# Initialize CountVectorizer
-vectorizer = CountVectorizer()
+# Function to calculate cosine similarity between embeddings
+def calculate_similarity(text1, text2):
+    embeddings1 = model.encode([text1])
+    embeddings2 = model.encode([text2])
+    similarity_score = cosine_similarity(embeddings1, embeddings2)[0][0]
+    return similarity_score
 
-# Fit and transform the text data for both columns
-vector_30 = vectorizer.fit_transform(df['fullname.30'])
-vector_90 = vectorizer.transform(df['fullname.90'])
+# Calculate similarity scores for firstname, lastname, and email
+results = []
+for entry in data:
+    firstname_score = calculate_similarity(entry["firstname.db1"], entry["firstname.db2"])
+    lastname_score = calculate_similarity(entry["lastname.db1"], entry["lastname.db2"])
+    email_score = calculate_similarity(entry["email.db1"], entry["email.db2"])
+    fullname_score = calculate_similarity(
+        f"{entry['firstname.db1']} {entry['lastname.db1']}",
+        f"{entry['firstname.db2']} {entry['lastname.db2']}"
+    )
+    
+    results.append({
+        "firstname.db1": entry["firstname.db1"], "lastname.db1": entry["lastname.db1"], "email.db1": entry["email.db1"],
+        "firstname.db2": entry["firstname.db2"], "lastname.db2": entry["lastname.db2"], "email.db2": entry["email.db2"],
+        "fullname_confidence_score": fullname_score,
+        "firstname_confidence_score": firstname_score,
+        "lastname_confidence_score": lastname_score,
+        "email_confidence_score": email_score
+    })
 
-# Calculate the cosine similarity between the vectors
-cosine_sim = cosine_similarity(vector_30, vector_90)
+# Display the results
+for res in results:
+    print(res)
 
-# Add the cosine similarity values to the DataFrame
-df['cosine_similarity'] = [cosine_sim[i, i] for i in range(len(df))]
 
-# Show the DataFrame
-print(df)
 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+
+# Ground truth labels (1 for match, 0 for non-match)
+ground_truth = [1, 0, 1]  # Replace with actual labels
+
+# Predicted similarity scores
+predicted_scores = [res['fullname_confidence_score'] for res in results]
+
+# Apply a threshold to convert similarity scores to binary predictions
+threshold = 0.7
+predicted_labels = [1 if score >= threshold else 0 for score in predicted_scores]
+
+# Calculate evaluation metrics
+accuracy = accuracy_score(ground_truth, predicted_labels)
+precision = precision_score(ground_truth, predicted_labels)
+recall = recall_score(ground_truth, predicted_labels)
+f1 = f1_score(ground_truth, predicted_labels)
+roc_auc = roc_auc_score(ground_truth, predicted_scores)
+conf_matrix = confusion_matrix(ground_truth, predicted_labels)
+
+# Print metrics
+print(f"Accuracy: {accuracy:.2f}")
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")
+print(f"F1-Score: {f1:.2f}")
+print(f"ROC AUC: {roc_auc:.2f}")
+print("Confusion Matrix:")
+print(conf_matrix)
