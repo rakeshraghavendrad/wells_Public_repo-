@@ -1,77 +1,20 @@
- from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
+import pandas as pd
 
-# Initialize a pre-trained sentence transformer model
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# Sample DataFrame
+data = {
+    'Name': ['Alice', 'Bob!', 'Charlie@', 'David#'],
+    'City': ['New York', 'San Francisco', 'Los!Angeles', 'Miami'],
+    'Age': [25, 30, 35, 40]
+}
+df = pd.DataFrame(data)
 
-# Dummy dataset
-data = [
-    {"firstname.db1": "John", "lastname.db1": "Doe", "email.db1": "john.doe@example.com",
-     "firstname.db2": "Jon", "lastname.db2": "Do", "email.db2": "jon.d@example.com"},
-    {"firstname.db1": "Jane", "lastname.db1": "Smith", "email.db1": "jane.smith@gmail.com",
-     "firstname.db2": "Janet", "lastname.db2": "Smyth", "email.db2": "jane.s@example.com"},
-    {"firstname.db1": "Michael", "lastname.db1": "Brown", "email.db1": "mike.brown@yahoo.com",
-     "firstname.db2": "Micheal", "lastname.db2": "Browne", "email.db2": "m.brown@yahoo.com"}
-]
+# Define a regex pattern for special characters
+special_char_pattern = r'[^a-zA-Z0-9\s]'
 
-# Function to calculate cosine similarity between embeddings
-def calculate_similarity(text1, text2):
-    embeddings1 = model.encode([text1])
-    embeddings2 = model.encode([text2])
-    similarity_score = cosine_similarity(embeddings1, embeddings2)[0][0]
-    return similarity_score
+# Find rows with special characters in any column
+rows_with_special_chars = df.apply(lambda row: row.astype(str).str.contains(special_char_pattern).any(), axis=1)
 
-# Calculate similarity scores for firstname, lastname, and email
-results = []
-for entry in data:
-    firstname_score = calculate_similarity(entry["firstname.db1"], entry["firstname.db2"])
-    lastname_score = calculate_similarity(entry["lastname.db1"], entry["lastname.db2"])
-    email_score = calculate_similarity(entry["email.db1"], entry["email.db2"])
-    fullname_score = calculate_similarity(
-        f"{entry['firstname.db1']} {entry['lastname.db1']}",
-        f"{entry['firstname.db2']} {entry['lastname.db2']}"
-    )
-    
-    results.append({
-        "firstname.db1": entry["firstname.db1"], "lastname.db1": entry["lastname.db1"], "email.db1": entry["email.db1"],
-        "firstname.db2": entry["firstname.db2"], "lastname.db2": entry["lastname.db2"], "email.db2": entry["email.db2"],
-        "fullname_confidence_score": fullname_score,
-        "firstname_confidence_score": firstname_score,
-        "lastname_confidence_score": lastname_score,
-        "email_confidence_score": email_score
-    })
+# Display rows containing special characters
+special_char_df = df[rows_with_special_chars]
 
-# Display the results
-for res in results:
-    print(res)
-
-
-
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
-
-# Ground truth labels (1 for match, 0 for non-match)
-ground_truth = [1, 0, 1]  # Replace with actual labels
-
-# Predicted similarity scores
-predicted_scores = [res['fullname_confidence_score'] for res in results]
-
-# Apply a threshold to convert similarity scores to binary predictions
-threshold = 0.7
-predicted_labels = [1 if score >= threshold else 0 for score in predicted_scores]
-
-# Calculate evaluation metrics
-accuracy = accuracy_score(ground_truth, predicted_labels)
-precision = precision_score(ground_truth, predicted_labels)
-recall = recall_score(ground_truth, predicted_labels)
-f1 = f1_score(ground_truth, predicted_labels)
-roc_auc = roc_auc_score(ground_truth, predicted_scores)
-conf_matrix = confusion_matrix(ground_truth, predicted_labels)
-
-# Print metrics
-print(f"Accuracy: {accuracy:.2f}")
-print(f"Precision: {precision:.2f}")
-print(f"Recall: {recall:.2f}")
-print(f"F1-Score: {f1:.2f}")
-print(f"ROC AUC: {roc_auc:.2f}")
-print("Confusion Matrix:")
-print(conf_matrix)
+print(special_char_df)
