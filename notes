@@ -1,20 +1,5 @@
-import pandas as pd
+I've compiled and categorized the reason codes in the attached Excel file. Please review and share your thoughts.
 
-# Sample DataFrame
-data = {
-    'Name': ['Alice', 'Bob!', 'Charlie@', 'David#'],
-    'City': ['New York', 'San Francisco', 'Los!Angeles', 'Miami'],
-    'Age': [25, 30, 35, 40]
-}
-df = pd.DataFrame(data)
+Additionally, I noticed that the DOB field displays as '*****,' which might indicate that the data is missing. Am I the only one seeing it this way? If this field isn't available, we may need to consult with the LOB to verify the data.
 
-# Define a regex pattern for special characters
-special_char_pattern = r'[^a-zA-Z0-9\s]'
-
-# Find rows with special characters in any column
-rows_with_special_chars = df.apply(lambda row: row.astype(str).str.contains(special_char_pattern).any(), axis=1)
-
-# Display rows containing special characters
-special_char_df = df[rows_with_special_chars]
-
-print(special_char_df)
+For our analysis, I’ve also combined the August and September data into a single CSV file. Please find the link attached.
