@@ -109,3 +109,14 @@ df['similarity_score_percentage'] = df.apply(lambda row: address_similarity_scor
 
 # Display the results
 print(df[['address1', 'address2', 'similarity_score_percentage']])
+
+
+
+import matplotlib.pyplot as plt
+
+# Plot distribution of similarity scores
+plt.hist(df['similarity_score_percentage'], bins=10, color='skyblue', edgecolor='black')
+plt.xlabel('Similarity Score (%)')
+plt.ylabel('Frequency')
+plt.title('Distribution of Similarity Scores')
+plt.show()
