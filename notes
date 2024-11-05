@@ -55,3 +55,57 @@ df['similarity_score'] = df.apply(lambda row: address_similarity_score(row['addr
 
 # Display the results
 print(df[['address1', 'address2', 'similarity_score']])
+
+
+
+
+
+https://arxiv.org/abs/2410.17279v1
+
+https://www.mdpi.com/1999-5903/15/7/229
+
+
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from textdistance import jaccard
+
+# Sample data
+data = {
+    'address1': [
+        "123 Main St Apt 4", "456 Elm St", "789 Oak Ave", "100 Maple Rd",
+        "22 Pine St", "33 Cedar Blvd", "99 Birch Ln", "555 Walnut Ave",
+        "40 Spruce St", "101 Palm Dr"
+    ],
+    'address2': [
+        "Apt 4, 123 Main Street", "Elm Street 456", "789 Oak Avenue", 
+        "Maple Road 100", "Pine Street 22", "Cedar Boulevard 33", 
+        "Lane 99 Birch", "555 Walnut Avenue", "Spruce Street 40", 
+        "Palm Drive 101"
+    ]
+}
+
+# Load into a DataFrame
+df = pd.DataFrame(data)
+
+# Jaccard similarity function
+def jaccard_similarity(str1, str2):
+    return jaccard(str1.split(), str2.split())
+
+# Cosine similarity function
+def cosine_sim(str1, str2):
+    vectorizer = CountVectorizer().fit_transform([str1, str2])
+    vectors = vectorizer.toarray()
+    return cosine_similarity(vectors)[0, 1]
+
+# Combined similarity score
+def address_similarity_score(address1, address2, weight_jaccard=0.5, weight_cosine=0.5):
+    jaccard_score = jaccard_similarity(address1, address2)
+    cosine_score = cosine_sim(address1, address2)
+    return (weight_jaccard * jaccard_score + weight_cosine * cosine_score) * 100  # Convert to percentage
+
+# Calculate similarity for each row and store in a new column
+df['similarity_score_percentage'] = df.apply(lambda row: address_similarity_score(row['address1'], row['address2']), axis=1)
+
+# Display the results
+print(df[['address1', 'address2', 'similarity_score_percentage']])
