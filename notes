@@ -120,3 +120,17 @@ plt.xlabel('Similarity Score (%)')
 plt.ylabel('Frequency')
 plt.title('Distribution of Similarity Scores')
 plt.show()
+
+
+## sample records 
+# Perform a manual spot check on a few high, medium, and low similarity scores
+high_similarity = df[df['similarity_score_percentage'] > 70].sample(3)
+medium_similarity = df[(df['similarity_score_percentage'] >= 40) & (df['similarity_score_percentage'] <= 70)].sample(3)
+low_similarity = df[df['similarity_score_percentage'] < 40].sample(3)
+
+print("High Similarity Samples:")
+print(high_similarity[['address1', 'address2', 'similarity_score_percentage']])
+print("\nMedium Similarity Samples:")
+print(medium_similarity[['address1', 'address2', 'similarity_score_percentage']])
+print("\nLow Similarity Samples:")
+print(low_similarity[['address1', 'address2', 'similarity_score_percentage']])
