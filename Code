@@ -1,89 +1,60 @@
-from pyspark.sql import SparkSession
-from pysparkling import H2OContext
-from h2o.estimators import H2OGeneralizedLinearEstimator, H2ORandomForestEstimator, H2OXGBoostEstimator
-from h2o.grid.grid_search import H2OGridSearch
+Address Matching with Combined Similarity Scores
+As discussed in the paper "A Comprehensive Evaluation of Similarity Measures for Address Matching" (https://arxiv.org/abs/2410.17279v1), we recommend utilizing a combination of similarity scores for effective address matching. This approach leverages the strengths of different algorithms to improve the accuracy and robustness of the matching process.
 
-# Assuming you have already set up a SparkSession
-spark = SparkSession.builder.appName("PropensityScorePrediction").getOrCreate()
+Similarity Scores
+Jaccard Similarity:
 
-# Start and connect to H2O
-hc = H2OContext.getOrCreate(spark)
+Description: Jaccard similarity calculates the overlap of tokens by splitting strings into words, measuring how many words are common between the two addresses.
+Advantages:
+Effective for comparing sets of words.
+Captures exact matches between tokens well, which is useful for identifying common words or phrases.
+Disadvantages:
+Ignores the order of words, which can be significant in some contexts.
+Sensitive to minor variations in spelling or tokenization.
+Cosine Similarity:
 
-# Assuming your dataset is stored in a Spark DataFrame 'df'
+Description: Cosine similarity uses the CountVectorizer to create vector representations of the addresses and computes the cosine of the angle between these vectors, taking into account the frequency of each word.
+Advantages:
+Captures variations in word frequency, making it better suited for longer addresses with more descriptive terms.
+Sensitive to partial overlaps in tokens, allowing for a more nuanced comparison.
+Disadvantages:
+More complex to compute due to the need for vectorization.
+Relies on the quality of the vector representation, such as using TF-IDF or Count Vectorizer.
+Combination of Scores:
 
-# Convert Spark DataFrame to H2OFrame
-h2o_df = hc.as_h2o_frame(df)
+By calculating a weighted average of Jaccard and Cosine similarity scores, we can achieve a balance that captures both token overlap and frequency sensitivity. This combined approach provides a more comprehensive evaluation of similarity.
+Preprocessing and Scoring
+In our implementation, we applied minimal preprocessing to the addresses before scoring, which yielded satisfactory results. However, we believe that with greater preprocessing efforts, such as standardizing abbreviations and normalizing text, we can achieve even more refined similarity distributions.
 
-# Split the H2OFrame into training and testing sets
-train, test = h2o_df.split_frame(ratios=[0.8], seed=42)
+For our analysis, we established thresholds for similarity scores:
 
-# Define features and target column
-feature_cols = ['demographic views', 'bucket']
-target_col = 'target'
+High Similarity: > 0.70
+Moderate Similarity: >= 0.40 to <= 0.70
+Low Similarity: <= 0.40
+These thresholds are based on preliminary observations and can be adjusted through further discussion and analysis.
 
-# Logistic Regression
-lr_model = H2OGeneralizedLinearEstimator(family='binomial', lambda_search=True)
-lr_model.train(x=feature_cols, y=target_col, training_frame=train)
+Sample Records
+Here are sample records categorized into three buckets based on similarity scores:
 
-# Decision Tree
-dt_model = H2ORandomForestEstimator(ntrees=50, max_depth=20, seed=42)
-dt_model.train(x=feature_cols, y=target_col, training_frame=train)
+High Similarity
+Moderate Similarity: In this category, we observed that the application data often contained short forms compared to the main database.
+Low Similarity
+Future Improvements
+Incorporation of Additional Similarity Measures: We can explore other similarity scores, such as Levenshtein distance, and experiment with their weights to optimize the overall matching score and evaluate performance.
 
-# Random Forest
-rf_model = H2ORandomForestEstimator(ntrees=100, max_depth=15, seed=42)
-rf_model.train(x=feature_cols, y=target_col, training_frame=train)
+Abbreviation Mapping: Implementing a manual mapping for common abbreviations will enhance the scoring process. For example:
 
-# Model Evaluation
-lr_preds = lr_model.predict(test)
-dt_preds = dt_model.predict(test)
-rf_preds = rf_model.predict(test)
-
-# Extract propensity scores
-lr_propensity_scores = lr_preds['p1'].as_data_frame()['p1'].values
-dt_propensity_scores = dt_preds['p1'].as_data_frame()['p1'].values
-rf_propensity_scores = rf_preds['p1'].as_data_frame()['p1'].values
-
-# Choose the best model based on AUC-ROC
-lr_auc = lr_model.auc(valid=True)
-dt_auc = dt_model.auc(valid=True)
-rf_auc = rf_model.auc(valid=True)
-
-best_model = max([(lr_auc, 'Logistic Regression'),
-                  (dt_auc, 'Decision Tree'),
-                  (rf_auc, 'Random Forest')])
-
-print(f"The best model is {best_model[1]} with AUC-ROC: {best_model[0]}")
-
-# Propensity Score Prediction for a specific customer number (inp)
-inp_data = h2o_df[h2o_df['cust_num'] == inp].drop(['cust_num', 'target'])
-
-# Output Propensity Scores for the best model
-if best_model[1] == 'Logistic Regression':
-    propensity_scores = lr_model.predict(inp_data)['p1'].as_data_frame()['p1'].values[0]
-elif best_model[1] == 'Decision Tree':
-    propensity_scores = dt_model.predict(inp_data)['p1'].as_data_frame()['p1'].values[0]
-else:
-    propensity_scores = rf_model.predict(inp_data)['p1'].as_data_frame()['p1'].values[0]
-
-print(f"Propensity Scores: {propensity_scores}")
-
-# Stop SparkSession and H2OContext
-hc.stop()
-spark.stop()
-
-
-
-
-import pandas as pd
-
-# Sample dataset
-data = {
-    'cust_num': [32312, 2343, 2423, 3412],
-    'demographic views': ['cn', 'rw', 'qa', 'xyz'],
-    'bucket': ['phone', 'transaction', 'pay', 'phone'],
-    'target': [0, 1, 1, 0]
+python
+Copy code
+abbreviation_mapping = {
+    "St": "Street",
+    "Ave": "Avenue",
+    "Blvd": "Boulevard",
+    "Rd": "Road",
+    "Ln": "Lane",
+    "Apt": "Apartment",
 }
+This additional step will help improve the matching scores by standardizing commonly used short forms in addresses.
 
-df = pd.DataFrame(data)
-
-print(df)
+Conclusion
+By combining Jaccard and Cosine similarity, we can create a more robust system for address matching that leverages the strengths of each method while addressing their weaknesses. Implementing further preprocessing and similarity measures can significantly enhance our results and provide a more accurate reflection of the true similarity between addresses.
