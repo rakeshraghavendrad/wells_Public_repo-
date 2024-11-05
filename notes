@@ -1,65 +1,3 @@
-import numpy as np
-import pandas as pd
-
-# Sample data (replace with your actual data)
-data = {
-    'address1': [
-        "123 Main St Apt 4", "456 Elm St", "789 Oak Ave", "100 Maple Rd",
-        "22 Pine St", "33 Cedar Blvd", "99 Birch Ln", "555 Walnut Ave",
-        "40 Spruce St", "101 Palm Dr"
-    ],
-    'address2': [
-        "Apt 4, 123 Main Street", "Elm Street 456", "789 Oak Avenue", 
-        "Maple Road 100", "Pine Street 22", "Cedar Boulevard 33", 
-        "Lane 99 Birch", "555 Walnut Avenue", "Spruce Street 40", 
-        "Palm Drive 101"
-    ]
-}
-
-# Load into a DataFrame
-df = pd.DataFrame(data)
-
-def jaccard_similarity(str1, str2):
-    set1 = set(str1.lower().split())
-    set2 = set(str2.lower().split())
-    intersection = set1.intersection(set2)
-    union = set1.union(set2)
-    return len(intersection) / len(union) if union else 0
-
-def levenshtein_distance(str1, str2):
-    matrix = np.zeros((len(str1) + 1, len(str2) + 1))
-    for i in range(len(str1) + 1):
-        matrix[i][0] = i
-    for j in range(len(str2) + 1):
-        matrix[0][j] = j
-    for i in range(1, len(str1) + 1):
-        for j in range(1, len(str2) + 1):
-            if str1[i-1] == str2[j-1]:
-                cost = 0
-            else:
-                cost = 1
-            matrix[i][j] = min(matrix[i-1][j] + 1,
-                               matrix[i][j-1] + 1,
-                               matrix[i-1][j-1] + cost)
-    return matrix[len(str1)][len(str2)]
-
-def address_similarity_score(address1, address2, weight_jaccard=0.5, weight_levenshtein=0.5):
-    jaccard_score = jaccard_similarity(address1, address2)
-    max_len = max(len(address1), len(address2))
-    levenshtein_score = 1 - (levenshtein_distance(address1, address2) / max_len) if max_len else 0
-    overall_score = (weight_jaccard * jaccard_score) + (weight_levenshtein * levenshtein_score)
-    return overall_score
-
-# Calculate similarity for each row and store in a new column
-df['similarity_score'] = df.apply(lambda row: address_similarity_score(row['address1'], row['address2']), axis=1)
-
-# Display the results
-print(df[['address1', 'address2', 'similarity_score']])
-
-
-
-
-
 https://arxiv.org/abs/2410.17279v1
 
 https://www.mdpi.com/1999-5903/15/7/229
@@ -134,3 +72,11 @@ print("\nMedium Similarity Samples:")
 print(medium_similarity[['address1', 'address2', 'similarity_score_percentage']])
 print("\nLow Similarity Samples:")
 print(low_similarity[['address1', 'address2', 'similarity_score_percentage']])
+
+
+
+def clean_address(address):
+    address = address.lower()  # Normalize case
+    address = re.sub(r'[^\w\s]', '', address)  # Remove punctuation
+    address = re.sub(r'\s+', ' ', address).strip()  # Remove extra spaces
+    return address
