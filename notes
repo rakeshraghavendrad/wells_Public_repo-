@@ -1,170 +1,42 @@
+Using a combination of Jaccard, Cosine, and Levenshtein similarity scores offers a robust method for address matching because each metric addresses specific strengths and limitations of the other measures. Here’s a breakdown of the advantages and how each score complements the others:
 
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from textdistance import jaccard, levenshtein
-import re
+1. Jaccard Similarity:
 
-# Sample data
-data = {
-    'address1': [
-        "123 Main St Apt 4", "456 Elm St", "789 Oak Ave", "100 Maple Rd",
-        "22 Pine St", "33 Cedar Blvd", "99 Birch Ln", "555 Walnut Ave",
-        "40 Spruce St", "101 Palm Dr"
-    ],
-    'address2': [
-        "Apt 4, 123 Main Street", "Elm Street 456", "789 Oak Avenue", 
-        "Maple Road 100", "Pine Street 22", "Cedar Boulevard 33", 
-        "Lane 99 Birch", "555 Walnut Avenue", "Spruce Street 40", 
-        "Palm Drive 101"
-    ]
-}
+	•	Advantage: Jaccard similarity is ideal for capturing exact token matches (e.g., words or phrases) between two addresses. It calculates the ratio of shared tokens to total unique tokens, focusing on token overlap.
+	•	Disadvantage: It can be overly strict and sensitive to variations, penalizing differences in tokens that might still be contextually similar. For example, “Main Street” vs. “Main St” would have a lower score due to token variation.
+	•	How Other Scores Compensate:
+	•	Cosine similarity accounts for partial matches and is more forgiving with variations in token frequency, which helps address minor token differences.
+	•	Levenshtein similarity allows for character-level differences, such as abbreviations or minor typos (e.g., “St.” vs. “Street”), making it a good supplement when Jaccard is too strict.
 
-# Load into a DataFrame
-df = pd.DataFrame(data)
+2. Cosine Similarity:
 
-# Abbreviation mapping
-abbreviation_mapping = {
-    "St": "Street",
-    "Ave": "Avenue",
-    "Blvd": "Boulevard",
-    "Rd": "Road",
-    "Ln": "Lane",
-    "Apt": "Apartment",
-}
+	•	Advantage: Cosine similarity measures the angle between vectorized text representations, focusing on the frequency of terms rather than exact matches. This allows it to capture similarity even when token sequences differ, making it useful when addresses have additional descriptive terms (e.g., “123 Main Street Apt 4” vs. “Main St Apt 4”).
+	•	Disadvantage: Cosine similarity might score dissimilar addresses too highly if they share some common terms, potentially giving partial matches a higher score than desired.
+	•	How Other Scores Compensate:
+	•	Jaccard similarity reduces the effect of purely frequency-based matches, as it only considers exact token overlap, preventing unrelated addresses from scoring too highly.
+	•	Levenshtein similarity fine-tunes the matching by handling minor typos and character-level differences, where cosine might struggle.
 
-# Address standardization and cleaning functions
-def standardize_address(address):
-    for abbr, full in abbreviation_mapping.items():
-        address = address.replace(abbr, full)
-    return address
+3. Levenshtein Similarity:
 
-def clean_address(address):
-    address = address.lower()  # Normalize case
-    address = re.sub(r'[^\w\s]', '', address)  # Remove punctuation
-    address = re.sub(r'\s+', ' ', address).strip()  # Remove extra spaces
-    return address
+	•	Advantage: Levenshtein similarity measures character-level edits (insertions, deletions, substitutions) needed to transform one address into another, making it useful for handling spelling mistakes, abbreviations, or minor formatting differences.
+	•	Disadvantage: It can be overly sensitive to length differences and is less effective for capturing context if the structure or order of words is very different.
+	•	How Other Scores Compensate:
+	•	Jaccard similarity reinforces token-level matching, ensuring that minor character edits don’t overly inflate similarity scores for otherwise dissimilar addresses.
+	•	Cosine similarity captures frequency and context by focusing on word vectors, adding robustness for partially matching terms that Levenshtein might miss due to strict edit-distance calculations.
 
-def preprocess_address(address):
-    address = standardize_address(address)
-    address = clean_address(address)
-    return address
+Example Scenario: Address Matching Robustness
 
-# Preprocess addresses
-df['address1'] = df['address1'].apply(preprocess_address)
-df['address2'] = df['address2'].apply(preprocess_address)
+Let’s say we are comparing two addresses:
+	•	Address 1: "123 Main Street Apt 4"
+	•	Address 2: "Apt 4, 123 Main St"
 
-# Jaccard similarity function
-def jaccard_similarity(str1, str2):
-    return jaccard(str1.split(), str2.split())
+	1.	Jaccard: This score would capture the token overlap between these addresses, focusing on shared terms like "Main", "Street", and "Apt". However, due to the tokenization, “Street” vs. “St” might lower the score slightly.
+	2.	Cosine: This score would account for the frequency and vector representation of words. Since both addresses mention "Main" and "Apt", cosine similarity would provide a reasonable match, even though "Street" is abbreviated in Address 2. Cosine allows the model to capture similarity despite the order of words.
+	3.	Levenshtein: This score would capture minor character edits between terms, such as "Street" and "St", and the reordering of terms (like moving "Apt 4" to the beginning of Address 2). It ensures small typos or abbreviations don’t overly penalize the similarity score.
 
-# Cosine similarity function
-def cosine_sim(str1, str2):
-    vectorizer = CountVectorizer().fit_transform([str1, str2])
-    vectors = vectorizer.toarray()
-    return cosine_similarity(vectors)[0, 1]
+With weights like 0.333 for each, these scores collectively yield a balanced measure. By combining all three:
+	•	Token-level precision from Jaccard is retained,
+	•	Term frequency context from Cosine provides flexibility,
+	•	Character-level tolerance from Levenshtein corrects for minor formatting or spelling variations.
 
-# Levenshtein similarity function
-def levenshtein_similarity(str1, str2):
-    # Normalize Levenshtein distance to similarity between 0 and 1
-    max_len = max(len(str1), len(str2))
-    if max_len == 0:
-        return 1.0  # If both strings are empty, they are identical
-    return 1 - (levenshtein(str1, str2) / max_len)
-
-# Combined similarity score with adjustable weights
-def address_similarity_score(address1, address2, weight_jaccard=0.3, weight_cosine=0.3, weight_levenshtein=0.4):
-    jaccard_score = jaccard_similarity(address1, address2)
-    cosine_score = cosine_sim(address1, address2)
-    levenshtein_score = levenshtein_similarity(address1, address2)
-    combined_score = (weight_jaccard * jaccard_score +
-                      weight_cosine * cosine_score +
-                      weight_levenshtein * levenshtein_score) * 100  # Convert to percentage
-    return combined_score
-
-# Calculate similarity for each row and store in a new column
-df['similarity_score_percentage'] = df.apply(lambda row: address_similarity_score(row['address1'], row['address2']), axis=1)
-
-# Display the results
-print(df[['address1', 'address2', 'similarity_score_percentage']])https://arxiv.org/abs/2410.17279v1
-
-https://www.mdpi.com/1999-5903/15/7/229
-
-
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from textdistance import jaccard
-
-# Sample data
-data = {
-    'address1': [
-        "123 Main St Apt 4", "456 Elm St", "789 Oak Ave", "100 Maple Rd",
-        "22 Pine St", "33 Cedar Blvd", "99 Birch Ln", "555 Walnut Ave",
-        "40 Spruce St", "101 Palm Dr"
-    ],
-    'address2': [
-        "Apt 4, 123 Main Street", "Elm Street 456", "789 Oak Avenue", 
-        "Maple Road 100", "Pine Street 22", "Cedar Boulevard 33", 
-        "Lane 99 Birch", "555 Walnut Avenue", "Spruce Street 40", 
-        "Palm Drive 101"
-    ]
-}
-
-# Load into a DataFrame
-df = pd.DataFrame(data)
-
-# Jaccard similarity function
-def jaccard_similarity(str1, str2):
-    return jaccard(str1.split(), str2.split())
-
-# Cosine similarity function
-def cosine_sim(str1, str2):
-    vectorizer = CountVectorizer().fit_transform([str1, str2])
-    vectors = vectorizer.toarray()
-    return cosine_similarity(vectors)[0, 1]
-
-# Combined similarity score
-def address_similarity_score(address1, address2, weight_jaccard=0.5, weight_cosine=0.5):
-    jaccard_score = jaccard_similarity(address1, address2)
-    cosine_score = cosine_sim(address1, address2)
-    return (weight_jaccard * jaccard_score + weight_cosine * cosine_score) * 100  # Convert to percentage
-
-# Calculate similarity for each row and store in a new column
-df['similarity_score_percentage'] = df.apply(lambda row: address_similarity_score(row['address1'], row['address2']), axis=1)
-
-# Display the results
-print(df[['address1', 'address2', 'similarity_score_percentage']])
-
-
-
-import matplotlib.pyplot as plt
-
-# Plot distribution of similarity scores
-plt.hist(df['similarity_score_percentage'], bins=10, color='skyblue', edgecolor='black')
-plt.xlabel('Similarity Score (%)')
-plt.ylabel('Frequency')
-plt.title('Distribution of Similarity Scores')
-plt.show()
-
-
-## sample records 
-# Perform a manual spot check on a few high, medium, and low similarity scores
-high_similarity = df[df['similarity_score_percentage'] > 70].sample(3)
-medium_similarity = df[(df['similarity_score_percentage'] >= 40) & (df['similarity_score_percentage'] <= 70)].sample(3)
-low_similarity = df[df['similarity_score_percentage'] < 40].sample(3)
-
-print("High Similarity Samples:")
-print(high_similarity[['address1', 'address2', 'similarity_score_percentage']])
-print("\nMedium Similarity Samples:")
-print(medium_similarity[['address1', 'address2', 'similarity_score_percentage']])
-print("\nLow Similarity Samples:")
-print(low_similarity[['address1', 'address2', 'similarity_score_percentage']])
-
-
-
-def clean_address(address):
-    address = address.lower()  # Normalize case
-    address = re.sub(r'[^\w\s]', '', address)  # Remove punctuation
-    address = re.sub(r'\s+', ' ', address).strip()  # Remove extra spaces
-    return address
+This combination offers a more nuanced and robust match, better reflecting similarity across diverse address formats than any individual score alone.
