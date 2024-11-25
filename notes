@@ -40,3 +40,16 @@ With weights like 0.333 for each, these scores collectively yield a balanced mea
 	•	Character-level tolerance from Levenshtein corrects for minor formatting or spelling variations.
 
 This combination offers a more nuanced and robust match, better reflecting similarity across diverse address formats than any individual score alone.
+
+
+
+
+
+
+# Levenshtein similarity function using textdistance
+def levenshtein_similarity(str1, str2):
+    # Normalize Levenshtein distance to similarity between 0 and 1
+    max_len = max(len(str1), len(str2))
+    if max_len == 0:
+        return 1.0  # If both strings are empty, they are identical
+    return 1 - (textdistance.levenshtein.distance(str1, str2) / max_len)
