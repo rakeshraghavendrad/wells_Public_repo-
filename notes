@@ -1,52 +1,5 @@
-def preprocess_address(address):
-    address = standardize_address(address)
-    address = clean_address(address)
-    return address
+I am currently running a Spark cluster on my pod, and I have noticed that execution times have significantly increased. After running for a while, the process fails due to memory issues.
 
+Previously, I was able to successfully label 50,000 records without encountering such problems. However, over the past 2-3 days, this issue has become consistent. I suspect that the memory allocated to my pod might have been reduced compared to earlier settings.
 
-# Chunk processing function
-def process_and_label_chunks(df, chunk_size=5000):
-    results = []
-    for i in range(0, len(df), chunk_size):
-        # Extract chunk
-        chunk = df.iloc[i:i+chunk_size].copy()
-        
-        # Preprocess the chunk
-        chunk['address1'] = chunk['address1'].apply(preprocess_address)
-        chunk['address2'] = chunk['address2'].apply(preprocess_address)
-        
-        # Calculate similarity scores
-        chunk['similarity_score_percentage'] = chunk.apply(
-            lambda row: address_similarity_score(row['address1'], row['address2']), axis=1
-        )
-        
-        # Collect results
-        results.append(chunk)
-    
-    # Combine all processed chunks
-    final_df = pd.concat(results, ignore_index=True)
-    return final_df
-
-# Example Usage
-data = {
-    'address1': [
-        "123 Main St Apt 4", "456 Elm St", "789 Oak Ave", "100 Maple Rd",
-        "22 Pine St", "33 Cedar Blvd", "99 Birch Ln", "555 Walnut Ave",
-        "40 Spruce St", "101 Palm Dr"
-    ],
-    'address2': [
-        "Apt 4, 123 Main Street", "Elm Street 456", "789 Oak Avenue", 
-        "Maple Road 100", "Pine Street 22", "Cedar Boulevard 33", 
-        "Lane 99 Birch", "555 Walnut Avenue", "Spruce Street 40", 
-        "Palm Drive 101"
-    ]
-}
-
-# Create DataFrame
-df = pd.DataFrame(data)
-
-# Process and label the DataFrame
-final_df = process_and_label_chunks(df, chunk_size=3)  # Adjust chunk size as needed
-
-# Print the final DataFrame
-print(final_df)
+Could you kindly investigate and address this on priority?
