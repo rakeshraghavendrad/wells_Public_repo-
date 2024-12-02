@@ -1,1 +1,18 @@
-find / -type d -name "*fuzzywuzzy*" 2>/dev/null
+# Chunk processing function
+def process_chunk(chunk):
+    chunk['similarity_score_percentage'] = chunk.apply(
+        lambda row: address_similarity_score(row['address1'], row['address2']), axis=1
+    )
+    return chunk
+
+# Process the DataFrame in chunks
+chunk_size = 5000  # Adjust based on your memory capacity
+results = []
+
+for i in range(0, len(df), chunk_size):
+    chunk = df.iloc[i:i+chunk_size].copy()
+    chunk_result = process_chunk(chunk)
+    results.append(chunk_result)
+
+# Combine all chunks into a single DataFrame
+final_df = pd.concat(results, ignore_index=True)
