@@ -1,3 +1,9 @@
+def preprocess_address(address):
+    address = standardize_address(address)
+    address = clean_address(address)
+    return address
+
+
 # Chunk processing function
 def process_and_label_chunks(df, chunk_size=5000):
     results = []
