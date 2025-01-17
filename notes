@@ -1,29 +1,35 @@
-import pandas as pd
+from collections import Counter
 
-# Example DataFrames
-df1 = pd.DataFrame({
-    'phone_number': ['1234567890', '5678901234'],
-    'email': ['example1@gmail.com', 'example2@gmail.com'],
-    'df1_column': ['Value1', 'Value2']  # Additional column in df1
-})
+# Input data
+address1 = [
+    "12345 wa ctr pkwy unit 209",
+    "231e 5th st",
+    "2045 5th avenue",
+    "123 wa st",
+    "500 ctr ave",
+    "unit 100 wa ctr"
+]
 
-df2 = pd.DataFrame({
-    'phone_number': ['1234567890|9876543210', '5678901234', '9876543210'],
-    'email': ['example1@gmail.com', 'example2@gmail.com', 'example3@gmail.com'],
-    'df2_column': ['ValueA', 'ValueB', 'ValueC']  # Additional column in df2
-})
+address2 = [
+    "12345 Washington centre parkway unit 1209",
+    "231e 5th street",
+    "2045 5th avenue",
+    "123 Washington street",
+    "500 center avenue",
+    "unit 100 Washington center"
+]
 
-# Step 1: Split df2's phone numbers into separate rows
-df2_expanded = df2.assign(
-    phone_number=df2['phone_number'].str.split('|')
-).explode('phone_number')
+# Tokenize both columns
+address1_words = [word.lower() for addr in address1 for word in addr.split()]
+address2_words = [word.lower() for addr in address2 for word in addr.split()]
 
-# Step 2: Merge on phone_number and email, retaining all columns
-merged_df = pd.merge(
-    df1,
-    df2_expanded,
-    on=['phone_number', 'email'],
-    how='inner'
-)
+# Identify words in Address1 that are not in Address2
+unique_words_in_address1 = [word for word in address1_words if word not in address2_words]
 
-print(merged_df)
+# Count frequency of these words
+short_form_counts = Counter(unique_words_in_address1)
+
+# Display the frequency of potential short forms
+print("Frequency of potential short forms:")
+for word, count in short_form_counts.items():
+    print(f"{word}: {count}")
