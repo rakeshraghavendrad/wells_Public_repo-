@@ -1,23 +1,42 @@
+import pandas as pd
 from collections import Counter
 
-# Input data
-address1 = [
-    "12345 wa ctr pkwy unit 209",
-    "231e 5th st",
-    "2045 5th avenue",
-    "123 wa st",
-    "500 ctr ave",
-    "unit 100 wa ctr"
-]
+# Example DataFrame
+data = {
+    "Address1": [
+        "12345 wa ctr pkwy unit 209",
+        "231e 5th st",
+        "2045 5th avenue",
+        "123 wa st",
+        "500 ctr ave",
+        "unit 100 wa ctr"
+    ],
+    "Address2": [
+        "12345 Washington centre parkway unit 1209",
+        "231e 5th street",
+        "2045 5th avenue",
+        "123 Washington street",
+        "500 center avenue",
+        "unit 100 Washington center"
+    ]
+}
 
-address2 = [
-    "12345 Washington centre parkway unit 1209",
-    "231e 5th street",
-    "2045 5th avenue",
-    "123 Washington street",
-    "500 center avenue",
-    "unit 100 Washington center"
-]
+df = pd.DataFrame(data)
+
+# Tokenize and normalize words from both columns
+address1_words = df['Address1'].str.split().explode().str.lower()
+address2_words = df['Address2'].str.split().explode().str.lower()
+
+# Find unique words in Address1 that are not in Address2
+unique_words_in_address1 = address1_words[~address1_words.isin(address2_words)]
+
+# Count frequency of unique words
+short_form_counts = Counter(unique_words_in_address1)
+
+# Display the results
+print("Frequency of potential short forms:")
+for word, count in short_form_counts.items():
+    print(f"{word}: {count}")
 
 # Tokenize both columns
 address1_words = [word.lower() for addr in address1 for word in addr.split()]
