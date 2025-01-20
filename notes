@@ -25,8 +25,9 @@ def preprocess_text(text):
     """
     Normalize case, remove punctuation, and extra spaces.
     """
+     text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+    text = " ".join(word_split(text))  # Split concatenated words
     text = text.lower()  # Normalize case
-    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
     text = re.sub(r'\s+', ' ', text).strip()  # Remove extra spaces
     text = normalize_short_forms(text)  # Replace short forms
     return text
