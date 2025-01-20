@@ -1,0 +1,11 @@
+I’d like to confirm that the field in question pertains to whether the user has logged in via biometric authentication. We are not storing any actual biometric data or passwords.
+
+Below are the distinct values in this column:
+
+"1" indicates that the customer used biometric authentication.
+"0" indicates that the customer did not use biometric authentication.
+Additionally, the folder you mentioned was created during the initial stages of the project for research purposes. If needed, I can proceed with deleting it.
+
+Upon reviewing the Excel SAR under the restricted data criteria, I only identified "biometric" as aligning with our use case. If you are looking for specific fields or need further clarification, please let me know.
+
+I hope this information is helpful.
