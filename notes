@@ -1,54 +1,69 @@
-import pandas as pd
-from collections import Counter
+import re
+from difflib import SequenceMatcher
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from Levenshtein import ratio as levenshtein_ratio
 
-# Example DataFrame
-data = {
-    "Address1": [
-        "12345 wa ctr pkwy unit 209",
-        "231e 5th st",
-        "2045 5th avenue",
-        "123 wa st",
-        "500 ctr ave",
-        "unit 100 wa ctr"
-    ],
-    "Address2": [
-        "12345 Washington centre parkway unit 1209",
-        "231e 5th street",
-        "2045 5th avenue",
-        "123 Washington street",
-        "500 center avenue",
-        "unit 100 Washington center"
-    ]
+# Define a mapping dictionary for short forms
+short_form_mapping = {
+    "st": "street",
+    "ave": "avenue",
+    "ctr": "center",
+    "wa": "washington",
+    # Add more mappings as required
 }
 
-df = pd.DataFrame(data)
+def normalize_short_forms(text):
+    """
+    Replace short forms in the text with their expanded forms.
+    """
+    words = text.split()
+    normalized_words = [short_form_mapping.get(word.lower(), word) for word in words]
+    return " ".join(normalized_words)
 
-# Tokenize and normalize words from both columns
-address1_words = df['Address1'].str.split().explode().str.lower()
-address2_words = df['Address2'].str.split().explode().str.lower()
+def preprocess_text(text):
+    """
+    Normalize case, remove punctuation, and extra spaces.
+    """
+    text = text.lower()  # Normalize case
+    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+    text = re.sub(r'\s+', ' ', text).strip()  # Remove extra spaces
+    text = normalize_short_forms(text)  # Replace short forms
+    return text
 
-# Find unique words in Address1 that are not in Address2
-unique_words_in_address1 = address1_words[~address1_words.isin(address2_words)]
+def jaccard_similarity(s1, s2):
+    """
+    Calculate Jaccard Similarity between two strings.
+    """
+    set1, set2 = set(s1.split()), set(s2.split())
+    return len(set1 & set2) / len(set1 | set2)
 
-# Count frequency of unique words
-short_form_counts = Counter(unique_words_in_address1)
+def calculate_overall_similarity(s1, s2):
+    """
+    Calculate overall similarity score using Jaccard, Cosine, and Levenshtein similarity.
+    """
+    # Preprocess both strings
+    s1_cleaned = preprocess_text(s1)
+    s2_cleaned = preprocess_text(s2)
+    
+    # Jaccard similarity
+    jaccard = jaccard_similarity(s1_cleaned, s2_cleaned)
+    
+    # Cosine similarity
+    vectorizer = CountVectorizer().fit([s1_cleaned, s2_cleaned])
+    vectors = vectorizer.transform([s1_cleaned, s2_cleaned])
+    cosine = cosine_similarity(vectors)[0, 1]
+    
+    # Levenshtein similarity
+    levenshtein = levenshtein_ratio(s1_cleaned, s2_cleaned)
+    
+    # Overall similarity score
+    overall_score = (jaccard + cosine + levenshtein) / 3
+    return overall_score
 
-# Display the results
-print("Frequency of potential short forms:")
-for word, count in short_form_counts.items():
-    print(f"{word}: {count}")
+# Example Usage
+database_address = "123 Washington Street"
+customer_input = "123 wa st"
 
-# Tokenize both columns
-address1_words = [word.lower() for addr in address1 for word in addr.split()]
-address2_words = [word.lower() for addr in address2 for word in addr.split()]
-
-# Identify words in Address1 that are not in Address2
-unique_words_in_address1 = [word for word in address1_words if word not in address2_words]
-
-# Count frequency of these words
-short_form_counts = Counter(unique_words_in_address1)
-
-# Display the frequency of potential short forms
-print("Frequency of potential short forms:")
-for word, count in short_form_counts.items():
-    print(f"{word}: {count}")
+score = calculate_overall_similarity(database_address, customer_input)
+print(f"Overall Similarity Score: {score}")
