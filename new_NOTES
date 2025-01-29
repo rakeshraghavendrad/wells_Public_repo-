@@ -3,3 +3,35 @@
 3. https://en.wikipedia.org/wiki/List_of_U.S._state_and_territory_abbreviations?utm_source=chatgpt.com
 
 
+import pandas as pd
+from collections import Counter
+
+# Example DataFrame
+data = {'address': [
+    '123 Main St, Springfield, IL, 62704',
+    '456 Elm Ave, Shelbyville, IN, 46176',
+    '789 Oak Rd, Metropolis, NY, 10001',
+    '321 Pine St, Smalltown, TX, 12345',
+    '654 Maple Ave, Springfield, IL, 62704'
+]}
+df = pd.DataFrame(data)
+
+# Function to detect short forms in an address
+def detect_short_forms(address):
+    # Split the address into words
+    words = address.split()
+    # Heuristic: Short forms are typically 2-4 characters and often at the end of address components
+    short_forms = [word.strip(".,") for word in words if len(word.strip(".,")) in range(2, 5)]
+    return short_forms
+
+# Apply the function to the address column
+df['short_forms'] = df['address'].apply(detect_short_forms)
+
+# Explode the list of short forms into separate rows
+all_short_forms = df['short_forms'].explode()
+
+# Count the frequency of each short form
+short_form_counts = Counter(all_short_forms)
+
+print("Frequency of detected short forms:")
+print(short_form_counts)
