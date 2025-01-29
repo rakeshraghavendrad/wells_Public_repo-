@@ -35,3 +35,34 @@ short_form_counts = Counter(all_short_forms)
 
 print("Frequency of detected short forms:")
 print(short_form_counts)
+
+
+
+WITH RECURSIVE AddressWords AS (
+    -- Step 1: Assign a row number and initialize word extraction
+    SELECT
+        address,
+        TRIM(SUBSTRING(address FROM 1 FOR POSITION(' ' IN address) - 1)) AS word,
+        SUBSTRING(address FROM POSITION(' ' IN address) + 1) AS remaining_address
+    FROM addresses_table
+    WHERE POSITION(' ' IN address) > 0
+
+    UNION ALL
+
+    -- Step 2: Recursively extract each word
+    SELECT
+        address,
+        TRIM(SUBSTRING(remaining_address FROM 1 FOR POSITION(' ' IN remaining_address) - 1)) AS word,
+        SUBSTRING(remaining_address FROM POSITION(' ' IN remaining_address) + 1) AS remaining_address
+    FROM AddressWords
+    WHERE POSITION(' ' IN remaining_address) > 0
+)
+
+-- Step 3: Filter short words (2-4 characters) and count occurrences
+SELECT
+    LOWER(word) AS short_form,
+    COUNT(*) AS frequency
+FROM AddressWords
+WHERE LENGTH(word) BETWEEN 2 AND 4
+GROUP BY LOWER(word)
+ORDER BY frequency DESC;
