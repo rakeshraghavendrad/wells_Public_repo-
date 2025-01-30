@@ -66,3 +66,20 @@ FROM AddressWords
 WHERE LENGTH(word) BETWEEN 2 AND 4
 GROUP BY LOWER(word)
 ORDER BY frequency DESC;
+
+
+
+
+
+
+Here’s a clearer and more structured version of your message:
+
+I am running Spark aggregations and training a model, which takes about an hour to complete.
+
+During this time, my system detects inactivity and locks itself. When I unlock it by entering my username and password, the Spark cluster crashes. After some time, it restarts on its own.
+
+This issue is significantly impacting my daily workflow, and I have only started experiencing it after migrating to a cloud PC.
+
+Is there an alternative way to keep the Spark cluster running even when my local system is locked?
+
+This version improves readability and clarity while keeping your original intent intact. Let me know if you want any further refinements!
