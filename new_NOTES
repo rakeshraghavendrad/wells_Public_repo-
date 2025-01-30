@@ -157,3 +157,19 @@ df = df.withColumn("short_form", short_form_udf(col("address")))
 
 # Show Results
 df.show(truncate=False)
+
+
+
+
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, explode, count
+
+# Explode 'short_form' array column into multiple rows
+df = df.withColumn("short_form", explode(col("short_form")))
+
+# Count occurrences of each short_form
+short_cnt = df.groupBy("short_form").agg(count("*").alias("frequency"))
+
+# Show results
+short_cnt.show()
