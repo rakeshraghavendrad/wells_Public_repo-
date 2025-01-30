@@ -83,3 +83,25 @@ This issue is significantly impacting my daily workflow, and I have only started
 Is there an alternative way to keep the Spark cluster running even when my local system is locked?
 
 This version improves readability and clarity while keeping your original intent intact. Let me know if you want any further refinements!
+
+
+
+
+
+
+from pyspark.sql.functions import expr
+
+df = df.withColumn(
+    "Complete_Address",
+    expr("""
+        CASE 
+            WHEN Addr1 IS NULL AND Addr2 IS NULL AND Addr3 IS NULL THEN NULL
+            ELSE 
+                COALESCE(Addr1, '') || 
+                CASE WHEN Addr1 IS NOT NULL AND Addr2 IS NOT NULL THEN ' ' ELSE '' END || 
+                COALESCE(Addr2, '') || 
+                CASE WHEN (Addr1 IS NOT NULL OR Addr2 IS NOT NULL) AND Addr3 IS NOT NULL THEN ' ' ELSE '' END || 
+                COALESCE(Addr3, '')
+        END
+    """)
+)
