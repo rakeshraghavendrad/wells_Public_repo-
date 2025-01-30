@@ -65,13 +65,13 @@ SELECT
 FROM AddressWords
 WHERE LENGTH(word) BETWEEN 2 AND 4
 GROUP BY LOWER(word)
-ORDER BY frequency DESC;
+ORDER BY frequency from pyspark.sql.functions import when, col, lit
 
+df = df.withColumn("Addr1", when(col("Addr1").isNotNull(), col("Addr1")).otherwise(lit("")))
+df = df.withColumn("Addr2", when(col("Addr2").isNotNull(), col("Addr2")).otherwise(lit("")))
+df = df.withColumn("Addr3", when(col("Addr3").isNotNull(), col("Addr3")).otherwise(lit("")))
 
-
-
-
-
+df = df.withColumn("Complete_Address", col("Addr1") + lit(" ") + col("Addr2") + lit(" ") + col("Addr3"))
 Here’s a clearer and more structured version of your message:
 
 I am running Spark aggregations and training a model, which takes about an hour to complete.
