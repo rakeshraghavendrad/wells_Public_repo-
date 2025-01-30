@@ -127,3 +127,33 @@ FROM addresses
 
 df_result = spark.sql(query)
 df_result.show(truncate=False)
+
+
+
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import udf, col
+from pyspark.sql.types import ArrayType, StringType
+
+# Initialize Spark Session
+spark = SparkSession.builder.appName("ShortForm").getOrCreate()
+
+# Sample Data
+data = [("123 Main St.",), ("45 Park Avenue,",), ("678 Elm Road",)]
+df = spark.createDataFrame(data, ["address"])
+
+# Define UDF
+def short_form(address):
+    if address:
+        words = address.split()
+        short_form = [word.strip(".,") for word in words if word.strip(".,").isalpha() and 2 <= len(word.strip("., ")) <= 4]
+        return short_form
+    return []
+
+short_form_udf = udf(short_form, ArrayType(StringType()))
+
+# Apply UDF
+df = df.withColumn("short_form", short_form_udf(col("address")))
+
+# Show Results
+df.show(truncate=False)
