@@ -105,3 +105,25 @@ df = df.withColumn(
         END
     """)
 )
+
+
+df.createOrReplaceTempView("addresses")
+
+query = """
+SELECT 
+    *,
+    CASE 
+        WHEN Addr1 IS NULL AND Addr2 IS NULL AND Addr3 IS NULL THEN NULL
+        ELSE TRIM(
+            COALESCE(Addr1, '') || 
+            CASE WHEN Addr1 IS NOT NULL AND Addr2 IS NOT NULL THEN ' ' ELSE '' END || 
+            COALESCE(Addr2, '') || 
+            CASE WHEN (Addr1 IS NOT NULL OR Addr2 IS NOT NULL) AND Addr3 IS NOT NULL THEN ' ' ELSE '' END || 
+            COALESCE(Addr3, '')
+        )
+    END AS Complete_Address
+FROM addresses
+"""
+
+df_result = spark.sql(query)
+df_result.show(truncate=False)
