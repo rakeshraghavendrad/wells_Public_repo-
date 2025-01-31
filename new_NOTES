@@ -1,55 +1,20 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
-import numpy as np
-import matplotlib.pyplot as plt
+# Compute mean and standard deviation
+stats = nsc.select(
+    mean(col("frequency_count")).alias("mean"),
+    stddev(col("frequency_count")).alias("stddev")
+).collect()[0]
 
-# Create a Spark session
-spark = SparkSession.builder.appName("ElbowMethod").getOrCreate()
+mu = stats["mean"]
+sigma = stats["stddev"]
 
-# Sample DataFrame
-nsc = spark.createDataFrame([
-    ("st", 45), ("AWE", 90), ("N", 47), ("PKWY", 9004), ("ABC", 500),
-    ("XYZ", 120), ("DEF", 30), ("LMN", 15), ("GHI", 75), ("JKL", 5)
-], ["short_form", "frequency_count"])
+# Define Z-score threshold (e.g., Z > -1.5 to filter low outliers)
+z_threshold = -1.5
 
-def find_elbow_point(nsc_df):
-    # Step 1: Sort the DataFrame by frequency count in descending order
-    sorted_df = nsc_df.orderBy(col("frequency_count").desc())
-    
-    # Step 2: Collect frequencies as a list
-    frequencies = np.array([row["frequency_count"] for row in sorted_df.collect()])
-
-    # Step 3: Generate x-values (indices) for plotting
-    x_vals = np.arange(len(frequencies))
-
-    # Step 4: Compute first derivative (rate of change)
-    first_derivative = np.gradient(frequencies)
-
-    # Step 5: Compute second derivative (curvature)
-    second_derivative = np.gradient(first_derivative)
-
-    # Step 6: Find the index of maximum curvature (Elbow Point)
-    elbow_index = np.argmax(second_derivative)
-    elbow_value = frequencies[elbow_index]
-
-    # Step 7: Plot the Elbow Curve
-    plt.figure(figsize=(8, 5))
-    plt.plot(x_vals, frequencies, marker="o", label="Frequencies")
-    plt.axvline(elbow_index, color="r", linestyle="--", label=f"Elbow Point (Threshold: {elbow_value})")
-    plt.xlabel("Ranked Shortforms")
-    plt.ylabel("Frequency Count")
-    plt.title("Elbow Method for Threshold Selection")
-    plt.legend()
-    plt.show()
-
-    return elbow_value
-
-# Get the elbow threshold
-elbow_threshold = find_elbow_point(nsc)
-
-# Filter the DataFrame based on the elbow threshold
-nsc_filtered_elbow = nsc.filter(col("frequency_count") >= elbow_threshold)
+# Compute Z-score and filter outliers
+nsc_filtered_zscore = nsc.withColumn(
+    "z_score", (col("frequency_count") - lit(mu)) / lit(sigma)
+).filter(col("z_score") >= z_threshold).drop("z_score")
 
 # Show results
-print(f"Elbow Method Cutoff: {elbow_threshold}")
-nsc_filtered_elbow.show()
+print(f"Mean: {mu}, Standard Deviation: {sigma}, Z-Score Cutoff: {z_threshold}")
+nsc_filtered_zscore.show()
