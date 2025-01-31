@@ -1,175 +1,64 @@
-1. https://pe.usps.com/text/pub28/28apc_002.htm?utm_source=chatgpt.com
-2.https://ors.od.nih.gov/pes/dmms/guide/SamplesDirections/Pages/Abbreviations.aspx?utm_source=chatgpt.com
-3. https://en.wikipedia.org/wiki/List_of_U.S._state_and_territory_abbreviations?utm_source=chatgpt.com
-
-
-import pandas as pd
-from collections import Counter
-
-# Example DataFrame
-data = {'address': [
-    '123 Main St, Springfield, IL, 62704',
-    '456 Elm Ave, Shelbyville, IN, 46176',
-    '789 Oak Rd, Metropolis, NY, 10001',
-    '321 Pine St, Smalltown, TX, 12345',
-    '654 Maple Ave, Springfield, IL, 62704'
-]}
-df = pd.DataFrame(data)
-
-# Function to detect short forms in an address
-def detect_short_forms(address):
-    # Split the address into words
-    words = address.split()
-    # Heuristic: Short forms are typically 2-4 characters and often at the end of address components
-    short_forms = [word.strip(".,") for word in words if len(word.strip(".,")) in range(2, 5)]
-    return short_forms
-
-# Apply the function to the address column
-df['short_forms'] = df['address'].apply(detect_short_forms)
-
-# Explode the list of short forms into separate rows
-all_short_forms = df['short_forms'].explode()
-
-# Count the frequency of each short form
-short_form_counts = Counter(all_short_forms)
-
-print("Frequency of detected short forms:")
-print(short_form_counts)
-
-
-
-WITH RECURSIVE AddressWords AS (
-    -- Step 1: Assign a row number and initialize word extraction
-    SELECT
-        address,
-        TRIM(SUBSTRING(address FROM 1 FOR POSITION(' ' IN address) - 1)) AS word,
-        SUBSTRING(address FROM POSITION(' ' IN address) + 1) AS remaining_address
-    FROM addresses_table
-    WHERE POSITION(' ' IN address) > 0
-
-    UNION ALL
-
-    -- Step 2: Recursively extract each word
-    SELECT
-        address,
-        TRIM(SUBSTRING(remaining_address FROM 1 FOR POSITION(' ' IN remaining_address) - 1)) AS word,
-        SUBSTRING(remaining_address FROM POSITION(' ' IN remaining_address) + 1) AS remaining_address
-    FROM AddressWords
-    WHERE POSITION(' ' IN remaining_address) > 0
-)
-
--- Step 3: Filter short words (2-4 characters) and count occurrences
-SELECT
-    LOWER(word) AS short_form,
-    COUNT(*) AS frequency
-FROM AddressWords
-WHERE LENGTH(word) BETWEEN 2 AND 4
-GROUP BY LOWER(word)
-ORDER BY frequency from pyspark.sql.functions import when, col, lit
-
-df = df.withColumn("Addr1", when(col("Addr1").isNotNull(), col("Addr1")).otherwise(lit("")))
-df = df.withColumn("Addr2", when(col("Addr2").isNotNull(), col("Addr2")).otherwise(lit("")))
-df = df.withColumn("Addr3", when(col("Addr3").isNotNull(), col("Addr3")).otherwise(lit("")))
-
-df = df.withColumn("Complete_Address", col("Addr1") + lit(" ") + col("Addr2") + lit(" ") + col("Addr3"))
-Here’s a clearer and more structured version of your message:
-
-I am running Spark aggregations and training a model, which takes about an hour to complete.
-
-During this time, my system detects inactivity and locks itself. When I unlock it by entering my username and password, the Spark cluster crashes. After some time, it restarts on its own.
-
-This issue is significantly impacting my daily workflow, and I have only started experiencing it after migrating to a cloud PC.
-
-Is there an alternative way to keep the Spark cluster running even when my local system is locked?
-
-This version improves readability and clarity while keeping your original intent intact. Let me know if you want any further refinements!
-
-
-
-
-
-
-from pyspark.sql.functions import expr
-
-df = df.withColumn(
-    "Complete_Address",
-    expr("""
-        CASE 
-            WHEN Addr1 IS NULL AND Addr2 IS NULL AND Addr3 IS NULL THEN NULL
-            ELSE 
-                COALESCE(Addr1, '') || 
-                CASE WHEN Addr1 IS NOT NULL AND Addr2 IS NOT NULL THEN ' ' ELSE '' END || 
-                COALESCE(Addr2, '') || 
-                CASE WHEN (Addr1 IS NOT NULL OR Addr2 IS NOT NULL) AND Addr3 IS NOT NULL THEN ' ' ELSE '' END || 
-                COALESCE(Addr3, '')
-        END
-    """)
-)
-
-
-df.createOrReplaceTempView("addresses")
-
-query = """
-SELECT 
-    *,
-    CASE 
-        WHEN Addr1 IS NULL AND Addr2 IS NULL AND Addr3 IS NULL THEN NULL
-        ELSE TRIM(
-            COALESCE(Addr1, '') || 
-            CASE WHEN Addr1 IS NOT NULL AND Addr2 IS NOT NULL THEN ' ' ELSE '' END || 
-            COALESCE(Addr2, '') || 
-            CASE WHEN (Addr1 IS NOT NULL OR Addr2 IS NOT NULL) AND Addr3 IS NOT NULL THEN ' ' ELSE '' END || 
-            COALESCE(Addr3, '')
-        )
-    END AS Complete_Address
-FROM addresses
-"""
-
-df_result = spark.sql(query)
-df_result.show(truncate=False)
-
-
-
-
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col
-from pyspark.sql.types import ArrayType, StringType
+from pyspark.sql.functions import col, percentile_approx, monotonically_increasing_id
+import numpy as np
+import matplotlib.pyplot as plt
 
-# Initialize Spark Session
-spark = SparkSession.builder.appName("ShortForm").getOrCreate()
+# Assuming SparkSession is already created
+# spark = SparkSession.builder.appName("ShortFormAnalysis").getOrCreate()
 
-# Sample Data
-data = [("123 Main St.",), ("45 Park Avenue,",), ("678 Elm Road",)]
-df = spark.createDataFrame(data, ["address"])
+# Sample DataFrame `nsc`
+# nsc = spark.createDataFrame([
+#     ("st", 45), ("AWE", 90), ("N", 47), ("PKWY", 9004), ("ABC", 500),
+#     ("XYZ", 120), ("DEF", 30), ("LMN", 15), ("GHI", 75), ("JKL", 5)
+# ], ["short_form", "frequency_count"])
 
-# Define UDF
-def short_form(address):
-    if address:
-        words = address.split()
-        short_form = [word.strip(".,") for word in words if word.strip(".,").isalpha() and 2 <= len(word.strip("., ")) <= 4]
-        return short_form
-    return []
+### Elbow Method ###
+def find_elbow_point(nsc_df):
+    # Convert to Pandas for visualization
+    pdf = nsc_df.orderBy(col("frequency_count").desc()).toPandas()
+    
+    # Extract frequency counts and sort in descending order
+    frequencies = np.array(pdf["frequency_count"])
+    
+    # Generate index positions
+    x_vals = np.arange(len(frequencies))
+    
+    # Compute the second derivative (curvature)
+    first_derivative = np.gradient(frequencies)
+    second_derivative = np.gradient(first_derivative)
+    
+    # Find the index of the maximum curvature (elbow point)
+    elbow_index = np.argmax(second_derivative)
+    elbow_value = frequencies[elbow_index]
+    
+    # Plot
+    plt.figure(figsize=(8, 5))
+    plt.plot(x_vals, frequencies, marker="o", label="Frequencies")
+    plt.axvline(elbow_index, color="r", linestyle="--", label=f"Elbow Point (Threshold: {elbow_value})")
+    plt.xlabel("Ranked Shortforms")
+    plt.ylabel("Frequency Count")
+    plt.title("Elbow Method for Threshold Selection")
+    plt.legend()
+    plt.show()
+    
+    return elbow_value
 
-short_form_udf = udf(short_form, ArrayType(StringType()))
+### Percentile-Based Method ###
+def find_percentile_threshold(nsc_df, percentile=25):
+    threshold = nsc_df.agg(percentile_approx("frequency_count", percentile / 100.0)).collect()[0][0]
+    return threshold
 
-# Apply UDF
-df = df.withColumn("short_form", short_form_udf(col("address")))
+# Call the functions
+elbow_threshold = find_elbow_point(nsc)
+percentile_threshold = find_percentile_threshold(nsc, percentile=25)
 
-# Show Results
-df.show(truncate=False)
-
-
-
-
-
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, explode, count
-
-# Explode 'short_form' array column into multiple rows
-df = df.withColumn("short_form", explode(col("short_form")))
-
-# Count occurrences of each short_form
-short_cnt = df.groupBy("short_form").agg(count("*").alias("frequency"))
+# Filter the DataFrame based on both thresholds
+nsc_filtered_elbow = nsc.filter(col("frequency_count") >= elbow_threshold)
+nsc_filtered_percentile = nsc.filter(col("frequency_count") >= percentile_threshold)
 
 # Show results
-short_cnt.show()
+print(f"Elbow Method Cutoff: {elbow_threshold}")
+print(f"Percentile (25%) Cutoff: {percentile_threshold}")
+
+nsc_filtered_elbow.show()
+nsc_filtered_percentile.show()
