@@ -1,23 +1,19 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
-import matplotlib.pyplot as plt
+### Percentile-Based Method ###
+def find_percentile_threshold(nsc_df, percentile=25):
+    threshold = nsc_df.agg(percentile_approx("frequency_count", percentile / 100.0)).collect()[0][0]
+    return threshold
 
-# Step 1: Collect data from PySpark DataFrame
-data = nsc.orderBy(col("frequency_count").desc()).limit(50).collect()  # Limiting to top 50 for better visualization
+# Call the functions
+elbow_threshold = find_elbow_point(nsc)
+percentile_threshold = find_percentile_threshold(nsc, percentile=25)
 
-# Step 2: Extract shortforms and frequencies
-short_forms = [row["short_form"] for row in data]
-frequencies = [row["frequency_count"] for row in data]
+# Filter the DataFrame based on both thresholds
+nsc_filtered_elbow = nsc.filter(col("frequency_count") >= elbow_threshold)
+nsc_filtered_percentile = nsc.filter(col("frequency_count") >= percentile_threshold)
 
-# Step 3: Plot bar chart
-plt.figure(figsize=(12, 6))
-plt.bar(short_forms, frequencies, color="skyblue")
+# Show results
+print(f"Elbow Method Cutoff: {elbow_threshold}")
+print(f"Percentile (25%) Cutoff: {percentile_threshold}")
 
-# Step 4: Formatting the chart
-plt.xlabel("Short Forms")
-plt.ylabel("Frequency Count")
-plt.title("Frequency Distribution of Short Forms")
-plt.xticks(rotation=90)  # Rotate x-axis labels for better readability
-
-# Step 5: Show the plot
-plt.show()
+nsc_filtered_elbow.show()
+nsc_filtered_percentile.show()
