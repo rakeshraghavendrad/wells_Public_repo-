@@ -1,31 +1,23 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
-import numpy as np
 import matplotlib.pyplot as plt
 
-# Assuming SparkSession is already created
-# spark = SparkSession.builder.appName("LineGraph").getOrCreate()
+# Step 1: Collect data from PySpark DataFrame
+data = nsc.orderBy(col("frequency_count").desc()).limit(50).collect()  # Limiting to top 50 for better visualization
 
-# Step 1: Sort the data by frequency_count in descending order
-nsc_sorted = nsc.orderBy(col("frequency_count").desc())
-
-# Step 2: Collect the sorted data
-data = nsc_sorted.select("short_form", "frequency_count").collect()
-
-# Step 3: Extract values for plotting
+# Step 2: Extract shortforms and frequencies
 short_forms = [row["short_form"] for row in data]
 frequencies = [row["frequency_count"] for row in data]
 
-# Step 4: Plot the line graph
-plt.figure(figsize=(10, 5))
-plt.plot(range(len(frequencies)), frequencies, marker="o", linestyle="-", markersize=2, label="Frequency Count")
+# Step 3: Plot bar chart
+plt.figure(figsize=(12, 6))
+plt.bar(short_forms, frequencies, color="skyblue")
 
-# Step 5: Formatting the plot
-plt.xlabel("Ranked Shortforms")
+# Step 4: Formatting the chart
+plt.xlabel("Short Forms")
 plt.ylabel("Frequency Count")
-plt.title("Frequency Distribution of Shortforms")
-plt.legend()
-plt.grid()
+plt.title("Frequency Distribution of Short Forms")
+plt.xticks(rotation=90)  # Rotate x-axis labels for better readability
 
-# Show the plot
+# Step 5: Show the plot
 plt.show()
