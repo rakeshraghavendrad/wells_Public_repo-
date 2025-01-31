@@ -1,37 +1,38 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, percentile_approx, monotonically_increasing_id
+from pyspark.sql.functions import col
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Assuming SparkSession is already created
-# spark = SparkSession.builder.appName("ShortFormAnalysis").getOrCreate()
+# Create a Spark session
+spark = SparkSession.builder.appName("ElbowMethod").getOrCreate()
 
-# Sample DataFrame `nsc`
-# nsc = spark.createDataFrame([
-#     ("st", 45), ("AWE", 90), ("N", 47), ("PKWY", 9004), ("ABC", 500),
-#     ("XYZ", 120), ("DEF", 30), ("LMN", 15), ("GHI", 75), ("JKL", 5)
-# ], ["short_form", "frequency_count"])
+# Sample DataFrame
+nsc = spark.createDataFrame([
+    ("st", 45), ("AWE", 90), ("N", 47), ("PKWY", 9004), ("ABC", 500),
+    ("XYZ", 120), ("DEF", 30), ("LMN", 15), ("GHI", 75), ("JKL", 5)
+], ["short_form", "frequency_count"])
 
-### Elbow Method ###
 def find_elbow_point(nsc_df):
-    # Convert to Pandas for visualization
-    pdf = nsc_df.orderBy(col("frequency_count").desc()).toPandas()
+    # Step 1: Sort the DataFrame by frequency count in descending order
+    sorted_df = nsc_df.orderBy(col("frequency_count").desc())
     
-    # Extract frequency counts and sort in descending order
-    frequencies = np.array(pdf["frequency_count"])
-    
-    # Generate index positions
+    # Step 2: Collect frequencies as a list
+    frequencies = np.array([row["frequency_count"] for row in sorted_df.collect()])
+
+    # Step 3: Generate x-values (indices) for plotting
     x_vals = np.arange(len(frequencies))
-    
-    # Compute the second derivative (curvature)
+
+    # Step 4: Compute first derivative (rate of change)
     first_derivative = np.gradient(frequencies)
+
+    # Step 5: Compute second derivative (curvature)
     second_derivative = np.gradient(first_derivative)
-    
-    # Find the index of the maximum curvature (elbow point)
+
+    # Step 6: Find the index of maximum curvature (Elbow Point)
     elbow_index = np.argmax(second_derivative)
     elbow_value = frequencies[elbow_index]
-    
-    # Plot
+
+    # Step 7: Plot the Elbow Curve
     plt.figure(figsize=(8, 5))
     plt.plot(x_vals, frequencies, marker="o", label="Frequencies")
     plt.axvline(elbow_index, color="r", linestyle="--", label=f"Elbow Point (Threshold: {elbow_value})")
@@ -40,25 +41,15 @@ def find_elbow_point(nsc_df):
     plt.title("Elbow Method for Threshold Selection")
     plt.legend()
     plt.show()
-    
+
     return elbow_value
 
-### Percentile-Based Method ###
-def find_percentile_threshold(nsc_df, percentile=25):
-    threshold = nsc_df.agg(percentile_approx("frequency_count", percentile / 100.0)).collect()[0][0]
-    return threshold
-
-# Call the functions
+# Get the elbow threshold
 elbow_threshold = find_elbow_point(nsc)
-percentile_threshold = find_percentile_threshold(nsc, percentile=25)
 
-# Filter the DataFrame based on both thresholds
+# Filter the DataFrame based on the elbow threshold
 nsc_filtered_elbow = nsc.filter(col("frequency_count") >= elbow_threshold)
-nsc_filtered_percentile = nsc.filter(col("frequency_count") >= percentile_threshold)
 
 # Show results
 print(f"Elbow Method Cutoff: {elbow_threshold}")
-print(f"Percentile (25%) Cutoff: {percentile_threshold}")
-
 nsc_filtered_elbow.show()
-nsc_filtered_percentile.show()
