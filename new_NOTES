@@ -1,20 +1,31 @@
-# Compute mean and standard deviation
-stats = nsc.select(
-    mean(col("frequency_count")).alias("mean"),
-    stddev(col("frequency_count")).alias("stddev")
-).collect()[0]
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+import numpy as np
+import matplotlib.pyplot as plt
 
-mu = stats["mean"]
-sigma = stats["stddev"]
+# Assuming SparkSession is already created
+# spark = SparkSession.builder.appName("LineGraph").getOrCreate()
 
-# Define Z-score threshold (e.g., Z > -1.5 to filter low outliers)
-z_threshold = -1.5
+# Step 1: Sort the data by frequency_count in descending order
+nsc_sorted = nsc.orderBy(col("frequency_count").desc())
 
-# Compute Z-score and filter outliers
-nsc_filtered_zscore = nsc.withColumn(
-    "z_score", (col("frequency_count") - lit(mu)) / lit(sigma)
-).filter(col("z_score") >= z_threshold).drop("z_score")
+# Step 2: Collect the sorted data
+data = nsc_sorted.select("short_form", "frequency_count").collect()
 
-# Show results
-print(f"Mean: {mu}, Standard Deviation: {sigma}, Z-Score Cutoff: {z_threshold}")
-nsc_filtered_zscore.show()
+# Step 3: Extract values for plotting
+short_forms = [row["short_form"] for row in data]
+frequencies = [row["frequency_count"] for row in data]
+
+# Step 4: Plot the line graph
+plt.figure(figsize=(10, 5))
+plt.plot(range(len(frequencies)), frequencies, marker="o", linestyle="-", markersize=2, label="Frequency Count")
+
+# Step 5: Formatting the plot
+plt.xlabel("Ranked Shortforms")
+plt.ylabel("Frequency Count")
+plt.title("Frequency Distribution of Shortforms")
+plt.legend()
+plt.grid()
+
+# Show the plot
+plt.show()
