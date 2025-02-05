@@ -1,19 +1,11 @@
-### Percentile-Based Method ###
-def find_percentile_threshold(nsc_df, percentile=25):
-    threshold = nsc_df.agg(percentile_approx("frequency_count", percentile / 100.0)).collect()[0][0]
-    return threshold
+Fraud Detection and Prevention:
+GenAI can analyze vast amounts of transaction data to identify unusual patterns indicative of fraudulent activity. By generating synthetic data, it can simulate various fraud scenarios to improve detection algorithms, enhancing the bank's ability to prevent fraud in real-time.
 
-# Call the functions
-elbow_threshold = find_elbow_point(nsc)
-percentile_threshold = find_percentile_threshold(nsc, percentile=25)
+Personalized Financial Recommendations: 
 
-# Filter the DataFrame based on both thresholds
-nsc_filtered_elbow = nsc.filter(col("frequency_count") >= elbow_threshold)
-nsc_filtered_percentile = nsc.filter(col("frequency_count") >= percentile_threshold)
+By analyzing customer data, GenAI can generate tailored financial advice, such as personalized savings plans or investment strategies, based on individual spending habits and financial goals. 
 
-# Show results
-print(f"Elbow Method Cutoff: {elbow_threshold}")
-print(f"Percentile (25%) Cutoff: {percentile_threshold}")
+Hyper-Personalized Banking Interfaces : 
+Traditional banking apps follow a fixed design and structure.
+GenAI Use Case: Dynamically generate personalized dashboards for each customer based on their usage patterns, preferred features, and financial behaviors.
 
-nsc_filtered_elbow.show()
-nsc_filtered_percentile.show()
