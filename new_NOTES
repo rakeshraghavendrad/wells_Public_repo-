@@ -7,5 +7,11 @@ By analyzing customer data, GenAI can generate tailored financial advice, such a
 
 Hyper-Personalized Banking Interfaces : 
 Traditional banking apps follow a fixed design and structure.
-GenAI Use Case: Dynamically generate personalized dashboards for each customer based on their usage patterns, preferred features, and financial behaviors.
+GenAI Use Case: Dynamically generate personalized dashboards for each customer based on their usage patterns, preferred features, and financial from pyspark.sql.functions import when, isnan
 
+# Replace NaN with None using when and otherwise
+df_replaced = df.withColumn("col1", when(~isnan(col("col1")), col("col1")).otherwise(None)) \
+                .withColumn("col2", when(~isnan(col("col2")), col("col2")).otherwise(None))
+
+# Show the result
+df_replaced.show()
