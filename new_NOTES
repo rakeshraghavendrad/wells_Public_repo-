@@ -63,3 +63,36 @@ df_with_special_char_count = df.withColumn(
 )
 
 df_with_special_char_count.show(truncate=False)
+
+
+
+
+
+from pyspark.sql.functions import col, regexp_replace, split, explode, count
+
+# Regex pattern to extract only special characters
+special_char_pattern = r'[^a-zA-Z0-9\s]'
+
+# Remove all alphanumeric characters and spaces, leaving only special characters
+df_with_special_chars = df.withColumn(
+    "special_chars",
+    regexp_replace(col("address"), r'[a-zA-Z0-9\s]', '')  # Remove letters, numbers, spaces
+)
+
+# Convert the string of special characters into an array (each character as an element)
+df_with_special_chars = df_with_special_chars.withColumn(
+    "special_chars_array",
+    split(col("special_chars"), '')  # Split into an array of characters
+)
+
+# Explode the array to create one row per special character
+df_exploded = df_with_special_chars.select(explode(col("special_chars_array")).alias("special_char"))
+
+# Filter out empty strings (caused by leading/trailing split)
+df_exploded = df_exploded.filter(col("special_char") != "")
+
+# Count the occurrences of each special character
+df_special_char_count = df_exploded.groupBy("special_char").agg(count("*").alias("count")).orderBy(col("count").desc())
+
+# Show the result
+df_special_char_count.show(truncate=False)
