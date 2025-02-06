@@ -1,98 +1,23 @@
-Fraud Detection and Prevention:
-GenAI can analyze vast amounts of transaction data to identify unusual patterns indicative of fraudulent activity. By generating synthetic data, it can simulate various fraud scenarios to improve detection algorithms, enhancing the bank's ability to prevent fraud in real-time.
+Hi [Recipient's Name],
 
-Personalized Financial Recommendations: 
+I conducted an analysis on the inclusion of short forms for similarity scoring in address data. The datasets I examined are:
 
-By analyzing customer data, GenAI can generate tailored financial advice, such as personalized savings plans or investment strategies, based on individual spending habits and financial goals. 
+Teradata (Ingested into OSDS)
+Customer Input (Aug-Sep 2024) - NDDA Data
+NDDA Database (Aug-Sep 2024) - NDDA Data
 
-Hyper-Personalized Banking Interfaces : 
-Traditional banking apps follow a fixed design and structure.
-GenAI Use Case: Dynamically generate personalized dashboards for each customer based on their usage patterns, preferred features, and financial from pyspark.sql.functions import when, isnan
-
-# Replace NaN with None using when and otherwise
-df_replaced = df.withColumn("col1", when(~isnan(col("col1")), col("col1")).otherwise(None)) \
-                .withColumn("col2", when(~isnan(col("col2")), col("col2")).otherwise(None))
-
-# Show the result
-df_replaced.show()
-
-
-
-
-
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, regexp_extract, length, regexp_replace
-
-# Initialize Spark session
-spark = SparkSession.builder.appName("IdentifySpecialCharacters").getOrCreate()
-
-# Sample data
-data = [
-    ("123 Main St",),
-    ("456 Elm St, Apt #3",),
-    ("789 Oak St.",),
-    ("1011 Pine St, Unit 5B",),
-    ("1213 Maple St @ Corner",)
-]
-
-columns = ["address"]
-
-# Create DataFrame
-df = spark.createDataFrame(data, columns)
-df.show(truncate=False)
-
-# Regex pattern to match any non-alphanumeric character
-special_char_pattern = r'[^a-zA-Z0-9\s]'
-
-# Extract special characters
-df_with_special_chars = df.withColumn(
-    "special_chars",
-    regexp_extract(col("address"), special_char_pattern, 0)
-)
-
-df_with_special_chars.show(truncate=False)
-
-# Filter rows with special characters
-df_filtered = df_with_special_chars.filter(col("special_chars") != "")
-df_filtered.show(truncate=False)
-
-# Count special characters
-df_with_special_char_count = df.withColumn(
-    "special_char_count",
-    length(regexp_replace(col("address"), r'[a-zA-Z0-9\s]', ""))
-)
-
-df_with_special_char_count.show(truncate=False)
-
-
-
-
-
-from pyspark.sql.functions import col, regexp_replace, split, explode, count
-
-# Regex pattern to extract only special characters
-special_char_pattern = r'[^a-zA-Z0-9\s]'
-
-# Remove all alphanumeric characters and spaces, leaving only special characters
-df_with_special_chars = df.withColumn(
-    "special_chars",
-    regexp_replace(col("address"), r'[a-zA-Z0-9\s]', '')  # Remove letters, numbers, spaces
-)
-
-# Convert the string of special characters into an array (each character as an element)
-df_with_special_chars = df_with_special_chars.withColumn(
-    "special_chars_array",
-    split(col("special_chars"), '')  # Split into an array of characters
-)
-
-# Explode the array to create one row per special character
-df_exploded = df_with_special_chars.select(explode(col("special_chars_array")).alias("special_char"))
-
-# Filter out empty strings (caused by leading/trailing split)
-df_exploded = df_exploded.filter(col("special_char") != "")
-
-# Count the occurrences of each special character
-df_special_char_count = df_exploded.groupBy("special_char").agg(count("*").alias("count")).orderBy(col("count").desc())
-
-# Show the result
-df_special_char_count.show(truncate=False)
+Methodology:
+Extracted characters between positions 2 and 4 within the address strings.
+Exploded the extracted substrings and applied the elbow method to determine the optimal frequency threshold.
+Findings:
+Short Form Analysis:
+Teradata (Hogen Database): The elbow method identified 7 key short forms, which account for the majority of abbreviations in the database.
+NDDA Customer Input Data: Identified 6 major short forms within customer-provided addresses.
+NDDA Database Data: Similarly, 6 key short forms were observed.
+Special Character Analysis:
+Teradata: Identified the top 7 special characters present in the dataset.
+NDDA Customer Data: Only 3 special characters were identified in customer-provided input.
+NDDA Database Data: A total of 10 distinct special characters were found across the dataset.
+Key Observations & Recommendation:
+Special Character Handling: I recommend removing all special characters before performing similarity scoring. This is because customer inputs sometimes contain special characters while the database does not, and vice versa, leading to inconsistencies.
+Impact on Similarity Scoring: Overall, there is no significant lift observed in the similarity score by adding more short forms. While some addresses moved from deciles 1-4, decile 10 remained constant, indicating limited impact on higher similarity matches.
