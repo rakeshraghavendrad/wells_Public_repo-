@@ -15,3 +15,51 @@ df_replaced = df.withColumn("col1", when(~isnan(col("col1")), col("col1")).other
 
 # Show the result
 df_replaced.show()
+
+
+
+
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, regexp_extract, length, regexp_replace
+
+# Initialize Spark session
+spark = SparkSession.builder.appName("IdentifySpecialCharacters").getOrCreate()
+
+# Sample data
+data = [
+    ("123 Main St",),
+    ("456 Elm St, Apt #3",),
+    ("789 Oak St.",),
+    ("1011 Pine St, Unit 5B",),
+    ("1213 Maple St @ Corner",)
+]
+
+columns = ["address"]
+
+# Create DataFrame
+df = spark.createDataFrame(data, columns)
+df.show(truncate=False)
+
+# Regex pattern to match any non-alphanumeric character
+special_char_pattern = r'[^a-zA-Z0-9\s]'
+
+# Extract special characters
+df_with_special_chars = df.withColumn(
+    "special_chars",
+    regexp_extract(col("address"), special_char_pattern, 0)
+)
+
+df_with_special_chars.show(truncate=False)
+
+# Filter rows with special characters
+df_filtered = df_with_special_chars.filter(col("special_chars") != "")
+df_filtered.show(truncate=False)
+
+# Count special characters
+df_with_special_char_count = df.withColumn(
+    "special_char_count",
+    length(regexp_replace(col("address"), r'[a-zA-Z0-9\s]', ""))
+)
+
+df_with_special_char_count.show(truncate=False)
