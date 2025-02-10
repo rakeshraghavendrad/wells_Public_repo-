@@ -5,3 +5,6 @@ I have referred to several research papers and articles to develop a robust appr
 “Combining Approximate String Matching Algorithms and Term Frequency in the Detection of Plagiarism” – This research highlights the effectiveness of hybrid algorithms in detecting textual similarity in everyday language.
 String Similarity Methods: Pros & Cons, and Choosing the Best Approach – This article discusses how combining multiple similarity measures enhances performance.
 Building on insights from these sources, I formulated an approach that combines Levenshtein Distance, Cosine Similarity, and Jaccard Similarity, assigning equal weights (0.333) to each metric. This method effectively balances character-level, word-level, and semantic similarity, resulting in a more generalized and reliable similarity score.
+
+
+https://ishwaryasriraman.medium.com/string-similarity-methods-pros-cons-and-choosing-the-best-approach-1e9dc2ce5936
