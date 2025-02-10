@@ -1,0 +1,7 @@
+I have referred to several research papers and articles to develop a robust approach for calculating Address Similarity Scores by combining multiple similarity measures. The key references include:
+
+“Similarity Measures for Title Matching” – This paper provides a comprehensive overview of various similarity scores used for string matching.
+“Matching Scientific Article Titles using Cosine Similarity and Jaccard Similarity Algorithm” – This study demonstrates that a combined approach using multiple similarity metrics results in improved accuracy.
+“Combining Approximate String Matching Algorithms and Term Frequency in the Detection of Plagiarism” – This research highlights the effectiveness of hybrid algorithms in detecting textual similarity in everyday language.
+String Similarity Methods: Pros & Cons, and Choosing the Best Approach – This article discusses how combining multiple similarity measures enhances performance.
+Building on insights from these sources, I formulated an approach that combines Levenshtein Distance, Cosine Similarity, and Jaccard Similarity, assigning equal weights (0.333) to each metric. This method effectively balances character-level, word-level, and semantic similarity, resulting in a more generalized and reliable similarity score.
