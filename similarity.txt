@@ -8,3 +8,13 @@ Building on insights from these sources, I formulated an approach that combines 
 
 
 https://ishwaryasriraman.medium.com/string-similarity-methods-pros-cons-and-choosing-the-best-approach-1e9dc2ce5936
+
+
+
+Combination of Scores (Balanced Approach)
+By calculating a weighted average of Jaccard, Cosine, and Levenshtein similarity scores, we achieve a balance that cancels out each metric’s disadvantages:
+
+Levenshtein handles typos and minor variations (which Jaccard and Cosine struggle with).
+Cosine captures frequency-based word importance (which Levenshtein ignores).
+Jaccard ensures token overlap is accounted for (which Cosine does partially and Levenshtein doesn’t).
+This holistic approach ensures a well-rounded similarity evaluation, making it robust across various text types and structures.
