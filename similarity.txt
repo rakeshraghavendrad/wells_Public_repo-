@@ -18,3 +18,32 @@ Levenshtein handles typos and minor variations (which Jaccard and Cosine struggl
 Cosine captures frequency-based word importance (which Levenshtein ignores).
 Jaccard ensures token overlap is accounted for (which Cosine does partially and Levenshtein doesn’t).
 This holistic approach ensures a well-rounded similarity evaluation, making it robust across various text types and structures.
+
+
+import textdistance
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Fixed Jaccard Similarity (returns decimal values)
+def jaccard_sim(str1, str2):
+    return textdistance.jaccard.normalized_similarity(str1, str2)
+
+# Fixed Cosine Similarity (returns decimal values)
+def cosine_sim(str1, str2):
+    vectorizer = TfidfVectorizer().fit_transform([str1, str2])  
+    vectors = vectorizer.toarray()
+    return cosine_similarity([vectors[0]], [vectors[1]])[0, 0]
+
+# Levenshtein Similarity (already works correctly)
+def levenshtein_similarity(str1, str2):
+    max_len = max(len(str1), len(str2))
+    return 1 - (textdistance.levenshtein.distance(str1, str2) / max_len) if max_len > 0 else 1.0
+
+# Address Similarity Score (now all components return decimal values)
+def address_similarity_score(address1, address2):
+    jaccard_score = jaccard_sim(address1, address2)
+    cosine_score = cosine_sim(address1, address2)
+    levenshtein_score = levenshtein_similarity(address1, address2)
+    
+    combined_score = (jaccard_score + cosine_score + levenshtein_score) / 3
+    return combined_score
