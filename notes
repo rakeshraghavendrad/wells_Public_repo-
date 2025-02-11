@@ -1,12 +1,1 @@
-# Finding mismatched values
-mismatch_mask = df1 != df2
-
-# Extract mismatched positions
-mismatch_positions = []
-for row in range(len(df1)):
-    for col in df1.columns:
-        if mismatch_mask.iloc[row][col]:
-            mismatch_positions.append((row, col, df1.iloc[row][col], df2.iloc[row][col]))
-
-# Convert to DataFrame for better visualization
-mismatch_df = pd.DataFrame(mismatch_positions, columns=['Row', 'Column', 'Value_df1', 'Value_df2'])
+df1_not_in_df2 = df1[~df1.apply(tuple, axis=1).isin(df2.apply(tuple, axis=1))]
