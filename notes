@@ -1,8 +1,12 @@
-df2.columns = df2.columns.str.replace("_space", "", regex=False)
+# Finding mismatched values
+mismatch_mask = df1 != df2
 
+# Extract mismatched positions
+mismatch_positions = []
+for row in range(len(df1)):
+    for col in df1.columns:
+        if mismatch_mask.iloc[row][col]:
+            mismatch_positions.append((row, col, df1.iloc[row][col], df2.iloc[row][col]))
 
-# Merge with indicator to track differences
-df_diff = df1.merge(df2, on=['ID', 'Name'], how='outer', indicator=True)
-
-# Filter out non-matching rows
-df_non_matching = df_diff[df_diff['_merge'] != 'both'].drop(columns=['_merge'])
+# Convert to DataFrame for better visualization
+mismatch_df = pd.DataFrame(mismatch_positions, columns=['Row', 'Column', 'Value_df1', 'Value_df2'])
