@@ -1,22 +1,4 @@
-SELECT 
-    e.dt AS dt,
-    e.title AS title,
-    STRING_AGG(
-        CONCAT(g.full_name, ' <', g.email_address, '>'),
-        ', '
-        ORDER BY g.full_name
-    ) AS guests
-FROM 
-    events e
-JOIN 
-    event_guest eg ON e.id = eg.event_id
-JOIN 
-    guests g ON eg.guest_id = g.id
-WHERE 
-    g.on_vacation = 0  -- Exclude guests who are on vacation
-GROUP BY 
-    e.dt, e.title
-ORDER BY 
-    e.dt ASC  -- Sort by event timestamp in ascending order
-LIMIT 
-    5; -- Limit to the first 5 events
+def jaro_winkler_similarity(str1, str2):
+    return textdistance.jaro_winkler.normalized_similarity(str1, str2)
+
+jaro_winkler_score = jaro_winkler_similarity(address1, address2)
