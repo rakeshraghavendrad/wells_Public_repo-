@@ -1,4 +1,8 @@
-def jaro_winkler_similarity(str1, str2):
-    return textdistance.jaro_winkler.normalized_similarity(str1, str2)
+df2.columns = df2.columns.str.replace("_space", "", regex=False)
 
-jaro_winkler_score = jaro_winkler_similarity(address1, address2)
+
+# Merge with indicator to track differences
+df_diff = df1.merge(df2, on=['ID', 'Name'], how='outer', indicator=True)
+
+# Filter out non-matching rows
+df_non_matching = df_diff[df_diff['_merge'] != 'both'].drop(columns=['_merge'])
