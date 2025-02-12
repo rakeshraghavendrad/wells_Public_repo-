@@ -4,3 +4,6 @@ Jaccard similarity may be more effective when handling addresses with common wor
 Levenshtein similarity may be better for minor spelling differences (e.g., "Street" vs. "St.").
 Cosine similarity might be best when word frequency matters.
 The weighted approach provides a structured way to fine-tune the model based on real-world performance rather than assuming all measures should always contribute equally.
+
+address = re.sub(r"([a-zA-Z])(\d)", r"\1 \2", address)  # Split letter-number combos
+address = re.sub(r"(\d)([a-zA-Z])", r"\1 \2", address)  # Split number-letter combos
