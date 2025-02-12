@@ -1,15 +1,6 @@
-import pandas as pd
-
-# Sample DataFrames
-df1 = pd.DataFrame({'ID': [1, 2, 3, 4], 'FullName_30': ['Alice', 'Bob', 'Charlie', 'David']})
-df2 = pd.DataFrame({'ID': [1, 2, 3, 4, 5, 6], 'FullName_30': ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank']})
-
-# Step 1: Merge with indicator to track differences
-df_diff = df2.merge(df1, on=['ID', 'FullName_30'], how='left', indicator=True)
-
-# Step 2: Filter rows that are only in df2
-df_extra_in_df2 = df_diff[df_diff['_merge'] == 'left_only'].drop(columns=['_merge'])
-
-# Display only the extra rows in df2
-import ace_tools as tools
-tools.display_dataframe_to_user(name="Extra Rows in df2", dataframe=df_extra_in_df2)
+3. Domain-Specific Customization
+Some datasets or applications might favor certain similarity metrics over others. For example:
+Jaccard similarity may be more effective when handling addresses with common words.
+Levenshtein similarity may be better for minor spelling differences (e.g., "Street" vs. "St.").
+Cosine similarity might be best when word frequency matters.
+The weighted approach provides a structured way to fine-tune the model based on real-world performance rather than assuming all measures should always contribute equally.
