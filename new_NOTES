@@ -1,12 +1,35 @@
-# Function to remove duplicate words while maintaining order
-def remove_duplicate_words(text):
-    seen = set()
-    words = text.split()
-    unique_text = ' '.join([word for word in words if not (word in seen or seen.add(word))])
-    return unique_text
+mapping_dict = {
+    "number": "#",
+    "unit": "#",
+    "apt": "#",
+    "apartment": "#",
+    "suite": "#",
+    "suite #": "#",
+    "suite no": "#",
+    "apt #": "#",
+    "apt no": "#",
+    "unit no": "#",
+    "unit #": "#",
+    "room": "#",
+    "rm": "#",
+    "floor": "#",
+    "flr": "#",
+    "building": "#",
+    "bldg": "#",
+    "lot": "#",
+    "block": "#",
+    "blk": "#",
+    "section": "#",
+    "sec": "#",
+    "tower": "#",
+    "twr": "#",
+    "level": "#",
+    "ste": "#",  # Common abbreviation for suite
+    "app": "#",  # Possible shorthand for apartment
+    "no": "#",   # Commonly used as "No 5" for addresses
+    "#": "#"     # Ensures existing "#" remains unchanged
+}
 
-# Step 1: Merge 'address1', 'address2', 'address3' into 'full_address'
-df2['full_address'] = df2[['address1', 'address2', 'address3']].agg(' '.join, axis=1)
+https://www.apartmentguide.com/blog/how-to-write-an-apartment-address/?utm_source=chatgpt.com
 
-# Step 2: Remove duplicate words within 'full_address'
-df2['full_address'] = df2['full_address'].apply(remove_duplicate_words)
+https://www.redfin.com/blog/how-to-write-an-apartment-address/?utm_source=chatgpt.com
