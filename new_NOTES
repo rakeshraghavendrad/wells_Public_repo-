@@ -1,41 +1,12 @@
+# Function to remove duplicate words while maintaining order
+def remove_duplicate_words(text):
+    seen = set()
+    words = text.split()
+    unique_text = ' '.join([word for word in words if not (word in seen or seen.add(word))])
+    return unique_text
 
-https://arxiv.org/pdf/2307.02300
+# Step 1: Merge 'address1', 'address2', 'address3' into 'full_address'
+df2['full_address'] = df2[['address1', 'address2', 'address3']].agg(' '.join, axis=1)
 
-
-https://dl.acm.org/doi/10.1016/j.procs.2024.03.039?utm_source=chatgpt.com
-
-
-https://www.cscjournals.org/manuscript/Journals/IJCSS/Volume15/Issue4/IJCSS-1627.pdf?utm_source=chatgpt.com
-
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-
-
-"We chose Levenshtein Distance, Cosine Similarity, and Jaccard Similarity, equally weighted at 0.333 each, because this combination effectively captures character-level, word-level, and sentence-level similarities, making it more robust and versatile compared to TF-IDF-based approaches.
-
-Handling Typos and Small Variations (Levenshtein Distance)
-Levenshtein Distance is a string-matching technique that calculates the minimum number of single-character edits (insertions, deletions, substitutions) required to transform one string into another.
-Example:
-
-“optimization” vs. “optimisation” – These words have minor spelling differences (American vs. British spelling). Levenshtein Distance can detect that they are 90% similar based on minimal character edits, while TF-IDF would treat them as entirely different words due to exact word matching.
-Capturing Word Importance and Semantic Similarity (Cosine Similarity)
-Cosine similarity measures the angle between vector representations of two texts. Unlike TF-IDF, which emphasizes rare word frequency, Cosine similarity can be applied to word embeddings or frequency vectors to capture semantic similarity, even if exact words differ.
-Example:
-
-“The cat is on the mat” vs. “A cat sits on the rug” – Cosine similarity can detect semantic closeness based on contextual word usage, even though not all words match exactly. TF-IDF, on the other hand, might underperform when synonyms or slight rephrasings are used.
-Capturing Token Overlap (Jaccard Similarity)
-Jaccard Similarity measures the ratio of common words (intersection) to the total number of unique words (union). This metric is useful for detecting word-level overlap without emphasizing the order of words.
-Example:
-
-“machine learning algorithms” vs. “algorithms for machine learning” – Jaccard similarity will focus on the presence of common words, ignoring minor differences in word order, which is essential for tasks where word co-occurrence is more meaningful than word frequency.
-Why We Did Not Use TF-IDF-Based Combinations
-Redundancy: TF-IDF emphasizes word frequency, which is already captured by Cosine similarity. Adding TF-IDF would introduce unnecessary complexity without significant added benefit.
-Lower Robustness to Typos and Short Texts: Unlike Levenshtein, TF-IDF-based combinations struggle with minor spelling differences or short text comparisons (e.g., product codes, document titles, or short phrases).
-Increased Computational Overhead: TF-IDF calculations increase computational cost, especially in large datasets, while Levenshtein and Cosine already provide comprehensive similarity analysis.
-In Summary
-This approach offers a more generalizable and balanced similarity measure by:
-
-Handling typos and minor variations (Levenshtein)
-Capturing contextual meaning and word distribution (Cosine)
-Ensuring token-level overlap and robustness to word order changes (Jaccard)
-By avoiding TF-IDF, we also reduce redundancy, improve robustness for short texts, and optimize computational efficiency."
+# Step 2: Remove duplicate words within 'full_address'
+df2['full_address'] = df2['full_address'].apply(remove_duplicate_words)
