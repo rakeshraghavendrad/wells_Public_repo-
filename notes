@@ -7,3 +7,39 @@ The weighted approach provides a structured way to fine-tune the model based on 
 
 address = re.sub(r"([a-zA-Z])(\d)", r"\1 \2", address)  # Split letter-number combos
 address = re.sub(r"(\d)([a-zA-Z])", r"\1 \2", address)  # Split number-letter combos
+
+import textdistance
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from fuzzywuzzy import fuzz
+
+# 1. Jaccard n-gram similarity (only useful if spaces are kept)
+def jaccard_ngram_similarity(str1, str2, n=2):
+    set1 = set([str1[i:i+n] for i in range(len(str1)-n+1)])
+    set2 = set([str2[i:i+n] for i in range(len(str2)-n+1)])
+    return len(set1 & set2) / len(set1 | set2) if len(set1 | set2) > 0 else 0
+
+# 2. Cosine Similarity with Character N-Grams (More robust)
+def cosine_sim_char(str1, str2):
+    vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(2, 4)).fit_transform([str1, str2])
+    vectors = vectorizer.toarray()
+    return cosine_similarity([vectors[0]], [vectors[1]])[0, 0]
+
+# 3. Levenshtein Similarity (Works at character level)
+def levenshtein_similarity(str1, str2):
+    max_len = max(len(str1), len(str2))
+    return 1 - (textdistance.levenshtein.distance(str1, str2) / max_len) if max_len > 0 else 1.0
+
+# 4. FuzzyWuzzy Partial Ratio Similarity (Handles missing spaces well)
+def fuzzy_partial_ratio(str1, str2):
+    return fuzz.partial_ratio(str1, str2) / 100  # Normalize between 0-1
+
+# Function to calculate final similarity score (equal weight)
+def address_similarity_score(address1, address2):
+    jaccard_score = jaccard_ngram_similarity(address1, address2)  # Works if spaces are preserved
+    cosine_score = cosine_sim_char(address1, address2)  # Works even if spaces are missing
+    levenshtein_score = levenshtein_similarity(address1, address2)  # Character-based
+    fuzzy_score = fuzzy_partial_ratio(address1, address2)  # Robust to space mismatches
+
+    combined_score = (cosine_score + levenshtein_score + fuzzy_score) / 3  # Giving more weight to robust methods
+    return combined_score
