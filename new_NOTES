@@ -27,3 +27,4 @@ Fuzzy Partial Ratio is helpful when addresses are compared in terms of substring
 
 The reason Jaro-Winkler has been emphasized more is due to its strong handling of transpositions, character shifts, and prefix matching, all of which are critical when comparing addresses where even small differences can affect similarity. It is the most robust and comprehensive for this task, making it the preferred choice for our weight distribution.
 
+Cosine and Jaccard similarities perform less effectively when spaces are removed, as they rely heavily on the tokenization of words, which gets disrupted when spaces are omitted. This is why these metrics are not considered in the final scoring.
