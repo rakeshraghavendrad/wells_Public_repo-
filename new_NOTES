@@ -35,62 +35,77 @@ https://www.apartmentguide.com/blog/how-to-write-an-apartment-address/?utm_sourc
 https://www.redfin.com/blog/how-to-write-an-apartment-address/?utm_source=chatgpt.com
 
 
+import re
 import textdistance
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from fuzzywuzzy import fuzz
-import re
 
-# 1. Jaccard Similarity with Character N-Grams (Handles minor spelling variations)
-def jaccard_ngram_similarity(str1, str2, n=2):
-    set1 = set([str1[i:i+n] for i in range(len(str1)-n+1)])
-    set2 = set([str2[i:i+n] for i in range(len(str2)-n+1)])
-    return len(set1 & set2) / len(set1 | set2) if len(set1 | set2) > 0 else 0
-
-# 2. Cosine Similarity with Character N-Grams (More robust to missing spaces)
+# Function to compute cosine similarity with character n-grams
 def cosine_sim_char(str1, str2):
     vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(2, 4)).fit_transform([str1, str2])
     vectors = vectorizer.toarray()
     return cosine_similarity([vectors[0]], [vectors[1]])[0, 0]
 
-# 3. Levenshtein Similarity (Works at character level)
+# Function to compute Levenshtein similarity
 def levenshtein_similarity(str1, str2):
     max_len = max(len(str1), len(str2))
     return 1 - (textdistance.levenshtein.distance(str1, str2) / max_len) if max_len > 0 else 1.0
 
-# 4. FuzzyWuzzy Partial Ratio Similarity (Handles missing spaces well)
+# Function to compute fuzzy partial ratio similarity
 def fuzzy_partial_ratio(str1, str2):
     return fuzz.partial_ratio(str1, str2) / 100  # Normalize between 0-1
 
-# 5. Numeric Jaccard Similarity (NEW) - Specifically for number variations
-def numeric_jaccard_similarity(str1, str2):
-    nums1 = set(re.findall(r'\d+', str1))  # Extract numbers
-    nums2 = set(re.findall(r'\d+', str2))
-    if not nums1 or not nums2:
-        return 0  # If no numbers, similarity is 0
-    return len(nums1 & nums2) / len(nums1 | nums2)  # Jaccard index on numbers
+# Function to extract numbers from an address and compute similarity
+def number_similarity(addr1, addr2):
+    num1 = re.findall(r'\d+', addr1)
+    num2 = re.findall(r'\d+', addr2)
 
-# Function to calculate final similarity score (with optimized weights)
+    # Convert to sets for Jaccard similarity
+    set1, set2 = set(num1), set(num2)
+    
+    if not set1 or not set2:  # If no numbers in one of the addresses, return neutral similarity
+        return 1.0
+
+    # Jaccard Similarity for numbers
+    intersection = len(set1.intersection(set2))
+    union = len(set1.union(set2))
+    jaccard_sim = intersection / union if union > 0 else 1.0
+
+    # Numeric Edit Distance for better handling of close numbers
+    num_edit_distance = textdistance.levenshtein.normalized_similarity(''.join(num1), ''.join(num2))
+
+    # Weighted combination of Jaccard and Edit Distance
+    return 0.7 * jaccard_sim + 0.3 * num_edit_distance
+
+# Function to calculate final similarity score with number consideration
 def address_similarity_score(address1, address2):
-    jaccard_score = jaccard_ngram_similarity(address1, address2)  
+  
     cosine_score = cosine_sim_char(address1, address2)  
     levenshtein_score = levenshtein_similarity(address1, address2)  
     fuzzy_score = fuzzy_partial_ratio(address1, address2)  
-    numeric_jaccard = numeric_jaccard_similarity(address1, address2)  
+    num_score = number_similarity(address1, address2)
 
-    # Adjusted Weights (More emphasis on fuzzy & number handling)
-    weight_fuzzy = 0.50
+    # Adjusted Weights (Higher weight for number similarity)
+    weight_fuzzy = 0.40
+    weight_partial_ratio = 0.50  # Increased weight on partial ratio
     weight_cosine = 0.15
-    weight_levenstein = 0.10
-    weight_numeric = 0.25  # NEW weight to handle number mismatches
+    weight_levenshtein = 0.15
+    weight_number = 0.35  # Give substantial weight to number similarity
 
     # Final weighted similarity score
     combined_score = (
-        weight_fuzzy * fuzzy_score +
+        weight_partial_ratio * fuzzy_score +
         weight_cosine * cosine_score +
-        weight_levenstein * levenshtein_score +
-        weight_numeric * numeric_jaccard
+        weight_levenshtein * levenshtein_score +
+        weight_number * num_score
     )
     
     return combined_score
 
+# Example usage
+address1 = "7744 parkmount dr"
+address2 = "7741 parkmount dr"
+
+similarity = address_similarity_score(address1, address2)
+print(f"Similarity Score: {similarity:.3f}")
