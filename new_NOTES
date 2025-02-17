@@ -1,12 +1,6 @@
-# Assign labels based on the matching minimum scores
-df_1_filter['summary'] = df_1_filter['min_score_metrics'].apply(lambda x: 
-    "Character-level and partial-word differences detected, possibly typos or slight modifications." 
-    if set(x) == {"levenshtein_score", "fuzzy_partial_ratio"} else
-    "Character-level differences and ordering mismatch detected."
-    if set(x) == {"levenshtein_score", "jaro_winkler"} else
-    "Missing or additional words detected, but structure remains similar."
-    if set(x) == {"fuzzy_partial_ratio", "jaro_winkler"} else None
-)
+You can use the following **Pandas code** to update the `summary` column **where `levenshtein_score` equals `fuzzy_partial_ratio`**:
 
-# Drop helper columns
-df_1_filter = df_1_filter.drop(columns=['min_score', 'min_score_metrics'])
+```python
+df_1.loc[df_1['levenshtein_score'] == df_1['fuzzy_partial_ratio'], 'summary'] = (
+    "Character-level and partial-word differences detected, possibly typos or slight modifications."
+)
