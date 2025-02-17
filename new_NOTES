@@ -1,6 +1,1 @@
-You can use the following **Pandas code** to update the `summary` column **where `levenshtein_score` equals `fuzzy_partial_ratio`**:
-
-```python
-df_1.loc[df_1['levenshtein_score'] == df_1['fuzzy_partial_ratio'], 'summary'] = (
-    "Character-level and partial-word differences detected, possibly typos or slight modifications."
-)
+df_1_filter = df_1_filter.drop(columns=['min_score', 'min_score_metrics'])
