@@ -1,24 +1,36 @@
 def generate_summary(row):
-    # Convert values to numeric and round to 2 decimal places
-    similarity_scores = row[['jaro_winkler', 'fuzzy_partial_ratio', 'levenshtein_score']].astype(float).round(2)
+    # Convert values to float
+    similarity_scores = row[['jaro_winkler', 'fuzzy_partial_ratio', 'levenshtein_score']].astype(float)
 
     # Check if all scores are equal
     if similarity_scores.nunique() == 1:
         return f"All similarity scores are equal ({similarity_scores.iloc[0]}). No significant mismatch detected."
 
-    # Find the metric with the lowest score
-    min_score_metric = similarity_scores.idxmin()
-    min_score = similarity_scores[min_score_metric]
+    # Find the minimum score(s)
+    min_score = similarity_scores.min()
+    min_score_metrics = similarity_scores[similarity_scores == min_score].index.tolist()  # List of lowest score metrics
 
-    # Generate appropriate message based on the weakest score
-    if min_score_metric == "levenshtein_score":
-        message = "Character-level differences detected, possibly typos or missing spaces."
-    elif min_score_metric == "jaro_winkler":
-        message = "Prefix mismatch or different order detected."
-    else:  # fuzzy_partial_ratio
-        message = "Additional/missing words may be present in one of the addresses."
-    
-    return f"{message} (Weakest score: {min_score_metric}={min_score})"
+    # Handle cases where two similarity scores are tied for lowest
+    if len(min_score_metrics) > 1:
+        if "levenshtein_score" in min_score_metrics and "fuzzy_partial_ratio" in min_score_metrics:
+            message = "Character-level and partial-word differences detected, possibly typos or slight modifications."
+        elif "levenshtein_score" in min_score_metrics and "jaro_winkler" in min_score_metrics:
+            message = "Character-level differences and ordering mismatch detected."
+        elif "fuzzy_partial_ratio" in min_score_metrics and "jaro_winkler" in min_score_metrics:
+            message = "Missing or additional words detected, but structure remains similar."
+        else:
+            message = "Multiple similarity metrics indicate a difference, requiring manual review."
+    else:
+        # Only one lowest similarity metric
+        min_score_metric = min_score_metrics[0]
+        if min_score_metric == "levenshtein_score":
+            message = "Character-level differences detected, possibly typos or missing spaces."
+        elif min_score_metric == "jaro_winkler":
+            message = "Prefix mismatch or different order detected."
+        else:  # fuzzy_partial_ratio
+            message = "Additional/missing words may be present in one of the addresses."
+
+    return f"{message} (Weakest scores: {', '.join(min_score_metrics)}={round(min_score, 2)})"
 
 # Apply function to generate summary
 df_1['Summary'] = df_1.apply(generate_summary, axis=1)
