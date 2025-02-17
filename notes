@@ -18,8 +18,6 @@ def generate_summary(row):
             message = "Character-level differences and ordering mismatch detected."
         elif "fuzzy_partial_ratio" in min_score_metrics and "jaro_winkler" in min_score_metrics:
             message = "Missing or additional words detected, but structure remains similar."
-        else:
-            message = "Multiple similarity metrics indicate a difference, requiring manual review."
     else:
         # Only one lowest similarity metric
         min_score_metric = min_score_metrics[0]
