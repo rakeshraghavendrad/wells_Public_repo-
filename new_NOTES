@@ -1,30 +1,5 @@
-Hi,
+# Filter rows where all three columns have the value 1.0
+df_filtered = df_1[(df_1['column_1'] == 1.0) & (df_1['column_2'] == 1.0) & (df_1['column_3'] == 1.0)]
 
-Please find the attached Excel file containing the address similarity scores. Below are the algorithms and weights I am currently using to calculate the address similarity:
-
-Fuzzy Partial Ratio: Weight = 0.30
-Levenshtein: Weight = 0.15
-Jaro-Winkler: Weight = 0.55
-In the Excel file, the output is available in the Test_similarity_score sheet. You can use the Score Range column to apply filters and review the Overall Similarity Score.
-
-original_fulladdress_30_1: Customer input before data cleaning
-original_fulladdress_94_1: Database input before data cleaning
-The columns fulladdress_30 and fulladdress_94 are where I am performing the similarity scoring. This combination has shown a significant improvement in similarity scores in the 0.90-1.0 range, when compared to other combinations.
-
-Please let me know if these similarity scores are feasible.
-
-As discussed, I have updated the data dictionary by converting full forms to short forms (e.g., "#", "suite", "apt.") and removed duplicates before scoring. This is done to simplify the scoring process.
-
-Let me know your thoughts, and if any further changes are required, I’m happy to look into i
-
-In the address similarity scoring, I’ve assigned the highest weight to Jaro-Winkler (0.55) over the other metrics, and here's why:
-
-Jaro-Winkler is particularly effective for address matching because it considers both common characters and transpositions while also providing a boost for matching prefixes. It works well with addresses that have minor variations (e.g., small numerical differences or slight character reordering). This makes it highly suitable for our case, where the address format might change slightly, but the core structure remains similar. Its ability to handle typographical errors and small character shifts makes it robust for address matching. Given these advantages, Jaro-Winkler is the most suitable for addressing the core differences between the customer input and database addresses, which is why it has been weighted higher.
-
-Levenshtein is a great choice for identifying the edit distance between strings, measuring how many insertions, deletions, or substitutions are needed to turn one string into another. While Levenshtein is effective for detecting edit-based similarities, it’s not as robust when it comes to handling transpositions or slight changes in character order, which are common in addresses. Therefore, its weight is slightly lower (0.15), as it complements the Jaro-Winkler similarity by capturing edit differences but doesn’t excel as much with transpositions or prefixes.
-
-Fuzzy Partial Ratio is helpful when addresses are compared in terms of substring matching, especially for partial matches or when there are slight spacing or formatting issues. It works well when some words are missing or rearranged, but it doesn’t handle small character differences or transpositions as effectively as Jaro-Winkler. Thus, it holds a moderate weight (0.30), balancing out the other two methods.
-
-The reason Jaro-Winkler has been emphasized more is due to its strong handling of transpositions, character shifts, and prefix matching, all of which are critical when comparing addresses where even small differences can affect similarity. It is the most robust and comprehensive for this task, making it the preferred choice for our weight distribution.
-
-Cosine and Jaccard similarities perform less effectively when spaces are removed, as they rely heavily on the tokenization of words, which gets disrupted when spaces are omitted. This is why these metrics are not considered in the final scoring.
+# Create a new column 'summary' with the required message
+df_filtered['summary'] = "All similarity scores are equal & No significant mismatch detected"
