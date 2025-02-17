@@ -1,1 +1,26 @@
-df_1_filter = df_1_filter.drop(columns=['min_score', 'min_score_metrics'])
+# Find the minimum similarity score for each row
+df_1['min_score'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].min(axis=1)
+
+# Find which column contains the minimum score
+df_1['min_score_metric'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].idxmin(axis=1)
+
+# Filter dataframe to keep only rows where a single minimum score exists
+df_filtered = df_1.copy()
+
+# Assign labels based on the minimum score metric
+df_filtered.loc[df_filtered['min_score_metric'] == "levenshtein_score", 'summary'] = (
+    "Character-level differences detected, possibly typos or missing spaces."
+)
+df_filtered.loc[df_filtered['min_score_metric'] == "jaro_winkler", 'summary'] = (
+    "Prefix mismatch or different order detected."
+)
+df_filtered.loc[df_filtered['min_score_metric'] == "fuzzy_partial_ratio", 'summary'] = (
+    "Additional/missing words may be present in one of the addresses."
+)
+
+# Drop helper columns
+df_filtered = df_filtered.drop(columns=['min_score', 'min_score_metric'])
+
+# Display the filtered DataFrame
+import ace_tools as tools
+tools.display_dataframe_to_user(name="Filtered DataFrame with Summary", dataframe=df_filtered)
