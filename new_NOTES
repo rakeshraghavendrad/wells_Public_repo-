@@ -1,26 +1,39 @@
-# Find the minimum similarity score for each row
+import pandas as pd
+
+# Step 1: Filter rows where all similarity scores are 1.0
+df1 = df_1[(df_1['jaro_winkler'] == 1.0) & 
+           (df_1['levenshtein_score'] == 1.0) & 
+           (df_1['fuzzy_partial_ratio'] == 1.0)].copy()
+df1['summary'] = "All similarity scores are equal & No significant mismatch detected"
+
+# Step 2: Find the minimum similarity score for each row
 df_1['min_score'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].min(axis=1)
 
-# Find which column contains the minimum score
-df_1['min_score_metric'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].idxmin(axis=1)
+# Step 3: Identify columns with the minimum score
+df_1['min_score_metrics'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].eq(df_1['min_score'], axis=0).apply(lambda x: list(x.index[x]), axis=1)
 
-# Filter dataframe to keep only rows where a single minimum score exists
-df_filtered = df_1.copy()
+# Step 4: Filter rows where exactly two similarity scores are the minimum
+df2 = df_1[df_1['min_score_metrics'].apply(len) == 2].copy()
 
-# Assign labels based on the minimum score metric
-df_filtered.loc[df_filtered['min_score_metric'] == "levenshtein_score", 'summary'] = (
-    "Character-level differences detected, possibly typos or missing spaces."
+# Assign appropriate summary based on the minimum score match
+df2['summary'] = df2['min_score_metrics'].apply(lambda x: 
+    "Character-level and partial-word differences detected, possibly typos or slight modifications."
+    if set(x) == {"levenshtein_score", "fuzzy_partial_ratio"} else
+    "Character-level differences and ordering mismatch detected."
+    if set(x) == {"levenshtein_score", "jaro_winkler"} else
+    "Missing or additional words detected, but structure remains similar."
+    if set(x) == {"fuzzy_partial_ratio", "jaro_winkler"} else None
 )
-df_filtered.loc[df_filtered['min_score_metric'] == "jaro_winkler", 'summary'] = (
-    "Prefix mismatch or different order detected."
-)
-df_filtered.loc[df_filtered['min_score_metric'] == "fuzzy_partial_ratio", 'summary'] = (
-    "Additional/missing words may be present in one of the addresses."
-)
 
-# Drop helper columns
-df_filtered = df_filtered.drop(columns=['min_score', 'min_score_metric'])
+# Step 5: Filter remaining rows (excluding those in df1 and df2)
+df3 = df_1.drop(df1.index).drop(df2.index)
 
-# Display the filtered DataFrame
+# Step 6: Merge all three DataFrames back into one
+df_final = pd.concat([df1, df2, df3], ignore_index=True)
+
+# Drop helper columns from df_final
+df_final = df_final.drop(columns=['min_score', 'min_score_metrics'], errors='ignore')
+
+# Display the final merged DataFrame
 import ace_tools as tools
-tools.display_dataframe_to_user(name="Filtered DataFrame with Summary", dataframe=df_filtered)
+tools.display_dataframe_to_user(name="Final Merged DataFrame", dataframe=df_final)
