@@ -10,6 +10,9 @@ def generate_summary(row):
     min_score = similarity_scores.min()
     min_score_metrics = similarity_scores[similarity_scores == min_score].index.tolist()  # List of lowest score metrics
 
+    # Initialize default message
+    message = "Mismatch detected."
+
     # Handle cases where two similarity scores are tied for lowest
     if len(min_score_metrics) == 2:
         pair = set(min_score_metrics)  # Convert to set for easy comparison
