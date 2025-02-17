@@ -1,39 +1,9 @@
-import pandas as pd
-
-# Step 1: Filter rows where all similarity scores are 1.0
-df1 = df_1[(df_1['jaro_winkler'] == 1.0) & 
-           (df_1['levenshtein_score'] == 1.0) & 
-           (df_1['fuzzy_partial_ratio'] == 1.0)].copy()
-df1['summary'] = "All similarity scores are equal & No significant mismatch detected"
-
-# Step 2: Find the minimum similarity score for each row
-df_1['min_score'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].min(axis=1)
-
-# Step 3: Identify columns with the minimum score
-df_1['min_score_metrics'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].eq(df_1['min_score'], axis=0).apply(lambda x: list(x.index[x]), axis=1)
-
-# Step 4: Filter rows where exactly two similarity scores are the minimum
-df2 = df_1[df_1['min_score_metrics'].apply(len) == 2].copy()
-
-# Assign appropriate summary based on the minimum score match
-df2['summary'] = df2['min_score_metrics'].apply(lambda x: 
-    "Character-level and partial-word differences detected, possibly typos or slight modifications."
-    if set(x) == {"levenshtein_score", "fuzzy_partial_ratio"} else
-    "Character-level differences and ordering mismatch detected."
-    if set(x) == {"levenshtein_score", "jaro_winkler"} else
-    "Missing or additional words detected, but structure remains similar."
-    if set(x) == {"fuzzy_partial_ratio", "jaro_winkler"} else None
-)
-
-# Step 5: Filter remaining rows (excluding those in df1 and df2)
-df3 = df_1.drop(df1.index).drop(df2.index)
-
-# Step 6: Merge all three DataFrames back into one
-df_final = pd.concat([df1, df2, df3], ignore_index=True)
-
-# Drop helper columns from df_final
-df_final = df_final.drop(columns=['min_score', 'min_score_metrics'], errors='ignore')
-
-# Display the final merged DataFrame
-import ace_tools as tools
-tools.display_dataframe_to_user(name="Final Merged DataFrame", dataframe=df_final)
+Step 2: Defining Classification Rules
+If Levenshtein is the lowest and below 0.90 → Typos / Spelling errors.
+If Jaro-Winkler is the lowest and below 0.90 → Reordering.
+If Fuzzy Partial Ratio is the lowest and below 0.90 → Missing or extra words.
+If all three scores are close (within 0.02-0.03 range of each other) → Minor formatting differences.
+If two scores are equally low, prioritize classification:
+Levenshtein + Partial Ratio low → Character-level & word-level typo.
+Levenshtein + Jaro-Winkler low → Typos with reordering.
+Partial Ratio + Jaro-Winkler low → Missing/Extra words + reordering.
