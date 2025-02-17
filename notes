@@ -18,14 +18,14 @@ def generate_summary(row):
             message = "Character-level differences and ordering mismatch detected."
         elif "fuzzy_partial_ratio" in min_score_metrics and "jaro_winkler" in min_score_metrics:
             message = "Missing or additional words detected, but structure remains similar."
-    else:
+    elif len(min_score_metrics) == 1:
         # Only one lowest similarity metric
         min_score_metric = min_score_metrics[0]
         if min_score_metric == "levenshtein_score":
             message = "Character-level differences detected, possibly typos or missing spaces."
         elif min_score_metric == "jaro_winkler":
             message = "Prefix mismatch or different order detected."
-        else:  # fuzzy_partial_ratio
+        elif min_score_metric == "fuzzy_partial_ratio":
             message = "Additional/missing words may be present in one of the addresses."
 
     return f"{message} (Weakest scores: {', '.join(min_score_metrics)}={round(min_score, 2)})"
