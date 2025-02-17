@@ -1,2 +1,4 @@
-  # Combine results without duplicating columns
-    result = pd.concat([df1, df2, df[~df.index.isin(df1.index) & ~df.index.isin(df2.index)]]).reset_index(drop=
+# Combine results without duplicating columns
+    result = pd.concat([df1, df2, df[~df.index.isin(df1.index) & ~df.index.isin(df2.index)]]).reset_index(drop=True)
+
+    # Drop helper columns
