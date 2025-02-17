@@ -1,6 +1,2 @@
-# Step 6: Prioritize classification when two scores are equally low
-    df2.loc[df2['min_score_metrics'].apply(lambda x: set(x) == {"levenshtein_score", "fuzzy_partial_ratio"}), 'summary'] = "Character-level & word-level typo."
-    df2.loc[df2['min_score_metrics'].apply(lambda x: set(x) == {"levenshtein_score", "jaro_winkler"}), 'summary'] = "Typos with reordering."
-    df2.loc[df2['min_score_metrics'].apply(lambda x: set(x) == {"fuzzy_partial_ratio", "jaro_winkler"}), 'summary'] = "Missing/Extra words + reordering."
-
-    # Combine results
+  # Combine results without duplicating columns
+    result = pd.concat([df1, df2, df[~df.index.isin(df1.index) & ~df.index.isin(df2.index)]]).reset_index(drop=
