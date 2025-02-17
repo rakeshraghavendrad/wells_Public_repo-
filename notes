@@ -11,12 +11,13 @@ def generate_summary(row):
     min_score_metrics = similarity_scores[similarity_scores == min_score].index.tolist()  # List of lowest score metrics
 
     # Handle cases where two similarity scores are tied for lowest
-    if len(min_score_metrics) > 1:
-        if "levenshtein_score" in min_score_metrics and "fuzzy_partial_ratio" in min_score_metrics:
+    if len(min_score_metrics) == 2:
+        pair = set(min_score_metrics)  # Convert to set for easy comparison
+        if pair == {"levenshtein_score", "fuzzy_partial_ratio"}:
             message = "Character-level and partial-word differences detected, possibly typos or slight modifications."
-        elif "levenshtein_score" in min_score_metrics and "jaro_winkler" in min_score_metrics:
+        elif pair == {"levenshtein_score", "jaro_winkler"}:
             message = "Character-level differences and ordering mismatch detected."
-        elif "fuzzy_partial_ratio" in min_score_metrics and "jaro_winkler" in min_score_metrics:
+        elif pair == {"fuzzy_partial_ratio", "jaro_winkler"}:
             message = "Missing or additional words detected, but structure remains similar."
     elif len(min_score_metrics) == 1:
         # Only one lowest similarity metric
