@@ -1,61 +1,6 @@
-Step 2: Defining Classification Rules
-If Levenshtein is the lowest and below 0.90 → Typos / Spelling errors.
-If Jaro-Winkler is the lowest and below 0.90 → Reordering.
-If Fuzzy Partial Ratio is the lowest and below 0.90 → Missing or extra words.
-If all three scores are close (within 0.02-0.03 range of each other) → Minor formatting differences.
-If two scores are equally low, prioritize classification:
-Levenshtein + Partial Ratio low → Character-level & word-level typo.
-Levenshtein + Jaro-Winkler low → Typos with reordering.
-Partial Ratio + Jaro-Winkler low → Missing/Extra words + reordering.
-
-
-def generate_summary(df):
-    # Step 1: Filter rows where all similarity scores are 1.0
-    df1 = df[(df['jaro_winkler'] == 1.0) & 
-             (df['levenshtein_score'] == 1.0) & 
-             (df['fuzzy_partial_ratio'] == 1.0)].copy()
-    df1['summary'] = "All similarity scores are equal & No significant mismatch detected"
-
-    # Step 2: Find the minimum similarity score for each row
-    df['min_score'] = df[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].min(axis=1)
-    df['min_score_metric'] = df[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].idxmin(axis=1)
-
-    # Step 3: Identify columns with the minimum score
-    df['min_score_metrics'] = df[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].eq(df['min_score'], axis=0).apply(lambda x: list(x.index[x]), axis=1)
-
-    # Step 4: Filter rows where exactly two similarity scores are the minimum
-    df2 = df[df['min_score_metrics'].apply(len) == 2].copy()
-
-    # Step 5: Assign labels based on the minimum score metric
-    df.loc[(df['min_score_metric'] == "levenshtein_score") & (df['min_score'] < 0.90), 'summary'] = (
-        "Typos / Spelling errors."
-    )
-    df.loc[(df['min_score_metric'] == "jaro_winkler") & (df['min_score'] < 0.90), 'summary'] = (
-        "Reordering."
-    )
-    df.loc[(df['min_score_metric'] == "fuzzy_partial_ratio") & (df['min_score'] < 0.90), 'summary'] = (
-        "Missing or extra words."
-    )
-
-    # Additional condition for close scores
-    df['score_diff'] = df[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].max(axis=1) - df['min_score']
-    df.loc[df['score_diff'] <= 0.03, 'summary'] = "Minor formatting differences."
-
-    # Step 6: Prioritize classification when two scores are equally low
-    if set(df2['min_score_metrics']) == {"levenshtein_score", "fuzzy_partial_ratio"}:
-        df2['summary'] = "Character-level & word-level typo."
-    elif set(df2['min_score_metrics']) == {"levenshtein_score", "jaro_winkler"}:
-        df2['summary'] = "Typos with reordering."
-    elif set(df2['min_score_metrics']) == {"fuzzy_partial_ratio", "jaro_winkler"}:
-        df2['summary'] = "Missing/Extra words + reordering."
+# Step 6: Prioritize classification when two scores are equally low
+    df2.loc[df2['min_score_metrics'].apply(lambda x: set(x) == {"levenshtein_score", "fuzzy_partial_ratio"}), 'summary'] = "Character-level & word-level typo."
+    df2.loc[df2['min_score_metrics'].apply(lambda x: set(x) == {"levenshtein_score", "jaro_winkler"}), 'summary'] = "Typos with reordering."
+    df2.loc[df2['min_score_metrics'].apply(lambda x: set(x) == {"fuzzy_partial_ratio", "jaro_winkler"}), 'summary'] = "Missing/Extra words + reordering."
 
     # Combine results
-    result = pd.concat([df1, df2, df]).drop_duplicates().reset_index(drop=True)
-
-    # Drop helper columns
-    result = result.drop(columns=['min_score', 'min_score_metric', 'min_score_metrics', 'score_diff'])
-
-    return result
-
-# Apply function to generate summary
-df_1 = generate_summary(df_1)
