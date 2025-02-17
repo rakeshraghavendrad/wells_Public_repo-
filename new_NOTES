@@ -1,5 +1,27 @@
-# Filter rows where all three columns have the value 1.0
-df_filtered = df_1[(df_1['column_1'] == 1.0) & (df_1['column_2'] == 1.0) & (df_1['column_3'] == 1.0)]
+import pandas as pd
 
-# Create a new column 'summary' with the required message
-df_filtered['summary'] = "All similarity scores are equal & No significant mismatch detected"
+# Find the minimum similarity score for each row
+df_1['min_score'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].min(axis=1)
+
+# Find which columns contain the minimum score for each row
+df_1['min_score_metrics'] = df_1[['jaro_winkler', 'levenshtein_score', 'fuzzy_partial_ratio']].eq(df_1['min_score'], axis=0).apply(lambda x: list(x.index[x]), axis=1)
+
+# Filter rows where exactly two metrics have the same minimum score
+df_1_filter = df_1[df_1['min_score_metrics'].apply(len) == 2].copy()
+
+# Assign labels based on the matching minimum scores
+df_1_filter['summary'] = df_1_filter['min_score_metrics'].apply(
+    lambda x: "Character-level and partial-word differences detected, possibly typos or slight modifications."
+    if set(x) == {"levenshtein_score", "fuzzy_partial_ratio"} else
+    "Character-level differences and ordering mismatch detected."
+    if set(x) == {"levenshtein_score", "jaro_winkler"} else
+    "Missing or additional words detected, but structure remains similar."
+    if set(x) == {"fuzzy_partial_ratio", "jaro_winkler"} else None
+)
+
+# Drop helper columns
+df_1_filter = df_1_filter.drop(columns=['min_score', 'min_score_metrics'])
+
+# Display the filtered DataFrame
+import ace_tools as tools
+tools.display_dataframe_to_user(name="Filtered DataFrame with Summary", dataframe=df_1_filter)
