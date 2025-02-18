@@ -1,33 +1,31 @@
-def generate_summary(row):
-    # Convert values to float
-    similarity_scores = row[['jaro_winkler', 'fuzzy_partial_ratio', 'levenshtein_score']].astype(float)
 
-    # Check if all scores are equal
-    if similarity_scores.nunique() == 1:
-        return f"All similarity scores are equal ({similarity_scores.iloc[0]}). No significant mismatch detected."
+import pandas as pd
 
-    # Find the minimum score(s)
-    min_score = similarity_scores.min()
-    min_score_metrics = similarity_scores[similarity_scores == min_score].index.tolist()  # List of lowest score metrics
+# Function to classify similarity mismatches based on pattern clustering
+def rule_based_clustering(row):
+    jw, lev, fuzz = row['jaro_winkler'], row['levenshtein_score'], row['fuzzy_partial_ratio']
 
-    if len(min_score_metrics) == 2:
-        pair = set(min_score_metrics)  # Convert to set for easy comparison
-        if pair == {"levenshtein_score", "fuzzy_partial_ratio"}:
-            message = "Character-level and partial-word differences detected, possibly typos or slight modifications."
-        elif pair == {"levenshtein_score", "jaro_winkler"}:
-            message = "Character-level differences and ordering mismatch detected."
-        elif pair == {"fuzzy_partial_ratio", "jaro_winkler"}:
-            message = "Missing or additional words detected, but structure remains similar."
-    elif len(min_score_metrics) == 1:
-        min_score_metric = min_score_metrics[0]
-        if min_score_metric == "levenshtein_score":
-            message = "Character-level differences detected, possibly typos or missing spaces."
-        elif min_score_metric == "jaro_winkler":
-            message = "Prefix mismatch or different order detected."
-        elif min_score_metric == "fuzzy_partial_ratio":
-            message = "Additional/missing words may be present in one of the addresses."
+    # Case 1: All scores are close (within 0.02-0.03 range) → Formatting Issue
+    if abs(jw - lev) < 0.03 and abs(jw - fuzz) < 0.03:
+        return "Minor Formatting Issue (spacing, abbreviations, punctuation)"
+    
+    # Case 2: Levenshtein is significantly lower → Typo / Spelling Issue
+    if lev < jw and lev < fuzz:
+        return "Typos / Spelling Errors"
 
-    return f"{message} (Weakest scores: {', '.join(min_score_metrics)}={round(min_score, 2)})"
+    # Case 3: Jaro-Winkler is significantly lower → Reordering
+    if jw < lev and jw < fuzz:
+        return "Reordering Issue"
 
-# Apply function to generate summary
-df_1['Summary'] = df_1.apply(generate_summary, axis=1)
+    # Case 4: Fuzzy Partial Ratio is significantly lower → Missing/Extra Words
+    if fuzz < jw and fuzz < lev:
+        return "Missing/Extra Words"
+
+    return "Unclassified"  # If it doesn't fit any known pattern
+
+# Apply the function to the DataFrame
+df_1['summary'] = df_1.apply(rule_based_clustering, axis=1)
+
+# Display the DataFrame with manually clustered categories
+import ace_tools as tools
+tools.display_dataframe_to_user(name="Rule-Based Clustering DataFrame", dataframe=df_1)
