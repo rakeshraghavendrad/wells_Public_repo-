@@ -1,4 +1,40 @@
-# Combine results without duplicating columns
-    result = pd.concat([df1, df2, df[~df.index.isin(df1.index) & ~df.index.isin(df2.index)]]).reset_index(drop=True)
+Cheos theory --> 
 
-    # Drop helper columns
+def identify_address_patterns(df):
+    """
+    Identifies hidden patterns in address similarity scores by analyzing 
+    relationships between Levenshtein, Jaro-Winkler, and Fuzzy Partial Ratio.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing similarity scores.
+
+    Returns:
+        pd.DataFrame: DataFrame with a new 'Pattern' column indicating the identified pattern.
+    """
+    patterns = []
+    
+    for _, row in df.iterrows():
+        lev, jaro, fuzzy = row['Levenshtein'], row['Jaro-Winkler'], row['Fuzzy Partial Ratio']
+
+        # All scores are similar → Minor Formatting Issue (Spacing, Case, Abbreviations)
+        if abs(lev - jaro) < 0.02 and abs(jaro - fuzzy) < 0.02:
+            patterns.append("Minor Formatting Issue")
+
+        # Levenshtein drops significantly → Likely a Typo or Character-Level Change
+        elif lev < jaro and lev < fuzzy:
+            patterns.append("Typo / Spelling Error")
+
+        # Jaro-Winkler drops significantly → Likely Reordering of Words
+        elif jaro < lev and jaro < fuzzy:
+            patterns.append("Reordering Detected")
+
+        # Fuzzy Partial Ratio drops significantly → Missing/Extra Words
+        elif fuzzy < lev and fuzzy < jaro:
+            patterns.append("Missing/Extra Words")
+
+        # Unclear pattern → Needs further analysis
+        else:
+            patterns.append("Unclassified / Needs Review")
+
+    df['Pattern'] = patterns
+    return df
