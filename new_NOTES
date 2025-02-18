@@ -88,44 +88,72 @@ tools.display_dataframe_to_user(name="Address Similarity Pattern Analysis", data
 
 -----------------------------------------------------------------------------------------------------------------------------
 
-# Modify function to categorize Lyapunov Exponent into multiple levels
+import numpy as np
+import difflib
+
+def address_to_numeric(address):
+    """
+    Converts an address string into a numerical sequence based on ASCII values.
+    """
+    return np.array([ord(char) for char in address])
+
+def compute_lyapunov_exponent(address1, address2):
+    """
+    Computes the Lyapunov Exponent based on character-level divergence between two addresses.
+    """
+    # Convert addresses into numerical sequences
+    seq1 = address_to_numeric(address1)
+    seq2 = address_to_numeric(address2)
+
+    # Ensure sequences are of the same length by padding the shorter one
+    max_length = max(len(seq1), len(seq2))
+    seq1 = np.pad(seq1, (0, max_length - len(seq1)), mode='constant', constant_values=0)
+    seq2 = np.pad(seq2, (0, max_length - len(seq2)), mode='constant', constant_values=0)
+
+    # Compute the differences at each step
+    diffs = np.abs(seq1 - seq2)
+
+    # Compute the Lyapunov Exponent (logarithmic divergence measurement)
+    norm_diffs = np.linalg.norm(diffs)
+    return np.log(np.abs(norm_diffs + 1e-10))  # Avoid log(0) issues
+
+# Sample Address Pairs
+addresses = [
+    ("123 Main Street", "123 Main Street"),  # Identical
+    ("123 Main Street", "123 Main St"),  # Abbreviation
+    ("123 Main Street", "Main Street 123"),  # Reordering
+    ("123 Main Street", "St Main 123"),  # More complex reordering
+    ("123 Main Street", "123 Maine Street"),  # Typo in street name
+    ("123 Main Street", "456 Elm Road"),  # Completely different address
+]
+
+# Compute Lyapunov Exponent for each address pair
+results = []
+for addr1, addr2 in addresses:
+    lyap_exp = compute_lyapunov_exponent(addr1, addr2)
+    results.append((addr1, addr2, lyap_exp))
+
+# Convert results to DataFrame for display
+df_results = pd.DataFrame(results, columns=["Address 1", "Address 2", "Lyapunov Exponent"])
+
+# Categorize Lyapunov Exponent into stability classes
 def categorize_lyapunov(lyap_exp):
-    """
-    Categorizes the Lyapunov Exponent into multiple categories.
-    """
     if lyap_exp < -2.0:
-        return "Stable Similarity"
+        return "Stable Address (Minimal Divergence)"
     elif -2.0 <= lyap_exp < -1.0:
-        return "Minor Variations"
+        return "Minor Variations (Predictable Change)"
     elif -1.0 <= lyap_exp < 0:
-        return "Moderate Chaos"
+        return "Moderate Chaos (Typos, Small Changes)"
     elif 0 <= lyap_exp < 1.0:
-        return "Chaotic Similarity"
+        return "Chaotic Address (Reordering or Missing Words)"
     else:
-        return "Extreme Chaos"
+        return "Extreme Chaos (Completely Different Address)"
 
-# Compute Lyapunov Exponent for each similarity score dimension
-lyap_lev = lyapunov_exponent(data[:, 0].reshape(-1, 1))  # Levenshtein
-lyap_jaro = lyapunov_exponent(data[:, 1].reshape(-1, 1))  # Jaro-Winkler
-lyap_fuzzy = lyapunov_exponent(data[:, 2].reshape(-1, 1))  # Fuzzy Partial Ratio
+df_results["Chaos Classification"] = df_results["Lyapunov Exponent"].apply(categorize_lyapunov)
 
-# Store Lyapunov Exponents for each row
-df_results['Lyapunov Levenshtein'] = lyap_lev
-df_results['Lyapunov Jaro-Winkler'] = lyap_jaro
-df_results['Lyapunov Fuzzy Partial Ratio'] = lyap_fuzzy
-
-# Categorize each Lyapunov Exponent
-df_results['Levenshtein Chaos Category'] = df_results['Lyapunov Levenshtein'].apply(categorize_lyapunov)
-df_results['Jaro-Winkler Chaos Category'] = df_results['Lyapunov Jaro-Winkler'].apply(categorize_lyapunov)
-df_results['Fuzzy Partial Chaos Category'] = df_results['Lyapunov Fuzzy Partial Ratio'].apply(categorize_lyapunov)
-
-# Display results with multiple chaos categories
+# Display results
 import ace_tools as tools
-tools.display_dataframe_to_user(name="Multi-Level Chaos Analysis in Address Similarity", dataframe=df_results)
-
-
-
-
+tools.display_dataframe_to_user(name="Lyapunov Exponent for Address Similarity", dataframe=df_results)
 
 
 
