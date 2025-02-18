@@ -38,3 +38,56 @@ def identify_address_patterns(df):
 
     df['Pattern'] = patterns
     return df
+-----------------------------------------------------------------------------------------------------------------------
+
+
+import pandas as pd
+
+def classify_address_similarity(row):
+    """
+    Identifies patterns in address similarity scores and classifies them into groups 
+    without using clustering algorithms.
+    """
+    lev = row['Levenshtein']
+    jaro = row['Jaro-Winkler']
+    fuzzy = row['Fuzzy Partial Ratio']
+
+    # Find the lowest score
+    min_score = min(lev, jaro, fuzzy)
+    
+    # Rule-based grouping based on similarity behavior
+    if lev == min_score and jaro > lev and fuzzy > lev:
+        return "Character-level differences (Typo / Spelling Error)"
+    elif jaro == min_score and lev > jaro and fuzzy > jaro:
+        return "Ordering mismatch (Reordering Issue)"
+    elif fuzzy == min_score and lev > fuzzy and jaro > fuzzy:
+        return "Structural mismatch (Missing/Extra Words)"
+    elif abs(lev - jaro) < 0.03 and abs(jaro - fuzzy) < 0.03 and abs(lev - fuzzy) < 0.03:
+        return "Minor Formatting Differences (Spaces, Abbreviations)"
+    else:
+        return "Unclassified Pattern (Needs Review)"
+
+# Sample data (Levenshtein, Jaro-Winkler, Fuzzy Partial Ratio)
+df = pd.DataFrame([
+    [1.0, 1.0, 1.0],  # Identical addresses
+    [0.95, 0.94, 0.95],  # Minor formatting issue (space missing)
+    [0.91, 0.93, 0.88],  # Missing/extra word
+    [0.94, 0.85, 0.95],  # Reordering
+    [0.87, 0.93, 0.94],  # Typo / spelling error
+    [0.92, 0.92, 0.92],  # Balanced similarity (uncertain classification)
+    [0.85, 0.85, 0.92],  # Strong typo/misspelling
+    [0.90, 0.90, 0.90],  # Close similarity but unclear classification
+], columns=['Levenshtein', 'Jaro-Winkler', 'Fuzzy Partial Ratio'])
+
+# Apply pattern classification
+df['Pattern Classification'] = df.apply(classify_address_similarity, axis=1)
+
+# Display the categorized results
+import ace_tools as tools
+tools.display_dataframe_to_user(name="Address Similarity Pattern Analysis", dataframe=df)
+
+
+
+
+
+
