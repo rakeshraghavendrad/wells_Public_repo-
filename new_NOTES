@@ -1,34 +1,6 @@
-# Define the function to compute a consolidated Lyapunov Exponent
-def consolidated_lyapunov_exponent(row):
-    """
-    Computes a single Lyapunov Exponent for a given row of similarity scores.
-    This measures the overall rate at which small changes in similarity scores 
-    lead to divergence.
-    
-    Args:
-        row (pd.Series): A row containing Levenshtein, Jaro-Winkler, and Fuzzy Partial Ratio scores.
+# Calculate the minimum and maximum values in the 'Consolidated Lyapunov Exponent' column
+min_lyapunov = df_1['Consolidated Lyapunov Exponent'].min()
+max_lyapunov = df_1['Consolidated Lyapunov Exponent'].max()
 
-    Returns:
-        float: The computed consolidated Lyapunov Exponent.
-    """
-    # Extract similarity scores from the row
-    similarity_scores = np.array([row['Levenshtein'], row['Jaro-Winkler'], row['Fuzzy Partial Ratio']])
-
-    # Compute the differences between similarity scores
-    diffs = np.diff(similarity_scores)
-
-    # Compute the norm of differences to measure divergence
-    norm_diffs = np.linalg.norm(diffs)
-
-    # Calculate the consolidated Lyapunov Exponent
-    return np.log(np.abs(norm_diffs + 1e-10))  # Adding a small constant to avoid log(0)
-
-# Apply the consolidated Lyapunov Exponent function to each row in df_1
-df_1['Consolidated Lyapunov Exponent'] = df_1.apply(consolidated_lyapunov_exponent, axis=1)
-
-# Categorize the consolidated Lyapunov Exponent
-df_1['Chaos Category'] = df_1['Consolidated Lyapunov Exponent'].apply(categorize_lyapunov)
-
-# Display the updated DataFrame with the consolidated Lyapunov Exponent
-import ace_tools as tools
-tools.display_dataframe_to_user(name="Consolidated Lyapunov Exponent Analysis", dataframe=df_1)
+# Display the results
+min_lyapunov, max_lyapunov
