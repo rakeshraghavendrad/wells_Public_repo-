@@ -165,3 +165,40 @@ The Lyapunov Exponent serves as a mathematical tool to detect chaos:
 Positive LE (> 0): The system is chaotic—small differences grow exponentially over time.
 Zero LE (≈ 0): The system is at the edge of chaos, meaning it's neither fully chaotic nor fully stable.
 Negative LE (< 0): The system is stable—small changes shrink or remain constant.
+
+
+
+# Modify function to categorize Lyapunov Exponent into multiple levels
+def categorize_lyapunov(lyap_exp):
+    """
+    Categorizes the Lyapunov Exponent into multiple categories.
+    """
+    if lyap_exp < -2.0:
+        return "Stable Similarity"
+    elif -2.0 <= lyap_exp < -1.0:
+        return "Minor Variations"
+    elif -1.0 <= lyap_exp < 0:
+        return "Moderate Chaos"
+    elif 0 <= lyap_exp < 1.0:
+        return "Chaotic Similarity"
+    else:
+        return "Extreme Chaos"
+
+# Compute Lyapunov Exponent for each similarity score dimension
+lyap_lev = lyapunov_exponent(data[:, 0].reshape(-1, 1))  # Levenshtein
+lyap_jaro = lyapunov_exponent(data[:, 1].reshape(-1, 1))  # Jaro-Winkler
+lyap_fuzzy = lyapunov_exponent(data[:, 2].reshape(-1, 1))  # Fuzzy Partial Ratio
+
+# Store Lyapunov Exponents for each row
+df_results['Lyapunov Levenshtein'] = lyap_lev
+df_results['Lyapunov Jaro-Winkler'] = lyap_jaro
+df_results['Lyapunov Fuzzy Partial Ratio'] = lyap_fuzzy
+
+# Categorize each Lyapunov Exponent
+df_results['Levenshtein Chaos Category'] = df_results['Lyapunov Levenshtein'].apply(categorize_lyapunov)
+df_results['Jaro-Winkler Chaos Category'] = df_results['Lyapunov Jaro-Winkler'].apply(categorize_lyapunov)
+df_results['Fuzzy Partial Chaos Category'] = df_results['Lyapunov Fuzzy Partial Ratio'].apply(categorize_lyapunov)
+
+# Display results with multiple chaos categories
+import ace_tools as tools
+tools.display_dataframe_to_user(name="Multi-Level Chaos Analysis in Address Similarity", dataframe=df_results)
