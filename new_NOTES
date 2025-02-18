@@ -1,204 +1,34 @@
-Cheos theory --> 
-
-def identify_address_patterns(df):
+# Define the function to compute a consolidated Lyapunov Exponent
+def consolidated_lyapunov_exponent(row):
     """
-    Identifies hidden patterns in address similarity scores by analyzing 
-    relationships between Levenshtein, Jaro-Winkler, and Fuzzy Partial Ratio.
-
+    Computes a single Lyapunov Exponent for a given row of similarity scores.
+    This measures the overall rate at which small changes in similarity scores 
+    lead to divergence.
+    
     Args:
-        df (pd.DataFrame): DataFrame containing similarity scores.
+        row (pd.Series): A row containing Levenshtein, Jaro-Winkler, and Fuzzy Partial Ratio scores.
 
     Returns:
-        pd.DataFrame: DataFrame with a new 'Pattern' column indicating the identified pattern.
+        float: The computed consolidated Lyapunov Exponent.
     """
-    patterns = []
-    
-    for _, row in df.iterrows():
-        lev, jaro, fuzzy = row['Levenshtein'], row['Jaro-Winkler'], row['Fuzzy Partial Ratio']
+    # Extract similarity scores from the row
+    similarity_scores = np.array([row['Levenshtein'], row['Jaro-Winkler'], row['Fuzzy Partial Ratio']])
 
-        # All scores are similar → Minor Formatting Issue (Spacing, Case, Abbreviations)
-        if abs(lev - jaro) < 0.02 and abs(jaro - fuzzy) < 0.02:
-            patterns.append("Minor Formatting Issue")
+    # Compute the differences between similarity scores
+    diffs = np.diff(similarity_scores)
 
-        # Levenshtein drops significantly → Likely a Typo or Character-Level Change
-        elif lev < jaro and lev < fuzzy:
-            patterns.append("Typo / Spelling Error")
-
-        # Jaro-Winkler drops significantly → Likely Reordering of Words
-        elif jaro < lev and jaro < fuzzy:
-            patterns.append("Reordering Detected")
-
-        # Fuzzy Partial Ratio drops significantly → Missing/Extra Words
-        elif fuzzy < lev and fuzzy < jaro:
-            patterns.append("Missing/Extra Words")
-
-        # Unclear pattern → Needs further analysis
-        else:
-            patterns.append("Unclassified / Needs Review")
-
-    df['Pattern'] = patterns
-    return df
------------------------------------------------------------------------------------------------------------------------
-
-
-import pandas as pd
-
-def classify_address_similarity(row):
-    """
-    Identifies patterns in address similarity scores and classifies them into groups 
-    without using clustering algorithms.
-    """
-    lev = row['Levenshtein']
-    jaro = row['Jaro-Winkler']
-    fuzzy = row['Fuzzy Partial Ratio']
-
-    # Find the lowest score
-    min_score = min(lev, jaro, fuzzy)
-    
-    # Rule-based grouping based on similarity behavior
-    if lev == min_score and jaro > lev and fuzzy > lev:
-        return "Character-level differences (Typo / Spelling Error)"
-    elif jaro == min_score and lev > jaro and fuzzy > jaro:
-        return "Ordering mismatch (Reordering Issue)"
-    elif fuzzy == min_score and lev > fuzzy and jaro > fuzzy:
-        return "Structural mismatch (Missing/Extra Words)"
-    elif abs(lev - jaro) < 0.03 and abs(jaro - fuzzy) < 0.03 and abs(lev - fuzzy) < 0.03:
-        return "Minor Formatting Differences (Spaces, Abbreviations)"
-    else:
-        return "Unclassified Pattern (Needs Review)"
-
-# Sample data (Levenshtein, Jaro-Winkler, Fuzzy Partial Ratio)
-df = pd.DataFrame([
-    [1.0, 1.0, 1.0],  # Identical addresses
-    [0.95, 0.94, 0.95],  # Minor formatting issue (space missing)
-    [0.91, 0.93, 0.88],  # Missing/extra word
-    [0.94, 0.85, 0.95],  # Reordering
-    [0.87, 0.93, 0.94],  # Typo / spelling error
-    [0.92, 0.92, 0.92],  # Balanced similarity (uncertain classification)
-    [0.85, 0.85, 0.92],  # Strong typo/misspelling
-    [0.90, 0.90, 0.90],  # Close similarity but unclear classification
-], columns=['Levenshtein', 'Jaro-Winkler', 'Fuzzy Partial Ratio'])
-
-# Apply pattern classification
-df['Pattern Classification'] = df.apply(classify_address_similarity, axis=1)
-
-# Display the categorized results
-import ace_tools as tools
-tools.display_dataframe_to_user(name="Address Similarity Pattern Analysis", dataframe=df)
-
------------------------------------------------------------------------------------------------------------------------------
-
-import numpy as np
-import difflib
-
-def address_to_numeric(address):
-    """
-    Converts an address string into a numerical sequence based on ASCII values.
-    """
-    return np.array([ord(char) for char in address])
-
-def compute_lyapunov_exponent(address1, address2):
-    """
-    Computes the Lyapunov Exponent based on character-level divergence between two addresses.
-    """
-    # Convert addresses into numerical sequences
-    seq1 = address_to_numeric(address1)
-    seq2 = address_to_numeric(address2)
-
-    # Ensure sequences are of the same length by padding the shorter one
-    max_length = max(len(seq1), len(seq2))
-    seq1 = np.pad(seq1, (0, max_length - len(seq1)), mode='constant', constant_values=0)
-    seq2 = np.pad(seq2, (0, max_length - len(seq2)), mode='constant', constant_values=0)
-
-    # Compute the differences at each step
-    diffs = np.abs(seq1 - seq2)
-
-    # Compute the Lyapunov Exponent (logarithmic divergence measurement)
+    # Compute the norm of differences to measure divergence
     norm_diffs = np.linalg.norm(diffs)
-    return np.log(np.abs(norm_diffs + 1e-10))  # Avoid log(0) issues
 
-# Sample Address Pairs
-addresses = [
-    ("123 Main Street", "123 Main Street"),  # Identical
-    ("123 Main Street", "123 Main St"),  # Abbreviation
-    ("123 Main Street", "Main Street 123"),  # Reordering
-    ("123 Main Street", "St Main 123"),  # More complex reordering
-    ("123 Main Street", "123 Maine Street"),  # Typo in street name
-    ("123 Main Street", "456 Elm Road"),  # Completely different address
-]
+    # Calculate the consolidated Lyapunov Exponent
+    return np.log(np.abs(norm_diffs + 1e-10))  # Adding a small constant to avoid log(0)
 
-# Compute Lyapunov Exponent for each address pair
-results = []
-for addr1, addr2 in addresses:
-    lyap_exp = compute_lyapunov_exponent(addr1, addr2)
-    results.append((addr1, addr2, lyap_exp))
+# Apply the consolidated Lyapunov Exponent function to each row in df_1
+df_1['Consolidated Lyapunov Exponent'] = df_1.apply(consolidated_lyapunov_exponent, axis=1)
 
-# Convert results to DataFrame for display
-df_results = pd.DataFrame(results, columns=["Address 1", "Address 2", "Lyapunov Exponent"])
+# Categorize the consolidated Lyapunov Exponent
+df_1['Chaos Category'] = df_1['Consolidated Lyapunov Exponent'].apply(categorize_lyapunov)
 
-# Categorize Lyapunov Exponent into stability classes
-def categorize_lyapunov(lyap_exp):
-    if lyap_exp < -2.0:
-        return "Stable Address (Minimal Divergence)"
-    elif -2.0 <= lyap_exp < -1.0:
-        return "Minor Variations (Predictable Change)"
-    elif -1.0 <= lyap_exp < 0:
-        return "Moderate Chaos (Typos, Small Changes)"
-    elif 0 <= lyap_exp < 1.0:
-        return "Chaotic Address (Reordering or Missing Words)"
-    else:
-        return "Extreme Chaos (Completely Different Address)"
-
-df_results["Chaos Classification"] = df_results["Lyapunov Exponent"].apply(categorize_lyapunov)
-
-# Display results
+# Display the updated DataFrame with the consolidated Lyapunov Exponent
 import ace_tools as tools
-tools.display_dataframe_to_user(name="Lyapunov Exponent for Address Similarity", dataframe=df_results)
-
-
-
-How is the Lyapunov Exponent Related to Chaos Theory?
-Chaos Theory studies nonlinear, dynamic systems that appear random but actually follow hidden patterns. These systems exhibit sensitive dependence on initial conditions, also known as the Butterfly Effect—where a small change in the starting state can lead to drastically different outcomes.
-
-The Lyapunov Exponent serves as a mathematical tool to detect chaos:
-
-Positive LE (> 0): The system is chaotic—small differences grow exponentially over time.
-Zero LE (≈ 0): The system is at the edge of chaos, meaning it's neither fully chaotic nor fully stable.
-Negative LE (< 0): The system is stable—small changes shrink or remain constant.
-
-
-
-# Modify function to categorize Lyapunov Exponent into multiple levels
-def categorize_lyapunov(lyap_exp):
-    """
-    Categorizes the Lyapunov Exponent into multiple categories.
-    """
-    if lyap_exp < -2.0:
-        return "Stable Similarity"
-    elif -2.0 <= lyap_exp < -1.0:
-        return "Minor Variations"
-    elif -1.0 <= lyap_exp < 0:
-        return "Moderate Chaos"
-    elif 0 <= lyap_exp < 1.0:
-        return "Chaotic Similarity"
-    else:
-        return "Extreme Chaos"
-
-# Compute Lyapunov Exponent for each similarity score dimension
-lyap_lev = lyapunov_exponent(data[:, 0].reshape(-1, 1))  # Levenshtein
-lyap_jaro = lyapunov_exponent(data[:, 1].reshape(-1, 1))  # Jaro-Winkler
-lyap_fuzzy = lyapunov_exponent(data[:, 2].reshape(-1, 1))  # Fuzzy Partial Ratio
-
-# Store Lyapunov Exponents for each row
-df_results['Lyapunov Levenshtein'] = lyap_lev
-df_results['Lyapunov Jaro-Winkler'] = lyap_jaro
-df_results['Lyapunov Fuzzy Partial Ratio'] = lyap_fuzzy
-
-# Categorize each Lyapunov Exponent
-df_results['Levenshtein Chaos Category'] = df_results['Lyapunov Levenshtein'].apply(categorize_lyapunov)
-df_results['Jaro-Winkler Chaos Category'] = df_results['Lyapunov Jaro-Winkler'].apply(categorize_lyapunov)
-df_results['Fuzzy Partial Chaos Category'] = df_results['Lyapunov Fuzzy Partial Ratio'].apply(categorize_lyapunov)
-
-# Display results with multiple chaos categories
-import ace_tools as tools
-tools.display_dataframe_to_user(name="Multi-Level Chaos Analysis in Address Similarity", dataframe=df_results)
+tools.display_dataframe_to_user(name="Consolidated Lyapunov Exponent Analysis", dataframe=df_1)
