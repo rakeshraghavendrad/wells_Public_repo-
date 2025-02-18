@@ -157,3 +157,11 @@ tools.display_dataframe_to_user(name="Lyapunov Exponent for Address Similarity",
 
 
 
+How is the Lyapunov Exponent Related to Chaos Theory?
+Chaos Theory studies nonlinear, dynamic systems that appear random but actually follow hidden patterns. These systems exhibit sensitive dependence on initial conditions, also known as the Butterfly Effect—where a small change in the starting state can lead to drastically different outcomes.
+
+The Lyapunov Exponent serves as a mathematical tool to detect chaos:
+
+Positive LE (> 0): The system is chaotic—small differences grow exponentially over time.
+Zero LE (≈ 0): The system is at the edge of chaos, meaning it's neither fully chaotic nor fully stable.
+Negative LE (< 0): The system is stable—small changes shrink or remain constant.
