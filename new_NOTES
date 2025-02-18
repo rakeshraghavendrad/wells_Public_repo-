@@ -4,3 +4,30 @@ max_lyapunov = df_1['Consolidated Lyapunov Exponent'].max()
 
 # Display the results
 min_lyapunov, max_lyapunov
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Define the range for bucketing
+min_value = -23.02
+max_value = 0.111
+
+# Plot the distribution of the 'Consolidated Lyapunov Exponent' column
+plt.figure(figsize=(10, 6))
+sns.histplot(df_1['Consolidated Lyapunov Exponent'], bins=20, kde=True, color='blue')
+
+# Labels and title
+plt.xlabel("Consolidated Lyapunov Exponent")
+plt.ylabel("Frequency")
+plt.title("Distribution of Lyapunov Exponent Values")
+
+# Show the plot
+plt.show()
+
+# Determine potential bucket ranges
+num_bins = 5  # Initial estimate for bucket count
+bucket_ranges = np.linspace(min_value, max_value, num_bins + 1)
+
+# Display bucket ranges
+bucket_ranges
