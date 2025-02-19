@@ -1,33 +1,14 @@
-# Calculate the minimum and maximum values in the 'Consolidated Lyapunov Exponent' column
-min_lyapunov = df_1['Consolidated Lyapunov Exponent'].min()
-max_lyapunov = df_1['Consolidated Lyapunov Exponent'].max()
+Inspired by Standard Lyapunov Exponent Formulas
 
-# Display the results
-min_lyapunov, max_lyapunov
+The concept comes from Chaos Theory, where the Lyapunov Exponent is used to measure the rate of separation of infinitesimally close trajectories.
+The formula for computing Lyapunov Exponents generally follows:
 
+​
+ 
+In our function, this was approximated using np.diff() to compute changes in similarity scores.
+Mathematical Approximation for Discrete Systems
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Define the range for bucketing
-min_value = -23.02
-max_value = 0.111
-
-# Plot the distribution of the 'Consolidated Lyapunov Exponent' column
-plt.figure(figsize=(10, 6))
-sns.histplot(df_1['Consolidated Lyapunov Exponent'], bins=20, kde=True, color='blue')
-
-# Labels and title
-plt.xlabel("Consolidated Lyapunov Exponent")
-plt.ylabel("Frequency")
-plt.title("Distribution of Lyapunov Exponent Values")
-
-# Show the plot
-plt.show()
-
-# Determine potential bucket ranges
-num_bins = 5  # Initial estimate for bucket count
-bucket_ranges = np.linspace(min_value, max_value, num_bins + 1)
-
-# Display bucket ranges
-bucket_ranges
+Since similarity scores are discrete, we approximated the logarithmic divergence by:
+Computing differences: np.diff(similarity_scores)
+Taking the norm: np.linalg.norm(diffs)
+Applying np.log(np.abs(norm_diffs + 1e-10)) to prevent log(0) issues.
