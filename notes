@@ -1,1 +1,1 @@
-Jaro-Winkler (0.55) is prioritized for its ability to handle small variations and transpositions in addresses. Levenshtein (0.15) focuses on edit distance, but struggles with prefix matching. Fuzzy Partial Ratio (0.30) works well for partial matches but is less effective with character shifts.
+Approximately 16% of addresses are mismatched each month and classified as profile discrepancies. The goal is to provide a similarity score between the customer input and the database, indicating the percentage of match.
