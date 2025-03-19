@@ -1,14 +1,1 @@
-Inspired by Standard Lyapunov Exponent Formulas
-
-The concept comes from Chaos Theory, where the Lyapunov Exponent is used to measure the rate of separation of infinitesimally close trajectories.
-The formula for computing Lyapunov Exponents generally follows:
-
-​
- 
-In our function, this was approximated using np.diff() to compute changes in similarity scores.
-Mathematical Approximation for Discrete Systems
-
-Since similarity scores are discrete, we approximated the logarithmic divergence by:
-Computing differences: np.diff(similarity_scores)
-Taking the norm: np.linalg.norm(diffs)
-Applying np.log(np.abs(norm_diffs + 1e-10)) to prevent log(0) issues.
+must have a thorough understanding of GEN-AI projects at every stage, not just my own work, but also beyond standard practices.
