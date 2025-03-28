@@ -9,8 +9,8 @@ import nbformat
 import pandas as pd
 from datetime import datetime
 # File paths
-problem_notebook_path = "/Users/rakeshdevarakonda/Documents/Auto_Eval/problem/problem.ipynb"
-solution_notebook_path = "/Users/rakeshdevarakonda/Documents/Auto_Eval/solution/Solution.ipynb"
+problem_notebook_path = "/home/vmuser/Desktop/project1/problem.ipynb"
+solution_notebook_path = "/home/vmuser/Desktop/project1/Solution.ipynb"
 #user_email = 'user1@example.com'
 # Get user email from Node.js (passed as an argument)
 if len(sys.argv) < 2:
