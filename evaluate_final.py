@@ -19,7 +19,7 @@ if len(sys.argv) < 2:
     sys.exit(1)
  
 user_email = sys.argv[1]
-attempt_id = '3'
+attempt_id = sys.argv[2]
 
 # Task weightage list
 task_weightage = {
