@@ -8,6 +8,7 @@
 import nbformat
 import pandas as pd
 from datetime import datetime
+import sys
 # File paths
 problem_notebook_path = "/home/vmuser/Desktop/project1/problem.ipynb"
 solution_notebook_path = "/home/vmuser/Desktop/project1/Solution.ipynb"
