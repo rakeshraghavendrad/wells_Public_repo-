@@ -101,8 +101,9 @@ def compare_outputs(problem_df, solution_df, task_weightage):
     """
     Compares function outputs from problem and solution dataframes.
     Assigns a score based on task weightage if outputs match, otherwise assigns 0.
+    Also adds a 'Remark' column.
     
-    Returns a dataframe with function names and scores.
+    Returns a dataframe with function names, scores, and remarks.
     """
     scores = []
 
@@ -114,13 +115,19 @@ def compare_outputs(problem_df, solution_df, task_weightage):
         problem_output = row["Output"]
         solution_output = solution_dict.get(function_name, None)
 
-        # Check if the outputs match and assign score accordingly
+        # Compare outputs
         if solution_output and problem_output.strip() == solution_output.strip():
             score = task_weightage.get(function_name, 0)
+            remark = "Success"
         else:
             score = 0
+            remark = problem_output  # store the output (could be error) from problem notebook
 
-        scores.append({"Function": function_name, "Score": score})
+        scores.append({
+            "Function": function_name,
+            "Score": score,
+            "remarks": remark
+        })
 
     return pd.DataFrame(scores)
 
@@ -138,17 +145,13 @@ task_df = pd.DataFrame(list(task_weightage.items()), columns=['method_name', 'ma
 
 # Perform inner join
 merged_df = score_df.merge(task_df, on='method_name', how='inner')
-score_df = merged_df[['method_name', 'score_gained', 'max_score']]
+score_df = merged_df[['method_name', 'score_gained', 'max_score','remarks']]
 # Define values
 # Add columns to the DataFrame
 score_df['UserEmail'] = user_email
 score_df['attempt_id'] = attempt_id
 score_df['timestamp'] = datetime.now()
-score_df = score_df[['UserEmail','attempt_id','method_name','score_gained','max_score','timestamp']]
-
-
-# In[70]:
-
+score_df = score_df[['UserEmail','attempt_id','method_name','score_gained','max_score','timestamp',"remarks"]]
 
 import sys
 import pandas as pd
@@ -160,10 +163,6 @@ if len(sys.argv) < 2:
     sys.exit(1)
  
 
-
-# In[71]:
-
-
 # MySQL Connection Setup
 db_config = {
     "host": 'arshniv.cuceurst1z3t.us-east-1.rds.amazonaws.com',
@@ -171,10 +170,6 @@ db_config = {
     "password": 'arshnivdb',
     "database":'vmharbor'
 }
-
-
-# In[72]:
-
 
 def insert_results_into_db(df):
     try:
@@ -185,14 +180,15 @@ def insert_results_into_db(df):
         # Insert each row into MySQL
         for _, row in df.iterrows():
             sql = """INSERT INTO assignment_results 
-                     (UserEmail, attempt_id, method_name, score_gained, max_score, timestamp)
-                     VALUES (%s, %s, %s, %s, %s, NOW())"""
+                     (UserEmail, attempt_id, method_name, score_gained, max_score,timestamp,remarks)
+                     VALUES (%s, %s, %s, %s, %s, NOW(), %s)"""
             values = (
                 row["UserEmail"], 
                 row["attempt_id"], 
                 row["method_name"], 
                 row["score_gained"], 
-                row["max_score"]
+                row["max_score"],
+                row['remarks']
             )
             cursor.execute(sql, values)
 
@@ -204,17 +200,7 @@ def insert_results_into_db(df):
 
     except Exception as e:
         print("Error inserting results into database:", e)
-#insert_results_into_db(score_df)
-
-
-# In[73]:
-
-
 insert_results_into_db(score_df)
-
-
-# In[ ]:
-
 
 
 
