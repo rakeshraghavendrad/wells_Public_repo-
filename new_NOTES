@@ -1,1 +1,84 @@
-I would like to access the Confluence page on LLMs for my current project to gain a better understanding of the existing LLMs in use.
+LLM-Driven Image Classification Framework (for Real vs. Fake IDs)
+
+🧩 Step 1: Mask the ID Image
+Redact PII (e.g., name, number, photo).
+
+Maintain layout structure: logos, alignment, font boxes, background.
+
+✅ Purpose: LLM shouldn't see raw PII but should see the structure.
+
+🔍 Step 2: Convert Image to Structured Visual Tokens (Vision Encoding)
+You need to convert visual cues into descriptive tokens that an LLM can understand.
+
+✅ Options:
+Use a Visual Encoder like:
+
+BLIP-2, LLaVA, GPT-4V, or OWL-ViT
+
+Prompt the model to describe the ID’s layout, logos, alignment, text blocks, etc.
+
+🎯 Example Prompt to a Vision-Language Model:
+“This is a redacted government ID. Describe the document layout, positions of blocks, font alignment, visual features like logos or watermarks, signs of tampering, border irregularities.”
+
+Output (hypothetical):
+"Top-left contains a government seal. A photo box is visible but blanked. Text blocks are uneven. Logo is blurry. The background has inconsistent texture. Font sizes differ across lines."
+
+🧠 Step 3: Use LLM for Reasoning + Classification
+Now you pass that structured output into a pure LLM (like GPT, Claude, or LLaMA), along with domain-specific rules.
+
+🧾 Prompt Template:
+plaintext
+Copy
+Edit
+You are an ID verification expert.
+
+Here is the structured visual description of an ID:
+- Seal present: Yes
+- Layout: misaligned
+- Font: inconsistent sizes
+- Watermark: blurred
+- Background texture: missing
+
+Determine if the ID is likely real or fake. Justify your answer.
+💡 LLM Output:
+“The ID appears fake. The presence of inconsistent font sizes, missing background texture, and misaligned layout are strong indicators of forgery.”
+
+📊 Step 4: Feedback Loop / Confidence Score
+Ask LLM to return:
+
+Classification: Real / Fake
+
+Confidence Score: X%
+
+Reasoning: [...]
+
+This creates explainability for auditing and ML confidence.
+
+🧠 Bonus: Train LLM on Few-Shot / Fine-Tuned Prompts
+You can fine-tune or few-shot LLMs with examples:
+
+Description	Label
+“Perfect alignment, watermark visible, all fonts same”	Real
+“Seal blurry, font mismatched, edge tampered”	Fake
+Even using prompt engineering + few-shot, the LLM starts learning visual semantics.
+
+⚙️ Tools / Stack Recommendation
+Task	Tool / Model
+Masking	OpenCV / AI-Anonymizer
+Visual Description	BLIP-2, LLaVA, GPT-4V
+Text Reasoning	GPT-4, Claude, LLaMA-2
+Pipeline Orchestration	LangChain or Haystack
+
+🔄 Final Flow Diagram (LLM-Centric)
+ID Image (Masked)
+     ↓
+Visual Encoder (BLIP-2 / GPT-4V)
+     ↓
+Structured Visual Description
+     ↓
+LLM (Prompted as ID Expert)
+     ↓
+Real / Fake + Explanation + Confidence
+
+
+
