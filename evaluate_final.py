@@ -1,17 +1,15 @@
+## Final Eval Score ####
 import nbformat
 import pandas as pd
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import sys
-import pandas as pd
-import mysql.connector
 # File paths
 problem_notebook_path = "/home/vmuser/Desktop/project1/problem.ipynb"
 solution_notebook_path = "/home/vmuser/Desktop/project1/Solution.ipynb"
-#project = 'project1'
-#user_email = 'user1@example.com'
-# Get user email from Node.js (passed as an argument)
-if len(sys.argv) < 2:
+
+
+if len(sys.argv) < 5:
     print("User email not provided")
     sys.exit(1)
  
@@ -142,24 +140,15 @@ score_df = score_df.rename(columns={'Function': 'method_name', 'Score': 'score_g
 task_df = pd.DataFrame(list(task_weightage.items()), columns=['method_name', 'max_score'])
 
 # Perform inner join
-# Merge and work on a copy to avoid SettingWithCopyWarning
-merged_df = score_df.merge(task_df, on='method_name', how='inner').copy()
-
-# Select and reorder columns safely
-score_df = merged_df[['method_name', 'score_gained', 'max_score', 'remarks']].copy()
-
-# Add other metadata columns using .loc to avoid SettingWithCopyWarning
-score_df.loc[:, 'UserEmail'] = user_email
-score_df.loc[:, 'attempt_id'] = attempt_id
-score_df.loc[:, 'timestamp'] = datetime.now(ZoneInfo("Asia/Kolkata")).strftime('%Y-%m-%d %H:%M:%S')
-score_df['timestamp'] = score_df['timestamp'].astype(str)
-score_df.loc[:, 'project'] = project
-
-# Final column order
-score_df = score_df[['UserEmail', 'attempt_id', 'method_name', 'score_gained',
-                     'max_score', 'timestamp', 'remarks', 'project']]
+merged_df = score_df.merge(task_df, on='method_name', how='inner')
+score_df = merged_df[['method_name', 'score_gained', 'max_score','remarks']]
+# Define values
+# Add columns to the DataFrame
+score_df['UserEmail'] = user_email
+score_df['attempt_id'] = attempt_id
+score_df['timestamp'] = datetime.now(ZoneInfo("Asia/Kolkata"))
+score_df['project'] = project 
 score_df = score_df[['UserEmail','attempt_id','method_name','score_gained','max_score','timestamp',"remarks","project"]]
-
 # MySQL Connection Setup
 db_config = {
     "host": 'arshniv.cuceurst1z3t.us-east-1.rds.amazonaws.com',
@@ -202,4 +191,3 @@ def insert_results_into_db(df):
 
 
 insert_results_into_db(score_df)
- 
