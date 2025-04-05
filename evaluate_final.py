@@ -199,14 +199,13 @@ def insert_results_into_db(df):
         for _, row in df.iterrows():
             sql = """INSERT INTO assignment_results 
                      (UserEmail, attempt_id, method_name, score_gained, max_score,timestamp,remarks,project)
-                     VALUES (%s, %s, %s, %s, %s, %s, %s,%s)"""
+                     VALUES (%s, %s, %s, %s, %s, now(), %s,%s)"""
             values = (
                 row["UserEmail"], 
                 row["attempt_id"], 
                 row["method_name"], 
                 row["score_gained"], 
                 row["max_score"],
-                row["timestamp"],
                 row['remarks'],
                 row['project']
             )
