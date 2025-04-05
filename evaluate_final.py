@@ -1,4 +1,4 @@
-## Final Eval Score ####
+
 import nbformat
 import pandas as pd
 from datetime import datetime
@@ -7,9 +7,10 @@ import sys
 # File paths
 problem_notebook_path = "/home/vmuser/Desktop/project1/problem.ipynb"
 solution_notebook_path = "/home/vmuser/Desktop/project1/Solution.ipynb"
-
-
-if len(sys.argv) < 5:
+#project = 'project1'
+#user_email = 'user1@example.com'
+# Get user email from Node.js (passed as an argument)
+if len(sys.argv) < 4:
     print("User email not provided")
     sys.exit(1)
  
@@ -140,15 +141,42 @@ score_df = score_df.rename(columns={'Function': 'method_name', 'Score': 'score_g
 task_df = pd.DataFrame(list(task_weightage.items()), columns=['method_name', 'max_score'])
 
 # Perform inner join
-merged_df = score_df.merge(task_df, on='method_name', how='inner')
-score_df = merged_df[['method_name', 'score_gained', 'max_score','remarks']]
-# Define values
-# Add columns to the DataFrame
-score_df['UserEmail'] = user_email
-score_df['attempt_id'] = attempt_id
-score_df['timestamp'] = datetime.now(ZoneInfo("Asia/Kolkata"))
-score_df['project'] = project 
+# Merge and work on a copy to avoid SettingWithCopyWarning
+merged_df = score_df.merge(task_df, on='method_name', how='inner').copy()
+
+# Select and reorder columns safely
+score_df = merged_df[['method_name', 'score_gained', 'max_score', 'remarks']].copy()
+
+# Add other metadata columns using .loc to avoid SettingWithCopyWarning
+score_df.loc[:, 'UserEmail'] = user_email
+score_df.loc[:, 'attempt_id'] = attempt_id
+score_df.loc[:, 'timestamp'] = datetime.now(ZoneInfo("Asia/Kolkata"))
+score_df.loc[:, 'project'] = project
+
+# Final column order
+score_df = score_df[['UserEmail', 'attempt_id', 'method_name', 'score_gained',
+                     'max_score', 'timestamp', 'remarks', 'project']]
 score_df = score_df[['UserEmail','attempt_id','method_name','score_gained','max_score','timestamp',"remarks","project"]]
+score_df
+
+
+# In[22]:
+
+
+import sys
+import pandas as pd
+import mysql.connector
+ 
+# Get user email from Node.js (passed as an argument)
+if len(sys.argv) < 4:
+    print("User email not provided")
+    sys.exit(1)
+ 
+
+
+# In[23]:
+
+
 # MySQL Connection Setup
 db_config = {
     "host": 'arshniv.cuceurst1z3t.us-east-1.rds.amazonaws.com',
@@ -156,6 +184,10 @@ db_config = {
     "password": 'arshnivdb',
     "database":'vmharbor'
 }
+
+
+# In[24]:
+
 
 def insert_results_into_db(df):
     try:
@@ -190,4 +222,13 @@ def insert_results_into_db(df):
         print("Error inserting results into database:", e)
 
 
+# In[25]:
+
+
 insert_results_into_db(score_df)
+
+
+
+
+
+
