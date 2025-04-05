@@ -152,6 +152,7 @@ score_df = merged_df[['method_name', 'score_gained', 'max_score', 'remarks']].co
 score_df.loc[:, 'UserEmail'] = user_email
 score_df.loc[:, 'attempt_id'] = attempt_id
 score_df.loc[:, 'timestamp'] = datetime.now(ZoneInfo("Asia/Kolkata")).strftime('%Y-%m-%d %H:%M:%S')
+score_df['timestamp'] = score_df['timestamp'].astype(str)
 score_df.loc[:, 'project'] = project
 
 # Final column order
