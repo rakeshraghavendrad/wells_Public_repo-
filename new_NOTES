@@ -1,18 +1,1 @@
-Feature Name	Description	Importance Level	Comments
-Seal/Emblem Presence	Official government seals or logos are key markers of authenticity	⭐⭐⭐⭐⭐ (High)	Must be present, sharp, aligned
-Hologram Presence	IDs often use holograms as forgery deterrents	⭐⭐⭐⭐⭐ (High)	Hard to fake, even visually
-Watermark Clarity	Authentic IDs include embedded or transparent watermarks	⭐⭐⭐⭐ (High)	Fuzzy or absent = red flag
-Layout Consistency	Positioning of text boxes, logos, photo, etc.	⭐⭐⭐⭐ (High)	Fakes often drift or misalign
-Font Consistency	Uniform font styles and sizes used throughout	⭐⭐⭐⭐ (High)	Fakes often mix fonts
-Background Design Pattern	Security patterns, microgrids, or textures in the background	⭐⭐⭐⭐ (High)	Easily missed in fakes
-Color Scheme Accuracy	Government IDs often use strict color palettes	⭐⭐⭐ (Medium)	Inconsistencies suggest fakes
-Shadow/Lighting Quality	Unnatural shadows indicate photo overlays or tampering	⭐⭐⭐ (Medium)	More visual than pixel-level
-Material Texture	Lamination, matte/glossy textures visible in scan/photo	⭐⭐⭐ (Medium)	Limited with 2D photos, but useful if visible
-Print Quality / Ink Bleed	Edge clarity, anti-aliasing, blur detection at micro level	⭐⭐⭐ (Medium)	Use edge detection or zoomed inspection
-Barcode / QR Structure	Placement of digital code areas even if redacted	⭐⭐⭐ (Medium)	Structure matters, not the code content
-Compression Artifacts	Fakes often contain JPEG artifacts due to editing or scanning	⭐⭐ (Low)	Check with pixel-wise entropy/patch smoothness
-Tampering Marks	Signs of photo replacement, cropping, or resaving	⭐⭐ (Low)	Edge-level or corner-level inconsistencies
-Symmetry in Element Placement	Are left/right margins, spacing uniform?	⭐⭐ (Low)	Helps spot poor forgery layout
-Presence of Expected Blocks	Are photo box, signature zone, logo zone visible (even if masked)?	⭐⭐⭐⭐ (High)	Used in spatial layout classification
-Microtext Regions	Tiny printed text that’s hard to fake	⭐⭐ (Low–Medium)	Use super-resolution if needed
-Visual Noise	Blotches, reflections, print noise	⭐ (Very Low)	Optional for advanced model training
+"We’ve received the technical document from Sharath, and I’ll be reviewing the proposed approach and project structure. Additionally, I’ll go through a few key documents to understand why the current IDV model is RR3. Over the next two weeks, I’ll also be exploring research on using LLMs for classifying various government-issued IDs. These activities will form the core methodologies we’ll be following during this period."
