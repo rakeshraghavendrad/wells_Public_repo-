@@ -1,11 +1,2 @@
-Review the Technical Document:
-Go through the technical document shared by Sharath in detail to understand the overall solution architecture and technology stack used.
-
-Analyze the Methodology & Approach:
-Evaluate the implementation approach outlined in the document, focusing on how the problem is framed and addressed, including the flow of data and logic.
-
-Understand Project Structure:
-Break down the project's modular structure—identify key components, their interactions, and dependencies across different layers (e.g., data processing, model inference, validation).
-
-Identify and Assess KPIs:
-Extract and interpret the Key Performance Indicators (KPIs) mentioned in the document, and assess how they align with project objectives and success criteria.
+Literature Review:
+Begin with a set of preliminary blog articles and technical resources to build foundational understanding. The reading list will be expanded and refined as the project progresses and requirements evolve.
