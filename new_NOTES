@@ -1,2 +1,3 @@
-Literature Review:
-Begin with a set of preliminary blog articles and technical resources to build foundational understanding. The reading list will be expanded and refined as the project progresses and requirements evolve.
+.	Reviewed FairOne Use Case: Thoroughly analyzed the FairOne use case to understand the problem construct, including its core objectives, constraints, and the overall approach taken in designing the solution. Special focus was given to how the system architecture supports the use case.
+	2.	Understood Scoring Mechanism and Evaluation Metrics: Identified and studied the three types of scores involved—AZX, DRS, and DAP—along with the performance evaluation metrics used to validate the model’s accuracy and reliability. Gained clarity on how each metric contributes to assessing model effectiveness.
+	3.	Documented Key Insights: Captured the entire understanding and insights from the analysis in a concise, single-slide format for easy reference. The slide has been uploaded and is accessible via [insert link here].
