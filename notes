@@ -1,3 +1,3 @@
-The solution architecture for the project has been thoroughly reviewed and understood.
-The problem statement, data flow, and underlying logic have been clearly analyzed.
-My primary focus has been on model validation and evaluating key performance indicators (KPIs), for which I have shared my insights accordingly.
+https://www.researchgate.net/publication/355336817_An_introduction_to_inverse_probability_of_treatment_weighting_in_observational_research
+https://pubmed.ncbi.nlm.nih.gov/35035932/
+I have explored various sources and narrowed down to the Inverse Probability of Treatment Weighting (IPTW) approach to evaluate the propensity scores shared by the vendor. This method reweights each record based on its likelihood of receiving a specific outcome, creating a balanced dataset that mimics a randomized setting. It helps assess the model’s fairness and performance across diverse input conditions by removing bias from unevenly distributed features. This ensures a more reliable validation of the vendor model.
