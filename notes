@@ -1,3 +1,60 @@
-https://www.researchgate.net/publication/355336817_An_introduction_to_inverse_probability_of_treatment_weighting_in_observational_research
-https://pubmed.ncbi.nlm.nih.gov/35035932/
-I have explored various sources and narrowed down to the Inverse Probability of Treatment Weighting (IPTW) approach to evaluate the propensity scores shared by the vendor. This method reweights each record based on its likelihood of receiving a specific outcome, creating a balanced dataset that mimics a randomized setting. It helps assess the model’s fairness and performance across diverse input conditions by removing bias from unevenly distributed features. This ensures a more reliable validation of the vendor model.
+Formula:
+
+If label = Real (1) → weight = 1 / P(Real) = 1 / score
+
+If label = Fake (0) → weight = 1 / (1 - P(Real)) = 1 / (1 - score)
+
+
+ID	Label (Ground Truth)	Vendor Score (P[Real])	IPTW Weight
+A	1 (Real)	0.95	1 / 0.95 = 1.05
+B	1 (Real)	0.90	1 / 0.90 = 1.11
+C	0 (Fake)	0.30	1 / 0.70 = 1.43
+D	0 (Fake)	0.25	1 / 0.75 = 1.33
+E	1 (Real)	0.50	1 / 0.50 = 2.00
+F	0 (Fake)	0.65	1 / 0.35 = 2.86
+
+✅ ID A: Label = 1 (Real), Score = 0.95 → Weight = 1.05
+The model was 95% confident it’s real → and it was real.
+
+✅ So, model is very correct → small weight → not much learning needed here.
+
+✅ ID B: Label = 1, Score = 0.90 → Weight = 1.11
+90% confident it’s real → and it is.
+
+✅ Still a good prediction → low weight.
+
+⚠️ ID C: Label = 0 (Fake), Score = 0.30 → Weight = 1 / (1 - 0.30) = 1.43
+Model said: 30% chance real → means 70% chance fake → fairly confident it's fake.
+
+✅ Model is correct, but not super confident → moderate weight → learn from it a bit.
+
+⚠️ ID D: Label = 0, Score = 0.25 → Weight = 1 / 0.75 = 1.33
+25% real = 75% fake → model is fairly confident it’s fake.
+
+✅ Correct prediction, again low-medium weight.
+
+❗ ID E: Label = 1 (Real), Score = 0.50 → Weight = 1 / 0.50 = 2.00
+Vendor model is not confident at all — it's a 50-50 guess.
+
+But the ID is actually Real.
+
+⚠️ Model is uncertain — this is a valuable, borderline case → High weight → model should learn more from this kind of ID.
+
+Interpretation: Model should be better at recognizing these "hard but real" cases.
+
+❌ ID F: Label = 0 (Fake), Score = 0.65 → Weight = 1 / (1 - 0.65) = 2.86
+Model said: 65% chance it's real… but it was actually fake!
+
+❗ This is a misclassification — model was confident, but wrong.
+
+Hence, a very high weight — this is a serious mistake.
+
+Interpretation: Model needs to fix these confident errors → learn more from this kind of ID.
+
+
+
+When you evaluate your vendor model (e.g., using precision, recall, etc.), apply these weights.
+
+You’re giving more importance to hard or misclassified cases, rather than just easy, clean ones.
+
+This tells you: "How good is the model really, across the full population?"
