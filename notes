@@ -1,9 +1,5 @@
-## Final Eval Score ####
-import nbformat
-import pandas as pd
-from datetime import datetime
-import sys
-# File paths
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3144483/?utm_source=chatgpt.com
+# aaFile paths
 problem_notebook_path = "/Users/rakeshdevarakonda/Documents/Auto_Eval/problem/problem.ipynb"
 solution_notebook_path = "/Users/rakeshdevarakonda/Documents/Auto_Eval/solution/Solution.ipynb"
 #user_email = 'user1@example.com'
