@@ -1,110 +1,71 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[11]:
+
 
 import nbformat
+import base64
+import numpy as np
+from PIL import Image
+from skimage.metrics import structural_similarity as ssim
 import pandas as pd
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import sys 
 import sys
-# File paths
-problem_notebook_path = "/home/vmuser/Desktop/project1/problem.ipynb"
-solution_notebook_path = "/home/vmuser/Desktop/project1/Solution.ipynb"
-#project = 'project1'
-#user_email = 'user1@example.com'
-# Get user email from Node.js (passed as an argument)
-if len(sys.argv) < 4:
-    print("User email not provided")
-    sys.exit(1)
- 
+import pandas as pd
+import mysql.connector
+
+# File paths and metadata
+problem_notebook_path = "/home/user3/project1/problem.ipynb"
+solution_notebook_path = "/home/vmuser/project1/solution.ipynb"
 user_email = sys.argv[1]
 attempt_id = sys.argv[2]
 project = sys.argv[3]
 
-# Task weightage list
+# Task weightage
 task_weightage = {
-    "load_the_dataset": 2,
-    "process_store_data": 1,
-    "find_unique_values": 1,
-    "total_sales": 1,
-    "check_missing_values": 1,
-    "sales_distribution": 1,
-    "top_customer_segment": 1,
-    "regional_purchasing_behavior": 1,
-    "high_spending_regions": 1,
-    "popular_product_categories": 1,
-    "avg_quantity_per_transaction": 1,
-    "quantity_sales_relationship": 1,
-    "category_quantity_sales_trends": 1,
-    "highest_profit_segments": 1,
-    "clean_and_calculate_shipping_time": 1,
-    "calculate_discounted_price": 1,
-    "calculate_revenue_per_day": 1,
-    "identify_most_discounted_products": 2,
-    "analyze_revenue_efficiency": 2,
-    "anova_sales_by_category": 2,
-    "ttest_sales_by_segment": 2,
-    "treat_outliers_iqr": 1,
-    "apply_outlier_treatment": 1,
-    "compute_correlations": 1,
-    "drop_var1": 1,
-    "normalize_numeric_columns": 1,
-    "one_hot_encode": 2
+    "read_csv": 3,
+    "display_dataset_info": 2,
+    "check_missing_values": 2,
+    "compute_basic_statistics": 2,
+    "plot_histograms": 2,
+    "plot_correlation_heatmap": 2,
+    "plot_outcome_counts": 2
 }
 
+# --- Extract outputs from notebook (execute_result + stream) ---
 def extract_function_outputs_fixed(notebook_path, valid_functions):
-    """
-    Extracts function outputs from a Jupyter notebook, filtering only those
-    in the valid_functions list (task_weightage keys).
-    
-    Returns a DataFrame containing function names and corresponding outputs.
-    """
     with open(notebook_path, 'r', encoding='utf-8') as f:
         nb = nbformat.read(f, as_version=4)
 
-    function_outputs = []
-    current_function = None
+    output_dict = {}
+    current_func = None
 
     for cell in nb.cells:
         if cell.cell_type == 'code':
-            cell_outputs = []
-
-            # Extract function name from the code cell
-            lines = cell.source.split("\n")
+            lines = cell.source.split('\n')
             for line in lines:
                 if line.strip().startswith("def "):
-                    function_name = line.split("(")[0].replace("def ", "").strip()
-                    if function_name in valid_functions:
-                        current_function = function_name
-                    else:
-                        current_function = None
-                    break
-            
-            # Extract outputs if function is valid
-            if current_function:
+                    current_func = line.split("(")[0].replace("def ", "").strip()
+
+            if current_func in valid_functions:
                 for output in cell.get('outputs', []):
-                    if 'text' in output:
-                        cell_outputs.append(output['text'].strip())
-                    elif 'data' in output and 'text/plain' in output['data']:
-                        cell_outputs.append(output['data']['text/plain'].strip())
-                    elif 'traceback' in output:
-                        cell_outputs.append("ERROR: " + "\n".join(output['traceback']))
+                    # Capture DataFrame output
+                    if output.output_type == "execute_result" and "text/plain" in output.data:
+                        output_dict[current_func] = output.data["text/plain"]
+                    # Capture print output or df.info()
+                    elif output.output_type == "stream" and output.name == "stdout":
+                        output_dict[current_func] = output.text
 
-                # Store function name and outputs if available
-                if cell_outputs:
-                    formatted_output = " ".join(cell_outputs).replace("\n", " ").strip()
-                    function_outputs.append({"Function": current_function, "Output": formatted_output})
+    return pd.DataFrame([
+        {"Function": func, "Output": out} for func, out in output_dict.items()
+    ])
 
-    return pd.DataFrame(function_outputs)
-
+# --- Compare textual outputs ---
 def compare_outputs(problem_df, solution_df, task_weightage):
-    """
-    Compares function outputs from problem and solution dataframes.
-    Assigns a score based on task weightage if outputs match, otherwise assigns 0.
-    Also adds a 'Remark' column.
-    
-    Returns a dataframe with function names, scores, and remarks.
-    """
     scores = []
-
-    # Convert solution dataframe to dictionary for quick lookup
     solution_dict = dict(zip(solution_df["Function"], solution_df["Output"]))
 
     for _, row in problem_df.iterrows():
@@ -112,56 +73,95 @@ def compare_outputs(problem_df, solution_df, task_weightage):
         problem_output = row["Output"]
         solution_output = solution_dict.get(function_name, None)
 
-        # Compare outputs
         if solution_output and problem_output.strip() == solution_output.strip():
             score = task_weightage.get(function_name, 0)
             remark = "Success"
         else:
             score = 0
-            remark = problem_output  # store the output (could be error) from problem notebook
+            remark = problem_output
 
         scores.append({
-            "Function": function_name,
-            "Score": score,
+            "method_name": function_name,
+            "score_gained": score,
             "remarks": remark
         })
 
     return pd.DataFrame(scores)
 
-# Extract function outputs, considering only those present in task_weightage
-problem_file = extract_function_outputs_fixed(problem_notebook_path, task_weightage.keys())
-solution_file = extract_function_outputs_fixed(solution_notebook_path, task_weightage.keys())
+# --- Extract images per function ---
+def extract_images_by_function(notebook_path, valid_functions):
+    with open(notebook_path, 'r', encoding='utf-8') as f:
+        nb = nbformat.read(f, as_version=4)
 
-# Compare outputs and calculate scores
-score_df = compare_outputs(problem_file, solution_file, task_weightage)
+    func_image_map = {}
+    current_func = None
 
-score_df = score_df.rename(columns={'Function': 'method_name', 'Score': 'score_gained'})
+    for cell in nb.cells:
+        if cell.cell_type == 'code':
+            lines = cell.source.split('\n')
+            for line in lines:
+                if line.strip().startswith("def "):
+                    current_func = line.split("(")[0].replace("def ", "").strip()
 
-# Convert dict to DataFrame
+            if current_func in valid_functions:
+                for output in cell.get('outputs', []):
+                    if output.output_type == 'display_data' and 'image/png' in output.data:
+                        img_data = base64.b64decode(output.data['image/png'])
+                        img = Image.open(pd.io.common.BytesIO(img_data)).convert('RGB')
+                        func_image_map.setdefault(current_func, []).append(np.array(img))
+
+    return func_image_map
+
+# --- Compare image lists by SSIM ---
+def compare_images(imgs1, imgs2, threshold=0.95):
+    for img1 in imgs1:
+        for img2 in imgs2:
+            min_shape = (min(img1.shape[0], img2.shape[0]), min(img1.shape[1], img2.shape[1]))
+            img1_resized = Image.fromarray(img1).resize(min_shape[::-1]).convert('L')
+            img2_resized = Image.fromarray(img2).resize(min_shape[::-1]).convert('L')
+            similarity, _ = ssim(np.array(img1_resized), np.array(img2_resized), full=True)
+            if similarity >= threshold:
+                return True
+    return False
+
+# --- Run Evaluation Pipeline ---
+
+# 1. Text outputs
+problem_outputs = extract_function_outputs_fixed(problem_notebook_path, task_weightage.keys())
+solution_outputs = extract_function_outputs_fixed(solution_notebook_path, task_weightage.keys())
+output_scores = compare_outputs(problem_outputs, solution_outputs, task_weightage)
+
+# 2. Merge with metadata
 task_df = pd.DataFrame(list(task_weightage.items()), columns=['method_name', 'max_score'])
+merged_df = output_scores.merge(task_df, on='method_name', how='outer')  # include all methods
+merged_df['UserEmail'] = user_email
+merged_df['attempt_id'] = attempt_id
+merged_df['timestamp'] = datetime.now()
 
-# Perform inner join
-# Merge and work on a copy to avoid SettingWithCopyWarning
-merged_df = score_df.merge(task_df, on='method_name', how='inner').copy()
+merged_df['project'] = project
+merged_df['score_gained'] = merged_df['score_gained'].fillna(0).astype(int)
+merged_df['remarks'] = merged_df['remarks'].fillna("Function not found")
 
-# Select and reorder columns safely
-score_df = merged_df[['method_name', 'score_gained', 'max_score', 'remarks']].copy()
+# 3. Image comparison
+problem_images_map = extract_images_by_function(problem_notebook_path, task_weightage.keys())
+solution_images_map = extract_images_by_function(solution_notebook_path, task_weightage.keys())
 
-# Add other metadata columns using .loc to avoid SettingWithCopyWarning
-score_df.loc[:, 'UserEmail'] = user_email
-score_df.loc[:, 'attempt_id'] = attempt_id
-score_df.loc[:, 'timestamp'] = datetime.now(ZoneInfo("Asia/Kolkata"))
-score_df.loc[:, 'project'] = project
+for method in task_weightage:
+    if method in problem_images_map and method in solution_images_map:
+        match = compare_images(problem_images_map[method], solution_images_map[method])
+        if match:
+            merged_df.loc[merged_df["method_name"] == method, "score_gained"] = task_weightage[method]
+            merged_df.loc[merged_df["method_name"] == method, "remarks"] = "Success"
+        else:
+            merged_df.loc[merged_df["method_name"] == method, "score_gained"] = 0
+            merged_df.loc[merged_df["method_name"] == method, "remarks"] = "Image mismatch"
 
-# Final column order
-score_df = score_df[['UserEmail', 'attempt_id', 'method_name', 'score_gained',
-                     'max_score', 'timestamp', 'remarks', 'project']]
-score_df = score_df[['UserEmail','attempt_id','method_name','score_gained','max_score','timestamp',"remarks","project"]]
-score_df
+# 4. Finalize results
+score_df = merged_df[['UserEmail','attempt_id','method_name','score_gained','max_score','timestamp','remarks','project']]
+score_df = score_df.reset_index(drop=True)
 
-
-# In[22]:
-
+# Display output (if in notebook)
+#score_df
 
 import sys
 import pandas as pd
@@ -182,7 +182,7 @@ db_config = {
     "host": 'arshniv.cuceurst1z3t.us-east-1.rds.amazonaws.com',
     "user": 'admin',
     "password": 'arshnivdb',
-    "database":'vmharbor'
+    "database":'autovmharbor'
 }
 
 
@@ -225,9 +225,4 @@ def insert_results_into_db(df):
 
 
 insert_results_into_db(score_df)
-
-
-
-
-
 
