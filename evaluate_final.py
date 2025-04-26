@@ -117,7 +117,6 @@ def compare_outputs_with_patch(problem_df, solution_df, task_weightage):
                     def split_output(output):
                         split_index = output.lower().find("model summary")
                         return (output[:split_index].strip(), output[split_index:].strip()) if split_index != -1 else (output.strip(), "")
-
                     prob_test, prob_summary = split_output(problem_output)
                     sol_test, sol_summary = split_output(solution_output)
 
@@ -129,6 +128,22 @@ def compare_outputs_with_patch(problem_df, solution_df, task_weightage):
                         remark = "Success"
                     else:
                         remark = "Mismatch in test_data or summary"
+
+                elif function_name == "ols_calculate_rmse_r2":
+                    # special handling: two numeric values printed
+                    lines = [parse_numeric_output(line) for line in problem_output.strip().splitlines()]
+                    if len(lines) >= 2:
+                        rmse_value, r2_value = lines[0], lines[1]
+                        rmse_check = threshold_rules["ols_calculate_rmse_r2"]["rmse"][0] <= rmse_value <= threshold_rules["ols_calculate_rmse_r2"]["rmse"][1]
+                        r2_check = threshold_rules["ols_calculate_rmse_r2"]["r2"][0] <= r2_value <= threshold_rules["ols_calculate_rmse_r2"]["r2"][1]
+                        if rmse_check and r2_check:
+                            score = task_weightage.get(function_name, 0)
+                            remark = "Success"
+                        else:
+                            remark = f"Values rmse:{rmse_value}, r2:{r2_value} out of range"
+                    else:
+                        remark = "Could not parse two values for RMSE and R2"
+
                 elif function_name in threshold_rules:
                     numeric_value = parse_numeric_output(problem_output)
                     thresholds = threshold_rules[function_name]
@@ -143,6 +158,7 @@ def compare_outputs_with_patch(problem_df, solution_df, task_weightage):
                         remark = "Success"
                     else:
                         remark = f"Value {numeric_value} out of range"
+
                 else:
                     df1 = eval(problem_output, {"pd": pd, "np": np})
                     df2 = eval(solution_output, {"pd": pd, "np": np})
@@ -156,6 +172,7 @@ def compare_outputs_with_patch(problem_df, solution_df, task_weightage):
                             remark = "Success"
                         else:
                             remark = problem_output
+
             except Exception:
                 if problem_output.strip() == solution_output.strip():
                     score = task_weightage.get(function_name, 0)
@@ -172,6 +189,7 @@ def compare_outputs_with_patch(problem_df, solution_df, task_weightage):
         })
 
     return pd.DataFrame(scores)
+
 
 def extract_images_from_notebook(notebook_path):
     with open(notebook_path, 'r', encoding='utf-8') as f:
