@@ -1,10 +1,128 @@
-TAsk 3. 
- 
-Range for evaluation results
-3.1	ols_calculate_rmse_r2	400000.0000 to 500000.00, R2: 0.60 to 0.80
- 	calculate_r_squared_sklearn	0.60 to 0.80
- 	calculate_rmse_sklearn	400000.0000 to 500000.00,
-3.2	calculate_r_squared_finalmodel	0.70 to 0.90
- 	calculate_rmse_finalmodel	0.20000 to 0.50000
- 
- 
+Sensitivity analysis
+
+1. Zero-Shot Model Diagnosis 
+
+Objective: The primary goal is to assess how sensitive a computer vision model is to specific visual attributes (like eye color or facial expressions) without relying on labeled test data.​
+
+Approach:
+
+User Input: The user specifies attributes of interest (e.g., "green eyes," "smiling").
+
+Generative Model: A pre-trained image generator, such as StyleGAN, is used to create synthetic images that incorporate or alter these attributes.
+
+CLIP Model: CLIP, a model that connects images and text, helps in aligning the generated images with the specified textual attributes.
+
+Target Model Evaluation: The model under investigation (e.g., a cat/dog classifier) is tested on these synthetic images to observe changes in its predictions.​
+
+Paper link : https://arxiv.org/pdf/2303.15441v1
+
+Objective:
+The paper proposes a new method to understand what parts of an input image are most important to a deep learning model’s prediction, using a technique called Occlusion Sensitivity Analysis, enhanced with image augmentations.
+
+How the Method Works:
+Occlusion: It hides different parts of an image and observes how the model’s prediction changes — helping identify important areas.
+Augmentation: It uses multiple versions of the same image (e.g., rotated, brighter, darker) to test robustness.
+
+Deep Feature Subspaces: It compares the model’s internal responses using PCA (a statistical method) to find how similar the representations are between the original and occluded images.
+
+Heatmaps: The output is a visual heatmap showing the most influential image regions.
+
+Experiments & Results:
+Tested on image classification tasks (e.g., ImageNet).
+The new method (OSA-DAS) produced clearer, more accurate explanations than traditional sensitivity analysis.
+It worked across different deep neural networks — without needing to modify the models.
+
+Paper link : https://arxiv.org/pdf/2311.15022
+
+Objective : 
+The paper introduces AdaVision, an interactive, human-in-the-loop system designed to identify and analyze failure modes in computer vision models. It aims to uncover systematic errors that models make on specific groups of data, enhancing model robustness and reliability.
+
+What is AdaVision?
+AdaVision is a smart testing tool that helps you find where your computer vision model makes mistakes — like missing a stop sign in snow or mislabeling objects.
+
+How Does It Work?
+You choose a topic (e.g., “stop signs in snow”).
+AdaVision pulls matching images from large datasets using smart search (CLIP).
+It runs those images through your model and finds where it messes up.
+It suggests more similar test cases to dig deeper into those weaknesses.
+It even uses AI (GPT-3) to suggest new areas to test.
+
+Results:
+Users found 2–3x more bugs in models using AdaVision than with basic testing.
+Caught errors like:
+Mislabeling due to background bias (e.g., microwaves = always in kitchens).
+Missed objects in tough conditions (e.g., snow, darkness).
+Wrong captions for complex scenes.
+Fixing these bugs improved the model’s overall accuracy without breaking what already works.
+
+Reference link : https://openaccess.thecvf.com/content/ICCV2023/papers/Gao_Adaptive_Testing_of_Computer_Vision_Models_ICCV_2023_paper.pdf
+Link for adavision : https://github.com/i-gao/adavision
+
+
+
+Objective :
+The authors want to understand which input features (like "age", "glucose level", or "pixels in an image") affect a neural network's decision the most. This is called sensitivity analysis.
+
+It helps answer questions like:
+
+“If I slightly change the age input, will the prediction change a lot?”
+
+Experiment Setup:
+They tested sensitivity on two kinds of models:
+Tabular data model – for medical data (like age, glucose, etc.).
+Image models (CNNs) – like VGG-16 and ResNet-18, which are popular models used to classify images (like cats vs. dogs).
+
+Methodology :
+Sobol Sensitivity Analysis (Global) :
+Checks how much each feature (like “glucose”) contributes to the model’s prediction on average.
+Works well for small datasets like medical records.
+
+Local Sensitivity Analysis :
+Slightly changes one input (e.g., a pixel or a feature) and sees how much the output changes.
+Used for large models like VGG or ResNet, because Sobol is too slow for them.
+
+Activation Maximization
+Finds what kind of input makes a certain neuron "light up" the most.
+Helps visualize what patterns the model has learned (e.g., dog ears, eyes, etc.).
+
+Results:
+In tabular models:
+Some features (like glucose level) have a much stronger influence on predictions.
+So, if we remove less important features, the model can still work well — and even faster.
+
+In image models (VGG/ResNet):
+VGG-16 becomes less sensitive as you go deeper into layers.
+ResNet-18, Due to residual connections, keeps learning and reacting better images even in later layers. - more sensitive.
+
+Paper link : https://arxiv.org/pdf/2504.15100
+
+Note : in this paper, we must look at only Image model test
+
+
+Objective : 
+Imagine you're training a computer to recognize different types of medical images, like various stages of a disease. But there's a problem: you have lots of images for some stages and very few for others. This imbalance can confuse the computer, making it good at recognizing common stages but bad at identifying rare ones.
+This paper investigates how modern deep learning models, such as ResNet, VGG, and Vision Transformers (ViT), handle these imbalanced datasets. The goal is to understand their weaknesses and find ways to improve their performance, especially in critical fields like medical diagnostics.
+
+Methodology : 
+Dataset Used: They worked with a medical image dataset containing 20,971 images categorized into 7 classes. Some classes had many images, while others had very few, creating an imbalance.
+Models Tested: They evaluated several popular deep learning models, including:
+ResNet34, ResNet50, ResNet101
+VGG19
+Inception_v3
+DenseNet201, DenseNet161
+Xception
+Vision Transformers (ViT-224, ViT-384)
+DeIT
+Techniques Applied:
+Data Augmentation: Creating modified versions of existing images (e.g., flipping, rotating) to increase the number of samples in underrepresented classes.
+Dataset Cropping: Reducing the number of images in overrepresented classes to balance the dataset.
+Normalization: Adjusting data to ensure consistent scale and distribution.
+
+Findings : 
+Imbalanced Data Hurts Performance: Models trained on imbalanced datasets performed poorly, especially in recognizing underrepresented classes.
+Balancing Helps: Applying data augmentation to increase samples in minority classes and cropping overrepresented classes improved model accuracy.
+Model Sensitivity Varies: Some models were more sensitive to data imbalance than others. For instance, Vision Transformers showed different sensitivity patterns compared to traditional CNNs like ResNet.
+
+Link to the paper : https://www.mdpi.com/2076-3417/13/15/8614
+
+
