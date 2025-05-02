@@ -1,60 +1,9 @@
-Formula:
+Since joining Wells Fargo, I’ve observed frequent organizational changes—approximately every 8 months. As a result, much of the work I’ve contributed often goes unnoticed or is lost in transition.
 
-If label = Real (1) → weight = 1 / P(Real) = 1 / score
+The most recent organizational restructure occurred in March, leading to the formation of an entirely new team compared to the previous one. While change is inevitable, the transition has been quite abrupt, and the onboarding period felt insufficient.
 
-If label = Fake (0) → weight = 1 / (1 - P(Real)) = 1 / (1 - score)
+Currently, our schedule is packed with meetings, including daily sprint calls, weekly connects, retrospectives, project discussions, and several internal syncs with leads and teammates. In addition, late-night meetings with the Line of Business (LOB) often begin at 10:30 PM and extend past midnight. Despite this, we are still expected to join the next day’s sprint call by 11:00 AM.
 
+This meeting-heavy environment leaves little time for focused work. A significant portion of our time is spent preparing for meetings, which forces us to rely on personal hours to complete actual deliverables. This is unsustainable and impacts both productivity and work-life balance.
 
-ID	Label (Ground Truth)	Vendor Score (P[Real])	IPTW Weight
-A	1 (Real)	0.95	1 / 0.95 = 1.05
-B	1 (Real)	0.90	1 / 0.90 = 1.11
-C	0 (Fake)	0.30	1 / 0.70 = 1.43
-D	0 (Fake)	0.25	1 / 0.75 = 1.33
-E	1 (Real)	0.50	1 / 0.50 = 2.00
-F	0 (Fake)	0.65	1 / 0.35 = 2.86
-
-✅ ID A: Label = 1 (Real), Score = 0.95 → Weight = 1.05
-The model was 95% confident it’s real → and it was real.
-
-✅ So, model is very correct → small weight → not much learning needed here.
-
-✅ ID B: Label = 1, Score = 0.90 → Weight = 1.11
-90% confident it’s real → and it is.
-
-✅ Still a good prediction → low weight.
-
-⚠️ ID C: Label = 0 (Fake), Score = 0.30 → Weight = 1 / (1 - 0.30) = 1.43
-Model said: 30% chance real → means 70% chance fake → fairly confident it's fake.
-
-✅ Model is correct, but not super confident → moderate weight → learn from it a bit.
-
-⚠️ ID D: Label = 0, Score = 0.25 → Weight = 1 / 0.75 = 1.33
-25% real = 75% fake → model is fairly confident it’s fake.
-
-✅ Correct prediction, again low-medium weight.
-
-❗ ID E: Label = 1 (Real), Score = 0.50 → Weight = 1 / 0.50 = 2.00
-Vendor model is not confident at all — it's a 50-50 guess.
-
-But the ID is actually Real.
-
-⚠️ Model is uncertain — this is a valuable, borderline case → High weight → model should learn more from this kind of ID.
-
-Interpretation: Model should be better at recognizing these "hard but real" cases.
-
-❌ ID F: Label = 0 (Fake), Score = 0.65 → Weight = 1 / (1 - 0.65) = 2.86
-Model said: 65% chance it's real… but it was actually fake!
-
-❗ This is a misclassification — model was confident, but wrong.
-
-Hence, a very high weight — this is a serious mistake.
-
-Interpretation: Model needs to fix these confident errors → learn more from this kind of ID.
-
-
-
-When you evaluate your vendor model (e.g., using precision, recall, etc.), apply these weights.
-
-You’re giving more importance to hard or misclassified cases, rather than just easy, clean ones.
-
-This tells you: "How good is the model really, across the full population?"
+Moreover, adapting to the new team dynamics and domain has been particularly challenging. We’re expected to process and analyze extensive documents (100–150 pages) and deliver insights within very short timelines (often 2 days). This pace might be manageable for those with deep domain expertise, but for newcomers, a longer adjustment period would be highly beneficial.
