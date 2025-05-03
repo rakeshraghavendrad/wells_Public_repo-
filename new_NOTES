@@ -113,3 +113,96 @@ Equity range = 16% ± M = [0%, 36%]
 If any group's FNR (e.g., 40%) is outside this range, it is considered inequitable.
 
 
+"Identity Documents Recognition and Detection using Semantic Segmentation with Convolutional Neural Network"
+
+
+Objective:
+The study aims to develop a lightweight and efficient deep learning model for detecting and recognizing identity documents (e.g., passports, ID cards) in images. This is particularly useful for applications like access control systems, especially on devices with limited computational resources such as smartphones or embedded systems.
+
+Methodology:
+
+Dataset:
+Utilized the MIDV-500 dataset, comprising 500 video clips of 50 different identity document types. The dataset includes various scenarios with diverse backgrounds and occlusions.
+
+Model Architecture:
+
+Implemented a Convolutional Neural Network (CNN) with a semantic segmentation approach.
+
+The model downsamples input images to an 8x8 resolution to extract features.
+
+Employs skip connections to preserve spatial information, producing a probability map indicating the presence and location of identity documents within an image.
+
+Training Details:
+
+Optimizer: Adam
+
+Learning Rate: 0.001
+
+Epochs: 60
+
+Batch Size: 32
+
+Loss Function: Binary Cross-Entropy
+
+Evaluation Metrics:
+
+Achieved an accuracy of 0.77 at an Intersection over Union (IoU) threshold of 0.8.
+
+Outperformed traditional OpenCV-based methods, which had an accuracy of 0.32 under the same conditions.
+
+Performance:
+
+The model processes a single image in approximately 8 milliseconds, indicating suitability for real-time applications on devices with limited processing power.
+
+Conclusion:
+The proposed CNN architecture effectively detects and recognizes identity documents in images, demonstrating high accuracy and efficiency. Its lightweight design makes it suitable for deployment on devices with constrained computational resources.
+
+
+
+
+
+
+
+Machine Learning Techniques for Identity Document Verification in Uncontrolled Environments: A Case Study
+
+
+Objective:
+The study aims to develop a machine learning-based pipeline for verifying identity documents (IDs) captured in uncontrolled environments, such as varying lighting conditions, backgrounds, and camera qualities. This is particularly relevant for remote onboarding processes in services like banking.
+
+Methodology:
+
+Pipeline Structure:
+The proposed system consists of two main modules:
+
+Document Acquisition Module:
+
+Utilizes semantic segmentation (specifically, the UNet architecture) to detect and isolate the ID from complex backgrounds.
+
+Processes images captured by users' smartphones without restrictions on conditions, ensuring robustness to real-world scenarios.
+
+Document Verification Module:
+
+Extracts visual features from the isolated ID image.
+
+Employs machine learning classifiers to verify the authenticity of the document based on these features.
+
+Dataset:
+
+Collected 101 Colombian ID images taken by volunteers using their smartphones.
+
+Included a diverse set of backgrounds and lighting conditions to simulate real-world variability.
+
+Results:
+
+Background Removal:
+
+Achieved an accuracy of 98.4% in detecting and isolating IDs from complex backgrounds.
+
+Demonstrated that grayscale images performed better than color images for this task.
+
+Document Verification:
+
+The authenticity classifier achieved an accuracy of 97.7% and an F1-score of 0.974.
+
+Highlighted the importance of dataset variability over size for training robust models.
+
