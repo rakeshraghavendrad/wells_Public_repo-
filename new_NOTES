@@ -1,1 +1,115 @@
-https://www.numberanalytics.com/blog/exploring-sensitivity-analysis-methods-enhanced-decision-making
+🧾 What is IDNet?
+IDNet is a large-scale, synthetically generated dataset comprising 837,060 images of identity documents, totaling approximately 490 GB. It encompasses 20 document types from 10 U.S. states and 10 European countries. Each document type includes multiple samples with various fraud patterns applied. ​
+arXiv
++2
+fugumt.com
++2
+arXiv
++2
+
+🔍 Key Contributions
+Diverse Fraud Patterns: IDNet introduces six distinct fraud patterns, including:
+
+Crop-and-Move
+
+Inpaint-and-Rewrite
+
+Face Morphing
+
+Portrait Substitution
+
+Direct Text Alterations
+
+Combinations of the above​
+OpenReview
++3
+arXiv
++3
+arXiv
++3
+
+These patterns are designed to mimic real-world fraudulent activities, providing a robust foundation for training and evaluating fraud detection models.
+
+AI-Assisted Generation Pipeline: The dataset was created using a cost-effective pipeline involving:
+
+Stable Diffusion 2.0 for template generation.
+
+ChatGPT-3.5-turbo for generating realistic metadata (e.g., names, addresses).
+
+Bayesian Optimization for fine-tuning text placement and styling.​
+arXiv
+
+This approach ensures high fidelity and diversity in the synthetic documents.
+
+Evaluation Metrics: The quality of IDNet was assessed using:
+
+Structural Similarity Index (SSIM): Achieving scores >0.85 for document fidelity and >0.95 for fraud stealthiness.
+
+Utility Assessments: Demonstrating that models trained on IDNet perform comparably to those trained on real-world datasets in tasks like face morphing detection. ​
+arXiv
++3
+fugumt.com
++3
+OpenReview
++3
+arXiv
++1
+OpenReview
++1
+
+🔬 Use Cases Explored
+Privacy-Preserving Fraud Detection: The study evaluated methods like masking and PixelDP. Results indicated that while these methods protect sensitive information, they can significantly degrade fraud detection performance, highlighting the need for better privacy-preserving techniques. ​
+arXiv
+
+Face Morphing Detection: IDNet serves as a benchmark for evaluating face morphing detection algorithms, with models trained on it achieving high accuracy across various document types. ​
+arXiv
+
+Cross-Type Analysis: The dataset enables analysis of model generalizability across different document types, revealing that models often struggle to detect fraud in document types they weren't trained on, emphasizing the importance of diverse training data. ​
+arXiv
+
+Schema Alignment and Unification: Leveraging Large Language Models (LLMs), the study demonstrated automatic conversion of diverse identity documents into a standardized schema, facilitating better data integration and management. ​
+
+
+ID Replacement in Varied Backgrounds: The researchers showcased techniques to superimpose synthetic IDs onto different backgrounds, simulating real-world scenarios like mobile captures under various lighting conditions, aiding in the development of robust detection systems. ​
+
+
+2. A large-scale study of performance and equity of commercial remote identity
+verification technologies across demographics
+
+📊 Statistical Methodology Summary
+📄 From: A Large-Scale Study of Performance and Equity of Commercial Remote Identity Verification Technologies Across Demographics
+
+🎯 Goal
+To determine if a Remote ID Verification (RIdV) system is statistically equitable, meaning each demographic group has a similar False Negative Rate (FNR) within a fair margin.
+
+🧪 Step-by-Step Process
+Group by Demographic (e.g., skin tone via Monk scale: fair, medium, dark).
+
+Calculate FNR for each group:
+
+Example: Dark skin group → 2 rejections out of 4 attempts → FNR = 50%
+
+Bootstrap Sampling:
+
+Randomly resample the dataset (with replacement) 1000 times.
+
+In each resample, recalculate FNRs for all groups.
+
+Compute φ<sup>b</sup> in each bootstrap:
+
+φ<sup>b</sup> = the largest FNR change (vs. original FNR) in any group.
+
+Repeat 1000 times → Get 1000 φ<sup>b</sup> values
+
+Calculate M = 95th percentile of φ<sup>b</sup> values
+
+Example: M = 20% → This becomes your threshold for fairness.
+
+✅ Equity Decision Rule
+Let overall FNR = 16%
+
+Equity range = 16% ± M = [0%, 36%]
+
+If any group's FNR (e.g., 40%) is outside this range, it is considered inequitable.
+
+
