@@ -206,3 +206,89 @@ The authenticity classifier achieved an accuracy of 97.7% and an F1-score of 0.9
 
 Highlighted the importance of dataset variability over size for training robust models.
 
+
+
+
+An Automatic Reader of Identity Documents - 2019
+https://github.com/malghadi/CheckID/blob/main/Part1/Code/CFD/testing_id-FDGP-1.py
+
+https://arxiv.org/pdf/2006.14853
+An Automatic Reader of Identity Documents
+✅ 1. True Acceptance Rate (TAR)
+How many genuine documents were correctly accepted?
+
+𝑇
+𝐴
+𝑅
+=
+True Acceptances
+Total Genuine Documents
+=
+55
+60
+=
+0.9167
+=
+91.67
+%
+TAR= 
+Total Genuine Documents
+True Acceptances
+​
+ = 
+60
+55
+​
+ =0.9167=91.67%
+❌ 2. False Rejection Rate (FRR)
+How many genuine documents were wrongly rejected as fake?
+
+𝐹
+𝑅
+𝑅
+=
+False Rejections
+Total Genuine Documents
+=
+5
+60
+=
+0.0833
+=
+8.33
+%
+FRR= 
+Total Genuine Documents
+False Rejections
+​
+ = 
+60
+5
+​
+ =0.0833=8.33%
+❌ 3. False Acceptance Rate (FAR)
+How many forged documents were wrongly accepted as real?
+
+𝐹
+𝐴
+𝑅
+=
+False Acceptances
+Total Forged Documents
+=
+4
+40
+=
+0.10
+=
+10
+%
+FAR= 
+Total Forged Documents
+False Acceptances
+​
+ = 
+40
+4
+​
+ =0.10=10%
