@@ -1,45 +1,48 @@
-# Modified Code to Display Extracted Information Instead of Saving
+# Modified Code to Display Extracted Information with Bounding Boxes
+from PIL import Image, ImageEnhance, ImageDraw
+import numpy as np
 import os
 
-# Sample input values
-DIR = 'your_directory_path'  # Replace with your directory
-ids = ['image1', 'image2']  # Replace with your actual IDs
-mapping = {0: 'label0', 1: 'label1', 2: 'label2'}  # Replace with your label mappings
+# Load the image
+def load_image(image_path):
+    return Image.open(image_path)
 
-count = 0
-row_list = []
-for id_ in ids:
-    row = {}
-    row['IMAGE_KEY'] = id_
-    row['FILE_NAME'] = id_ + '.jpg'
-    _path = os.path.join(DIR, 'images', id_ + '.jpg')
-    if not os.path.isfile(_path):
-        print(f"Image file not found: {_path}")
-        continue
+# Preprocess the image using PIL
+def preprocess_image(image):
+    # Convert to grayscale
+    gray = image.convert("L")
+    # Enhance contrast
+    enhancer = ImageEnhance.Contrast(gray)
+    enhanced = enhancer.enhance(2.0)
+    return enhanced
 
-    # Construct paths
-    bbox_path = os.path.join(DIR, 'annotations', id_ + '.txt')
-    bbox_lines = []
+# Draw bounding boxes on the image
+def draw_bounding_boxes(image, regions):
+    draw = ImageDraw.Draw(image)
+    for (x, y, w, h) in regions:
+        draw.rectangle([x, y, x + w, y + h], outline="red", width=2)
+    return image
 
-    # Read bounding box file if exists
-    if os.path.isfile(bbox_path):
-        with open(bbox_path) as f:
-            bbox_lines = [line.rstrip('\n') for line in f]
+# Simple text-like region detection based on pixel density
+def detect_text_regions(image_array):
+    binary = (image_array > 128).astype(np.uint8)
+    regions = []
+    for i in range(0, binary.shape[0], 20):
+        for j in range(0, binary.shape[1], 20):
+            block = binary[i:i+20, j:j+20]
+            if np.mean(block) < 0.8:  # Detect denser areas
+                regions.append((j, i, 20, 20))
+    return regions
 
-    # Display the extracted bounding box lines
-    print(f"\nProcessing ID: {id_}")
-    for line in bbox_lines:
-        label = int(line.split(' ')[0])
-        locs = line.split(' ')[1:]
-        bbox = [float(loc) for loc in locs]
-        col_name = mapping.get(label, f'label{label}') + '_bbox'
-        print(f"Label: {label} - Coordinates: {bbox}")
+# Main function
+def main(image_path):
+    image = load_image(image_path)
+    processed_image = preprocess_image(image)
+    image_array = np.array(processed_image)
+    regions = detect_text_regions(image_array)
+    annotated_image = draw_bounding_boxes(image, regions)
+    annotated_image.show()
 
-        # Store in row dictionary
-        if col_name not in row:
-            row[col_name] = []
-        row[col_name].extend(bbox)
-
-    # Display the row content
-    print("Extracted Data:", row)
-    row_list.append(row)
+# Run the code
+image_path = "/mnt/data/Screenshot 2025-05-07 at 11.52.09 AM.png"
+main(image_path)
