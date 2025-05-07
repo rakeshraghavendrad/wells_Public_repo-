@@ -1,9 +1,45 @@
-def extract_key_value_pairs(image_array, regions):
-    key_value_pairs = {}
-    for (x, y) in regions:
-        region = image_array[x:x+20, y:y+100]
-        text = ''.join(chr(int(c)) for c in region.flatten() if 32 <= c <= 126)
-        if ':' in text:
-            key, value = text.split(':', 1)
-            key_value_pairs[key.strip()] = value.strip()
-    return key_value_pairs
+# Modified Code to Display Extracted Information Instead of Saving
+import os
+
+# Sample input values
+DIR = 'your_directory_path'  # Replace with your directory
+ids = ['image1', 'image2']  # Replace with your actual IDs
+mapping = {0: 'label0', 1: 'label1', 2: 'label2'}  # Replace with your label mappings
+
+count = 0
+row_list = []
+for id_ in ids:
+    row = {}
+    row['IMAGE_KEY'] = id_
+    row['FILE_NAME'] = id_ + '.jpg'
+    _path = os.path.join(DIR, 'images', id_ + '.jpg')
+    if not os.path.isfile(_path):
+        print(f"Image file not found: {_path}")
+        continue
+
+    # Construct paths
+    bbox_path = os.path.join(DIR, 'annotations', id_ + '.txt')
+    bbox_lines = []
+
+    # Read bounding box file if exists
+    if os.path.isfile(bbox_path):
+        with open(bbox_path) as f:
+            bbox_lines = [line.rstrip('\n') for line in f]
+
+    # Display the extracted bounding box lines
+    print(f"\nProcessing ID: {id_}")
+    for line in bbox_lines:
+        label = int(line.split(' ')[0])
+        locs = line.split(' ')[1:]
+        bbox = [float(loc) for loc in locs]
+        col_name = mapping.get(label, f'label{label}') + '_bbox'
+        print(f"Label: {label} - Coordinates: {bbox}")
+
+        # Store in row dictionary
+        if col_name not in row:
+            row[col_name] = []
+        row[col_name].extend(bbox)
+
+    # Display the row content
+    print("Extracted Data:", row)
+    row_list.append(row)
