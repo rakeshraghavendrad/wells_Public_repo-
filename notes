@@ -46,3 +46,17 @@ def main(image_path):
 # Run the code
 image_path = "/mnt/data/Screenshot 2025-05-07 at 11.52.09 AM.png"
 main(image_path)
+
+
+
+# Define expected field names based on ID structure
+    field_names = ['head_shot', '4d DLN', '4a ISS', '1', '2', '8', '15 SEX', '16 HGT', '18 EYES', '17 WGT', '9a ENDORSEMENTS', '12 RESTRICTIONS', '5 DD']
+    data = {field: [] for field in field_names}
+
+    # Map detected regions to field names (simple assignment for demo)
+    for i, (x, y, w, h) in enumerate(regions):
+        field = field_names[i % len(field_names)]
+        data[field].append((x, y, w, h))
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
