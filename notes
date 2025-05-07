@@ -1,9 +1,9 @@
-Since joining Wells Fargo, I’ve observed frequent organizational changes—approximately every 8 months. As a result, much of the work I’ve contributed often goes unnoticed or is lost in transition.
-
-The most recent organizational restructure occurred in March, leading to the formation of an entirely new team compared to the previous one. While change is inevitable, the transition has been quite abrupt, and the onboarding period felt insufficient.
-
-Currently, our schedule is packed with meetings, including daily sprint calls, weekly connects, retrospectives, project discussions, and several internal syncs with leads and teammates. In addition, late-night meetings with the Line of Business (LOB) often begin at 10:30 PM and extend past midnight. Despite this, we are still expected to join the next day’s sprint call by 11:00 AM.
-
-This meeting-heavy environment leaves little time for focused work. A significant portion of our time is spent preparing for meetings, which forces us to rely on personal hours to complete actual deliverables. This is unsustainable and impacts both productivity and work-life balance.
-
-Moreover, adapting to the new team dynamics and domain has been particularly challenging. We’re expected to process and analyze extensive documents (100–150 pages) and deliver insights within very short timelines (often 2 days). This pace might be manageable for those with deep domain expertise, but for newcomers, a longer adjustment period would be highly beneficial.
+def extract_key_value_pairs(image_array, regions):
+    key_value_pairs = {}
+    for (x, y) in regions:
+        region = image_array[x:x+20, y:y+100]
+        text = ''.join(chr(int(c)) for c in region.flatten() if 32 <= c <= 126)
+        if ':' in text:
+            key, value = text.split(':', 1)
+            key_value_pairs[key.strip()] = value.strip()
+    return key_value_pairs
