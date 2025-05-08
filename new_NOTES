@@ -161,39 +161,32 @@ print(df)
 
 
 
-import cv2
 import numpy as np
-import pandas as pd
+from PIL import Image
 
-# Load image
-image = cv2.imread("license.jpg")
+# Load image using PIL and convert to NumPy array
+image = Image.open("license.jpg")
+image_array = np.array(image)
 
-# Define mapping
-mapping = {
-    0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP',
-    6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES',
-    13: '17 WGT', 14: '9a ENDORSEMENTS', 15: '12 RESTRICTIONS', 16: '5 DD'
-}
-
-# Sample extracted coordinates (Replace these with actual detected values)
+# Sample detected coordinates (replace with actual values)
 coordinates = [
     (50, 100, 200, 40), (300, 100, 250, 50), (100, 200, 80, 80), (400, 200, 300, 50),
-    (120, 300, 150, 40), (350, 300, 180, 50), (500, 350, 210, 40), (150, 400, 140, 40),
-    (400, 450, 160, 50), (180, 500, 170, 40), (450, 550, 120, 40), (220, 600, 130, 50),
-    (470, 650, 140, 50), (250, 700, 110, 40), (480, 750, 150, 40), (270, 800, 160, 50),
-    (500, 850, 180, 40)
+    (120, 300, 150, 40), (350, 300, 180, 50)
 ]
 
-# Loop through each detected field and draw rectangles
-for i, (x, y, w, h) in enumerate(coordinates):
-    field_name = mapping.get(i, f"Unknown_{i}")
-    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 2)  # Red box
-    cv2.putText(image, field_name, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+# Highlight detected regions with a red box
+for x, y, w, h in coordinates:
+    # Draw top and bottom edges
+    image_array[y:y+2, x:x+w] = [255, 0, 0]  # Red
+    image_array[y+h-2:y+h, x:x+w] = [255, 0, 0]  # Red
+    # Draw left and right edges
+    image_array[y:y+h, x:x+2] = [255, 0, 0]  # Red
+    image_array[y:y+h, x+w-2:x+w] = [255, 0, 0]  # Red
 
-image = cv2.imread("output_image.jpg")  # Load the saved image
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert to RGB for correct color display
+# Convert back to image and save
+highlighted_image = Image.fromarray(image_array)
+highlighted_image.save("highlighted_license.jpg")
 
-plt.imshow(image)
-plt.axis("off")  # Hide axes for better visualization
-plt.show()
+# Display image
+highlighted_image.show()
 
