@@ -1,128 +1,11 @@
-# Code to Accurately Map Coordinates with Field-Specific Logic for All Fields
-from PIL import Image, ImageEnhance, ImageDraw
-import numpy as np
-import pandas as pd
-import os
-
-# Load the image
-def load_image(image_path):
-    return Image.open(image_path)
-
-# Preprocess the image using PIL
-def preprocess_image(image):
-    # Convert to grayscale
-    gray = image.convert("L")
-    # Enhance contrast
-    enhancer = ImageEnhance.Contrast(gray)
-    enhanced = enhancer.enhance(2.0)
-    return enhanced
-
-# Define distance thresholds for each field
-distance_thresholds = {
-    'Statename': 100, 'Title': 100, 'head_shot': 50, '4d DLN': 40, '4a ISS': 40,
-    '4b EXP': 40, '3 DOB': 40, '1': 30, '2': 30, '8': 30, '15 SEX': 30, '16 HGT': 30,
-    '18 EYES': 30, '17 WGT': 30, '9a ENDORSEMENTS': 30, '12 RESTRICTIONS': 30, '5 DD': 30
-}
-
-# Merge nearby regions based on field type
-def merge_regions_by_field(field_name, regions):
-    distance_threshold = distance_thresholds.get(field_name, 30)
-    merged = []
-    for x1, y1, w1, h1 in regions:
-        merged_flag = False
-        for index, (x2, y2, w2, h2) in enumerate(merged):
-            # Check proximity to merge
-            if abs(x1 - x2) < distance_threshold and abs(y1 - y2) < distance_threshold:
-                # Merge the boxes
-                new_x = min(x1, x2)
-                new_y = min(y1, y2)
-                new_w = max(x1 + w1, x2 + w2) - new_x
-                new_h = max(y1 + h1, y2 + h2) - new_y
-                merged[index] = (new_x, new_y, new_w, new_h)
-                merged_flag = True
-                break
-        if not merged_flag:
-            merged.append((x1, y1, w1, h1))
-    return merged
-
-# Detect text regions
-def detect_text_regions(image_array):
-    binary = (image_array > 128).astype(np.uint8)
-    regions = []
-    for i in range(0, binary.shape[0], 20):
-        for j in range(0, binary.shape[1], 20):
-            block = binary[i:i+20, j:j+20]
-            if np.mean(block) < 0.8:
-                regions.append((j, i, 20, 20))
-    return regions
-
-# Map detected coordinates to predefined field names
-def map_coordinates_with_mapping(regions, image_width, image_height):
-    mapping = {
-        0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP',
-        6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES',
-        13: '17 WGT', 14: '9a ENDORSEMENTS', 15: '12 RESTRICTIONS', 16: '5 DD'
-    }
-    data = {field: [] for field in mapping.values()}
-
-    for i, coords in enumerate(regions):
-        if i < len(mapping):
-            field = mapping[i]
-            # Merge regions dynamically based on field type
-            merged_regions = merge_regions_by_field(field, [coords])
-            data[field].extend(merged_regions)
-
-    # Create DataFrame
-    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
-    return df
-
-# Main function to extract and map coordinates
-def extract_and_map(image_path):
-    image = load_image(image_path)
-    processed_image = preprocess_image(image)
-    image_array = np.array(processed_image)
-    regions = detect_text_regions(image_array)
-    image_width, image_height = image.size
-    df = map_coordinates_with_mapping(regions, image_width, image_height)
-    print("Mapped Coordinates:")
-    print(df)
-    return df
-
-# Run the function with the given image
-image_path = "/mnt/data/Screenshot 2025-05-08 at 6.08.00 PM.png"
-extract_and_map(image_path)
-
-
-
-from PIL import Image, ImageDraw
-
-# Load the image
-image_path = "/mnt/data/Screenshot 2025-05-08 at 5.32.36 PM.png"
-image = Image.open(image_path)
-
-# Coordinates to display
-coords = (20, 20, 20, 20)
-
-# Draw the bounding box
-draw = ImageDraw.Draw(image)
-x, y, w, h = coords
-draw.rectangle([x, y, x + w, y + h], outline="red", width=3)
-
-# Display the image with the bounding box
-image.show()
-
-
-
-
-
-
-
+# Consolidated Code for Accurate Mapping of Coordinates on ID Card
 
 import cv2
 import numpy as np
 import pandas as pd
+from PIL import Image
 
-# Define mapping
+# Define field mapping
 mapping = {
     0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP',
     6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES',
@@ -130,63 +13,51 @@ mapping = {
 }
 
 # Load image
-image = cv2.imread("license.jpg")
+image_path = "/mnt/data/Screenshot 2025-05-08 at 7.38.22 PM.png"
+image = cv2.imread(image_path)
 
 # Convert to grayscale
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-# Apply threshold to detect text regions
-_, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+# Enhance contrast using CLAHE
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+enhanced_contrast = clahe.apply(gray)
+
+# Apply Gaussian blur
+blurred = cv2.GaussianBlur(enhanced_contrast, (5, 5), 0)
+
+# Apply Otsu's thresholding
+_, otsu_thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+# Morphological operations
+kernel = np.ones((3, 3), np.uint8)
+morphed = cv2.dilate(otsu_thresh, kernel, iterations=2)
 
 # Find contours
-contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+contours, _ = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+# Store coordinates and field names
 coordinates = []
 field_names = []
 
-# Extract bounding boxes
+# Filter and map contours
 for i, cnt in enumerate(contours):
     x, y, w, h = cv2.boundingRect(cnt)
-    
-    # Approximate field mapping (manual assignment required)
-    if i < len(mapping):  # Ensure we don't exceed mapping keys
-        field_names.append(mapping[i])
-        coordinates.append((x, y, w, h))
+    if w * h > 50:  # Filter small noise
+        if i < len(mapping):
+            field_names.append(mapping[i])
+            coordinates.append((x, y, w, h))
 
 # Convert to DataFrame
 df = pd.DataFrame({"Field": field_names, "Coordinates": coordinates})
-
+print("Extracted Coordinates:")
 print(df)
 
+# Visualize the mapped coordinates
+for idx, (x, y, w, h) in enumerate(coordinates):
+    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 255), 2)
+    cv2.putText(image, field_names[idx], (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
-
-
-import numpy as np
-from PIL import Image
-
-# Load image using PIL and convert to NumPy array
-image = Image.open("license.jpg")
-image_array = np.array(image)
-
-# Sample detected coordinates (replace with actual values)
-coordinates = [
-    (50, 100, 200, 40), (300, 100, 250, 50), (100, 200, 80, 80), (400, 200, 300, 50),
-    (120, 300, 150, 40), (350, 300, 180, 50)
-]
-
-# Highlight detected regions with a red box
-for x, y, w, h in coordinates:
-    # Draw top and bottom edges
-    image_array[y:y+2, x:x+w] = [255, 0, 0]  # Red
-    image_array[y+h-2:y+h, x:x+w] = [255, 0, 0]  # Red
-    # Draw left and right edges
-    image_array[y:y+h, x:x+2] = [255, 0, 0]  # Red
-    image_array[y:y+h, x+w-2:x+w] = [255, 0, 0]  # Red
-
-# Convert back to image and save
-highlighted_image = Image.fromarray(image_array)
-highlighted_image.save("highlighted_license.jpg")
-
-# Display image
-highlighted_image.show()
-
+# Save the image with bounding boxes
+cv2.imwrite("/mnt/data/final_mapped_image.png", image)
+print("Image saved as final_mapped_image.png")
