@@ -38,7 +38,7 @@ def is_headshot(coords, image_width, image_height):
 
 # Map detected coordinates to predefined field names using mapping dictionary
 def map_coordinates_with_mapping(regions, image_width, image_height):
-    mapping = {0: 'head_shot', 1: '4d DLN', 2: '4a ISS', 3: '4b EXP', 4: '3 DOB', 5: '1', 6: '2', 7: '8', 8: '15 SEX', 9: '16 HGT', 10: '18 EYES', 11: '17 WGT', 12: '9a ENDORSEMENTS', 13: '12 RESTRICTIONS', 14: '5 DD'}
+    mapping = {0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP', 6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES', 13: '17 WGT', 14: '9a ENDORSEMENTS', 15: '12 RESTRICTIONS', 16: '5 DD'}
     data = {field: [] for field in mapping.values()}
 
     for i, coords in enumerate(regions):
