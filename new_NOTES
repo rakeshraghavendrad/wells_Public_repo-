@@ -1,4 +1,4 @@
-# Code to Map Coordinates to Field Names Using Custom Mapping Without Extras
+# Code to Extract and Map Coordinates for All Fields with Merging Logic
 from PIL import Image, ImageEnhance, ImageDraw
 import numpy as np
 import pandas as pd
@@ -26,27 +26,43 @@ def detect_text_regions(image_array):
             block = binary[i:i+20, j:j+20]
             if np.mean(block) < 0.8:  # Detect denser areas
                 regions.append((j, i, 20, 20))
-    return regions
+    return merge_nearby_regions(regions)
 
-# Validate if coordinates correspond to headshot
-def is_headshot(coords, image_width, image_height):
-    x, y, w, h = coords
-    # Check if the region is significantly large and on the left side
-    if w * h > (image_width * image_height * 0.1) and x < image_width * 0.4:
-        return True
-    return False
+# Merge nearby regions to capture entire fields
+def merge_nearby_regions(regions, distance_threshold=50):
+    merged = []
+    for x1, y1, w1, h1 in regions:
+        merged_flag = False
+        for index, (x2, y2, w2, h2) in enumerate(merged):
+            # Check proximity to merge
+            if abs(x1 - x2) < distance_threshold and abs(y1 - y2) < distance_threshold:
+                # Merge the boxes
+                new_x = min(x1, x2)
+                new_y = min(y1, y2)
+                new_w = max(x1 + w1, x2 + w2) - new_x
+                new_h = max(y1 + h1, y2 + h2) - new_y
+                merged[index] = (new_x, new_y, new_w, new_h)
+                merged_flag = True
+                break
+        if not merged_flag:
+            merged.append((x1, y1, w1, h1))
+    return merged
 
-# Map detected coordinates to predefined field names using mapping dictionary without extras
-def map_coordinates_with_mapping(regions, image_width, image_height):
-    mapping = {0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP', 6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES', 13: '17 WGT', 14: '9a ENDORSEMENTS', 15: '12 RESTRICTIONS', 16: '5 DD'}
+# Map detected coordinates to predefined field names
+def map_coordinates_with_mapping(regions):
+    mapping = {
+        0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP',
+        6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES',
+        13: '17 WGT', 14: '9a ENDORSEMENTS', 15: '12 RESTRICTIONS', 16: '5 DD'
+    }
     data = {field: [] for field in mapping.values()}
 
     for i, coords in enumerate(regions):
         if i < len(mapping):
-            field = mapping.get(i)
+            field = mapping[i]
             data[field].append(coords)
 
-    # Create DataFrame with columns as field names
+    # Create DataFrame
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
     return df
 
@@ -55,17 +71,15 @@ def extract_and_map(image_path):
     image = load_image(image_path)
     processed_image = preprocess_image(image)
     image_array = np.array(processed_image)
-    image_width, image_height = image.size
     regions = detect_text_regions(image_array)
-    df = map_coordinates_with_mapping(regions, image_width, image_height)
+    df = map_coordinates_with_mapping(regions)
     print("Mapped Coordinates:")
     print(df)
     return df
 
 # Run the function with the given image
-image_path = "/mnt/data/Screenshot 2025-05-07 at 11.52.09 AM.png"
+image_path = "/mnt/data/Screenshot 2025-05-08 at 5.54.58 PM.png"
 extract_and_map(image_path)
-
 
 
 
