@@ -1,4 +1,4 @@
-# Code to Extract and Map Coordinates for All Fields with Merging Logic
+# Code to Accurately Map Coordinates with Field-Specific Logic for All Fields
 from PIL import Image, ImageEnhance, ImageDraw
 import numpy as np
 import pandas as pd
@@ -17,19 +17,16 @@ def preprocess_image(image):
     enhanced = enhancer.enhance(2.0)
     return enhanced
 
-# Simple text-like region detection based on pixel density
-def detect_text_regions(image_array):
-    binary = (image_array > 128).astype(np.uint8)
-    regions = []
-    for i in range(0, binary.shape[0], 20):
-        for j in range(0, binary.shape[1], 20):
-            block = binary[i:i+20, j:j+20]
-            if np.mean(block) < 0.8:  # Detect denser areas
-                regions.append((j, i, 20, 20))
-    return merge_nearby_regions(regions)
+# Define distance thresholds for each field
+distance_thresholds = {
+    'Statename': 100, 'Title': 100, 'head_shot': 50, '4d DLN': 40, '4a ISS': 40,
+    '4b EXP': 40, '3 DOB': 40, '1': 30, '2': 30, '8': 30, '15 SEX': 30, '16 HGT': 30,
+    '18 EYES': 30, '17 WGT': 30, '9a ENDORSEMENTS': 30, '12 RESTRICTIONS': 30, '5 DD': 30
+}
 
-# Merge nearby regions to capture entire fields
-def merge_nearby_regions(regions, distance_threshold=50):
+# Merge nearby regions based on field type
+def merge_regions_by_field(field_name, regions):
+    distance_threshold = distance_thresholds.get(field_name, 30)
     merged = []
     for x1, y1, w1, h1 in regions:
         merged_flag = False
@@ -48,8 +45,19 @@ def merge_nearby_regions(regions, distance_threshold=50):
             merged.append((x1, y1, w1, h1))
     return merged
 
+# Detect text regions
+def detect_text_regions(image_array):
+    binary = (image_array > 128).astype(np.uint8)
+    regions = []
+    for i in range(0, binary.shape[0], 20):
+        for j in range(0, binary.shape[1], 20):
+            block = binary[i:i+20, j:j+20]
+            if np.mean(block) < 0.8:
+                regions.append((j, i, 20, 20))
+    return regions
+
 # Map detected coordinates to predefined field names
-def map_coordinates_with_mapping(regions):
+def map_coordinates_with_mapping(regions, image_width, image_height):
     mapping = {
         0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP',
         6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES',
@@ -60,7 +68,9 @@ def map_coordinates_with_mapping(regions):
     for i, coords in enumerate(regions):
         if i < len(mapping):
             field = mapping[i]
-            data[field].append(coords)
+            # Merge regions dynamically based on field type
+            merged_regions = merge_regions_by_field(field, [coords])
+            data[field].extend(merged_regions)
 
     # Create DataFrame
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
@@ -72,15 +82,15 @@ def extract_and_map(image_path):
     processed_image = preprocess_image(image)
     image_array = np.array(processed_image)
     regions = detect_text_regions(image_array)
-    df = map_coordinates_with_mapping(regions)
+    image_width, image_height = image.size
+    df = map_coordinates_with_mapping(regions, image_width, image_height)
     print("Mapped Coordinates:")
     print(df)
     return df
 
 # Run the function with the given image
-image_path = "/mnt/data/Screenshot 2025-05-08 at 5.54.58 PM.png"
+image_path = "/mnt/data/Screenshot 2025-05-08 at 6.08.00 PM.png"
 extract_and_map(image_path)
-
 
 
 
