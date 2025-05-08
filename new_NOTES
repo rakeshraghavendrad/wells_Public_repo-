@@ -65,3 +65,25 @@ def extract_and_map(image_path):
 # Run the function with the given image
 image_path = "/mnt/data/Screenshot 2025-05-07 at 11.52.09 AM.png"
 extract_and_map(image_path)
+
+
+
+
+
+from PIL import Image, ImageDraw
+
+# Load the image
+image_path = "/mnt/data/Screenshot 2025-05-08 at 5.32.36 PM.png"
+image = Image.open(image_path)
+
+# Coordinates to display
+coords = (20, 20, 20, 20)
+
+# Draw the bounding box
+draw = ImageDraw.Draw(image)
+x, y, w, h = coords
+draw.rectangle([x, y, x + w, y + h], outline="red", width=3)
+
+# Display the image with the bounding box
+image.show()
+
