@@ -1,5 +1,4 @@
-
-# Code to Extract Bounding Box Coordinates from the Given Image
+# Code to Map Coordinates to Field Names Using Custom Mapping
 from PIL import Image, ImageEnhance, ImageDraw
 import numpy as np
 import pandas as pd
@@ -29,83 +28,39 @@ def detect_text_regions(image_array):
                 regions.append((j, i, 20, 20))
     return regions
 
-# Draw bounding boxes on the image
-def draw_bounding_boxes(image, regions):
-    draw = ImageDraw.Draw(image)
-    for (x, y, w, h) in regions:
-        draw.rectangle([x, y, x + w, y + h], outline="red", width=2)
-    return image
+# Validate if coordinates correspond to headshot
+def is_headshot(coords, image_width, image_height):
+    x, y, w, h = coords
+    # Check if the region is significantly large and on the left side
+    if w * h > (image_width * image_height * 0.1) and x < image_width * 0.4:
+        return True
+    return False
 
-# Extract coordinates and store in DataFrame
-def extract_coordinates(image_path):
+# Map detected coordinates to predefined field names using mapping dictionary
+def map_coordinates_with_mapping(regions, image_width, image_height):
+    mapping = {0: 'head_shot', 1: '4d DLN', 2: '4a ISS', 3: '4b EXP', 4: '3 DOB', 5: '1', 6: '2', 7: '8', 8: '15 SEX', 9: '16 HGT', 10: '18 EYES', 11: '17 WGT', 12: '9a ENDORSEMENTS', 13: '12 RESTRICTIONS', 14: '5 DD'}
+    data = {field: [] for field in mapping.values()}
+
+    for i, coords in enumerate(regions):
+        field = mapping.get(i, f'Extra_{i}')
+        data[field].append(coords)
+
+    # Create DataFrame with columns as field names
+    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
+    return df
+
+# Main function to extract and map coordinates
+def extract_and_map(image_path):
     image = load_image(image_path)
     processed_image = preprocess_image(image)
     image_array = np.array(processed_image)
+    image_width, image_height = image.size
     regions = detect_text_regions(image_array)
-
-    # Draw bounding boxes on the image
-    annotated_image = draw_bounding_boxes(image, regions)
-    annotated_image.show()
-
-    # Store the coordinates in a DataFrame
-    df = pd.DataFrame(regions, columns=["x", "y", "width", "height"])
-    print("Extracted Bounding Box Coordinates:")
+    df = map_coordinates_with_mapping(regions, image_width, image_height)
+    print("Mapped Coordinates:")
     print(df)
     return df
 
-# Main function
-def main(image_path):
-    df = extract_coordinates(image_path)
-    return df
-
-# Run the code
+# Run the function with the given image
 image_path = "/mnt/data/D6280905-FAEF-4F4F-BE17-C89CA5F79F5E.png"
-main(image_path)
-
-
-
-
-from PIL import Image, ImageDraw
-
-def crop_small_region(image_path, x, y, offset=5):
-    try:
-        # Load the image
-        image = Image.open(image_path)
-
-        # Get image dimensions
-        width, height = image.size
-        print(f"Image dimensions: {width}x{height}")
-
-        # Adjust coordinates to create a small box around the point
-        x1 = max(0, x - offset)
-        y1 = max(0, y - offset)
-        x2 = min(width, x + offset)
-        y2 = min(height, y + offset)
-
-        # Validate coordinates
-        if x1 >= x2 or y1 >= y2:
-            print("Error: Invalid coordinates after adjustment.")
-            return
-
-        # Crop the image around the point
-        cropped_image = image.crop((x1, y1, x2, y2))
-
-        # Draw a rectangle on the original image to highlight the area
-        draw = ImageDraw.Draw(image)
-        draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-
-        # Show the original image with the marked area
-        image.show(title="Original Image with Highlighted Area")
-
-        # Show the cropped image
-        cropped_image.show(title="Cropped Region")
-
-        # Save the cropped image
-        cropped_image.save('cropped_image.jpg')
-        print("Cropped image saved successfully.")
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-# Example usage with your coordinates
-crop_small_region('path_to_image.jpg', 20, 20)
+extract_and_map(image_path)
