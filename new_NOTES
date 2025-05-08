@@ -1,4 +1,4 @@
-# Code to Map Coordinates to Field Names Using Custom Mapping
+# Code to Map Coordinates to Field Names Using Custom Mapping Without Extras
 from PIL import Image, ImageEnhance, ImageDraw
 import numpy as np
 import pandas as pd
@@ -36,14 +36,15 @@ def is_headshot(coords, image_width, image_height):
         return True
     return False
 
-# Map detected coordinates to predefined field names using mapping dictionary
+# Map detected coordinates to predefined field names using mapping dictionary without extras
 def map_coordinates_with_mapping(regions, image_width, image_height):
     mapping = {0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP', 6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES', 13: '17 WGT', 14: '9a ENDORSEMENTS', 15: '12 RESTRICTIONS', 16: '5 DD'}
     data = {field: [] for field in mapping.values()}
 
     for i, coords in enumerate(regions):
-        field = mapping.get(i, f'Extra_{i}')
-        data[field].append(coords)
+        if i < len(mapping):
+            field = mapping.get(i)
+            data[field].append(coords)
 
     # Create DataFrame with columns as field names
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
@@ -62,5 +63,5 @@ def extract_and_map(image_path):
     return df
 
 # Run the function with the given image
-image_path = "/mnt/data/D6280905-FAEF-4F4F-BE17-C89CA5F79F5E.png"
+image_path = "/mnt/data/Screenshot 2025-05-07 at 11.52.09 AM.png"
 extract_and_map(image_path)
