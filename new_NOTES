@@ -61,3 +61,52 @@ for idx, (x, y, w, h) in enumerate(coordinates):
 # Save the image with bounding boxes
 cv2.imwrite("/mnt/data/final_mapped_image.png", image)
 print("Image saved as final_mapped_image.png")
+
+
+
+
+
+import numpy as np
+from PIL import Image, ImageEnhance, ImageDraw
+
+# Load image
+image = Image.open("license.jpg").convert("L")  # Convert to grayscale
+
+# Enhance contrast
+enhancer = ImageEnhance.Contrast(image)
+image = enhancer.enhance(2.0)
+
+# Convert image to NumPy array
+image_array = np.array(image)
+
+# Apply thresholding to detect text-like regions
+binary_image = np.where(image_array > 128, 255, 0).astype(np.uint8)
+
+# Detect bounding boxes
+rows, cols = np.where(binary_image == 0)  # Identify dark regions (potential text)
+bounding_boxes = []
+visited = set()
+
+for i in range(len(rows)):
+    x, y = cols[i], rows[i]
+    
+    if (x, y) not in visited:
+        w, h = 100, 30  # Approximate width/height for text boxes
+        bounding_boxes.append((x, y, w, h))
+        visited.update([(x + dx, y + dy) for dx in range(w) for dy in range(h)])
+
+# Draw bounding boxes on the image
+draw = ImageDraw.Draw(image)
+for x, y, w, h in bounding_boxes:
+    draw.rectangle([x, y, x + w, y + h], outline="red", width=2)
+
+# Save and display the highlighted image
+image.save("highlighted_license.jpg")
+image.show()
+
+# Convert bounding boxes to DataFrame
+import pandas as pd
+df = pd.DataFrame({"Coordinates": bounding_boxes})
+df.to_csv("extracted_coordinates.csv", index=False)
+
+print(df)
