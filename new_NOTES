@@ -285,6 +285,34 @@ Total Forged Documents
 %
 FAR= 
 Total Forged Documents
+
+
+
+
+
+om PIL import Image
+
+# Load the image
+image_path = 'path_to_image.jpg'
+image = Image.open(image_path)
+
+# Coordinates (x1, y1, x2, y2)
+x1, y1, x2, y2 = 50, 50, 200, 200  # Replace with your coordinates
+
+# Crop the image based on coordinates
+cropped_image = image.crop((x1, y1, x2, y2))
+
+# Display the cropped image
+cropped_image.show()
+
+# Optionally, save t
+
+
+
+
+
+
+
 False Acceptances
 ​
  = 
