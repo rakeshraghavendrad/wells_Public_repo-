@@ -111,3 +111,49 @@ draw.rectangle([x, y, x + w, y + h], outline="red", width=3)
 # Display the image with the bounding box
 image.show()
 
+
+
+
+
+
+
+
+import cv2
+import numpy as np
+import pandas as pd
+
+# Define mapping
+mapping = {
+    0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP',
+    6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES',
+    13: '17 WGT', 14: '9a ENDORSEMENTS', 15: '12 RESTRICTIONS', 16: '5 DD'
+}
+
+# Load image
+image = cv2.imread("license.jpg")
+
+# Convert to grayscale
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Apply threshold to detect text regions
+_, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+
+# Find contours
+contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+coordinates = []
+field_names = []
+
+# Extract bounding boxes
+for i, cnt in enumerate(contours):
+    x, y, w, h = cv2.boundingRect(cnt)
+    
+    # Approximate field mapping (manual assignment required)
+    if i < len(mapping):  # Ensure we don't exceed mapping keys
+        field_names.append(mapping[i])
+        coordinates.append((x, y, w, h))
+
+# Convert to DataFrame
+df = pd.DataFrame({"Field": field_names, "Coordinates": coordinates})
+
+print(df)
