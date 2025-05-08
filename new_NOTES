@@ -1,4 +1,69 @@
 
+# Code to Extract Bounding Box Coordinates from the Given Image
+from PIL import Image, ImageEnhance, ImageDraw
+import numpy as np
+import pandas as pd
+import os
+
+# Load the image
+def load_image(image_path):
+    return Image.open(image_path)
+
+# Preprocess the image using PIL
+def preprocess_image(image):
+    # Convert to grayscale
+    gray = image.convert("L")
+    # Enhance contrast
+    enhancer = ImageEnhance.Contrast(gray)
+    enhanced = enhancer.enhance(2.0)
+    return enhanced
+
+# Simple text-like region detection based on pixel density
+def detect_text_regions(image_array):
+    binary = (image_array > 128).astype(np.uint8)
+    regions = []
+    for i in range(0, binary.shape[0], 20):
+        for j in range(0, binary.shape[1], 20):
+            block = binary[i:i+20, j:j+20]
+            if np.mean(block) < 0.8:  # Detect denser areas
+                regions.append((j, i, 20, 20))
+    return regions
+
+# Draw bounding boxes on the image
+def draw_bounding_boxes(image, regions):
+    draw = ImageDraw.Draw(image)
+    for (x, y, w, h) in regions:
+        draw.rectangle([x, y, x + w, y + h], outline="red", width=2)
+    return image
+
+# Extract coordinates and store in DataFrame
+def extract_coordinates(image_path):
+    image = load_image(image_path)
+    processed_image = preprocess_image(image)
+    image_array = np.array(processed_image)
+    regions = detect_text_regions(image_array)
+
+    # Draw bounding boxes on the image
+    annotated_image = draw_bounding_boxes(image, regions)
+    annotated_image.show()
+
+    # Store the coordinates in a DataFrame
+    df = pd.DataFrame(regions, columns=["x", "y", "width", "height"])
+    print("Extracted Bounding Box Coordinates:")
+    print(df)
+    return df
+
+# Main function
+def main(image_path):
+    df = extract_coordinates(image_path)
+    return df
+
+# Run the code
+image_path = "/mnt/data/D6280905-FAEF-4F4F-BE17-C89CA5F79F5E.png"
+main(image_path)
+
+
+
 
 from PIL import Image, ImageDraw
 
