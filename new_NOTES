@@ -110,3 +110,20 @@ df = pd.DataFrame({"Coordinates": bounding_boxes})
 df.to_csv("extracted_coordinates.csv", index=False)
 
 print(df)
+
+
+from PIL import Image, ImageDraw
+
+# Load image
+image = Image.open("license.jpg")
+
+# Define coordinates (x, y, width, height)
+x, y, w, h = 564, 17, 100, 30  # Replace this with your actual extracted coordinates
+
+# Draw rectangle
+draw = ImageDraw.Draw(image)
+draw.rectangle([x, y, x + w, y + h], outline="red", width=2)  # Draw a red bounding box
+
+# Save and display the highlighted image
+image.save("highlighted_license.jpg")
+image.show()
