@@ -1,330 +1,46 @@
 
-# Coordinates (x1, y1, x2, y2)
-x1, y1, x2, y2 = 50, 50, 200, 200  # Replace with your coordinates
 
-# Adjust coordinates if they exceed image dimensions
-x1 = max(0, min(x1, width))
-y1 = max(0, min(y1, height))
-x2 = max(0, min(x2, width))
-y2 = max(0, min(y2, height))
+from PIL import Image, ImageDraw
 
-# Check if the coordinates are valid
-if x1 < x2 and y1 < y2:
-    # Crop the image based on coordinates
-    cropped_image = image.crop((x1, y1, x2, y2))
-    # Display the cropped image
-    cropped_image.show()
-    # Save the cropped image
-    cropped_image.save('cropped_image.jpg')
-    print("Image cropped and saved successfully.")
-else:
-    print("Invalid coordinates: MakeCrop-and-Move
+def crop_small_region(image_path, x, y, offset=5):
+    try:
+        # Load the image
+        image = Image.open(image_path)
 
-Inpaint-and-Rewrite
+        # Get image dimensions
+        width, height = image.size
+        print(f"Image dimensions: {width}x{height}")
 
-Face Morphing
+        # Adjust coordinates to create a small box around the point
+        x1 = max(0, x - offset)
+        y1 = max(0, y - offset)
+        x2 = min(width, x + offset)
+        y2 = min(height, y + offset)
 
-Portrait Substitution
+        # Validate coordinates
+        if x1 >= x2 or y1 >= y2:
+            print("Error: Invalid coordinates after adjustment.")
+            return
 
-Direct Text Alterations
+        # Crop the image around the point
+        cropped_image = image.crop((x1, y1, x2, y2))
 
-Combinations of the above​
-OpenReview
-+3
-arXiv
-+3
-arXiv
-+3
+        # Draw a rectangle on the original image to highlight the area
+        draw = ImageDraw.Draw(image)
+        draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
 
-These patterns are designed to mimic real-world fraudulent activities, providing a robust foundation for training and evaluating fraud detection models.
+        # Show the original image with the marked area
+        image.show(title="Original Image with Highlighted Area")
 
-AI-Assisted Generation Pipeline: The dataset was created using a cost-effective pipeline involving:
+        # Show the cropped image
+        cropped_image.show(title="Cropped Region")
 
-Stable Diffusion 2.0 for template generation.
+        # Save the cropped image
+        cropped_image.save('cropped_image.jpg')
+        print("Cropped image saved successfully.")
 
-ChatGPT-3.5-turbo for generating realistic metadata (e.g., names, addresses).
+    except Exception as e:
+        print(f"Error: {e}")
 
-Bayesian Optimization for fine-tuning text placement and styling.​
-arXiv
-
-This approach ensures high fidelity and diversity in the synthetic documents.
-
-Evaluation Metrics: The quality of IDNet was assessed using:
-
-Structural Similarity Index (SSIM): Achieving scores >0.85 for document fidelity and >0.95 for fraud stealthiness.
-
-Utility Assessments: Demonstrating that models trained on IDNet perform comparably to those trained on real-world datasets in tasks like face morphing detection. ​
-arXiv
-+3
-fugumt.com
-+3
-OpenReview
-+3
-arXiv
-+1
-OpenReview
-+1
-
-🔬 Use Cases Explored
-Privacy-Preserving Fraud Detection: The study evaluated methods like masking and PixelDP. Results indicated that while these methods protect sensitive information, they can significantly degrade fraud detection performance, highlighting the need for better privacy-preserving techniques. ​
-arXiv
-
-Face Morphing Detection: IDNet serves as a benchmark for evaluating face morphing detection algorithms, with models trained on it achieving high accuracy across various document types. ​
-arXiv
-
-Cross-Type Analysis: The dataset enables analysis of model generalizability across different document types, revealing that models often struggle to detect fraud in document types they weren't trained on, emphasizing the importance of diverse training data. ​
-arXiv
-
-Schema Alignment and Unification: Leveraging Large Language Models (LLMs), the study demonstrated automatic conversion of diverse identity documents into a standardized schema, facilitating better data integration and management. ​
-
-
-ID Replacement in Varied Backgrounds: The researchers showcased techniques to superimpose synthetic IDs onto different backgrounds, simulating real-world scenarios like mobile captures under various lighting conditions, aiding in the development of robust detection systems. ​
-
-
-2. A large-scale study of performance and equity of commercial remote identity
-verification technologies across demographics
-
-📊 Statistical Methodology Summary
-📄 From: A Large-Scale Study of Performance and Equity of Commercial Remote Identity Verification Technologies Across Demographics
-
-🎯 Goal
-To determine if a Remote ID Verification (RIdV) system is statistically equitable, meaning each demographic group has a similar False Negative Rate (FNR) within a fair margin.
-
-🧪 Step-by-Step Process
-Group by Demographic (e.g., skin tone via Monk scale: fair, medium, dark).
-
-Calculate FNR for each group:
-
-Example: Dark skin group → 2 rejections out of 4 attempts → FNR = 50%
-
-Bootstrap Sampling:
-
-Randomly resample the dataset (with replacement) 1000 times.
-
-In each resample, recalculate FNRs for all groups.
-
-Compute φ<sup>b</sup> in each bootstrap:
-
-φ<sup>b</sup> = the largest FNR change (vs. original FNR) in any group.
-
-Repeat 1000 times → Get 1000 φ<sup>b</sup> values
-
-Calculate M = 95th percentile of φ<sup>b</sup> values
-
-Example: M = 20% → This becomes your threshold for fairness.
-
-✅ Equity Decision Rule
-Let overall FNR = 16%
-
-Equity range = 16% ± M = [0%, 36%]
-
-If any group's FNR (e.g., 40%) is outside this range, it is considered inequitable.
-
-
-"Identity Documents Recognition and Detection using Semantic Segmentation with Convolutional Neural Network"
-
-
-Objective:
-The study aims to develop a lightweight and efficient deep learning model for detecting and recognizing identity documents (e.g., passports, ID cards) in images. This is particularly useful for applications like access control systems, especially on devices with limited computational resources such as smartphones or embedded systems.
-
-Methodology:
-
-Dataset:
-Utilized the MIDV-500 dataset, comprising 500 video clips of 50 different identity document types. The dataset includes various scenarios with diverse backgrounds and occlusions.
-
-Model Architecture:
-
-Implemented a Convolutional Neural Network (CNN) with a semantic segmentation approach.
-
-The model downsamples input images to an 8x8 resolution to extract features.
-
-Employs skip connections to preserve spatial information, producing a probability map indicating the presence and location of identity documents within an image.
-
-Training Details:
-
-Optimizer: Adam
-
-Learning Rate: 0.001
-
-Epochs: 60
-
-Batch Size: 32
-
-Loss Function: Binary Cross-Entropy
-
-Evaluation Metrics:
-
-Achieved an accuracy of 0.77 at an Intersection over Union (IoU) threshold of 0.8.
-
-Outperformed traditional OpenCV-based methods, which had an accuracy of 0.32 under the same conditions.
-
-Performance:
-
-The model processes a single image in approximately 8 milliseconds, indicating suitability for real-time applications on devices with limited processing power.
-
-Conclusion:
-The proposed CNN architecture effectively detects and recognizes identity documents in images, demonstrating high accuracy and efficiency. Its lightweight design makes it suitable for deployment on devices with constrained computational resources.
-
-
-
-
-
-
-
-Machine Learning Techniques for Identity Document Verification in Uncontrolled Environments: A Case Study
-
-
-Objective:
-The study aims to develop a machine learning-based pipeline for verifying identity documents (IDs) captured in uncontrolled environments, such as varying lighting conditions, backgrounds, and camera qualities. This is particularly relevant for remote onboarding processes in services like banking.
-
-Methodology:
-
-Pipeline Structure:
-The proposed system consists of two main modules:
-
-Document Acquisition Module:
-
-Utilizes semantic segmentation (specifically, the UNet architecture) to detect and isolate the ID from complex backgrounds.
-
-Processes images captured by users' smartphones without restrictions on conditions, ensuring robustness to real-world scenarios.
-
-Document Verification Module:
-
-Extracts visual features from the isolated ID image.
-
-Employs machine learning classifiers to verify the authenticity of the document based on these features.
-
-Dataset:
-
-Collected 101 Colombian ID images taken by volunteers using their smartphones.
-
-Included a diverse set of backgrounds and lighting conditions to simulate real-world variability.
-
-Results:
-
-Background Removal:
-
-Achieved an accuracy of 98.4% in detecting and isolating IDs from complex backgrounds.
-
-Demonstrated that grayscale images performed better than color images for this task.
-
-Document Verification:
-
-The authenticity classifier achieved an accuracy of 97.7% and an F1-score of 0.974.
-
-Highlighted the importance of dataset variability over size for training robust models.
-
-
-
-
-An Automatic Reader of Identity Documents - 2019
-https://github.com/malghadi/CheckID/blob/main/Part1/Code/CFD/testing_id-FDGP-1.py
-
-https://arxiv.org/pdf/2206.10989
-An Automatic Reader of Identity Documents
-✅ 1. True Acceptance Rate (TAR)
-How many genuine documents were correctly accepted?
-
-𝑇
-𝐴
-𝑅
-=
-True Acceptances
-Total Genuine Documents
-=
-55
-60
-=
-0.9167
-=
-91.67
-%
-TAR= 
-Total Genuine Documents
-True Acceptances
-​
- = 
-60
-55
-​
- =0.9167=91.67%
-❌ 2. False Rejection Rate (FRR)
-How many genuine documents were wrongly rejected as fake?
-
-𝐹
-𝑅
-𝑅
-=
-False Rejections
-Total Genuine Documents
-=
-5
-60
-=
-0.0833
-=
-8.33
-%
-FRR= 
-Total Genuine Documents
-False Rejections
-​
- = 
-60
-5
-​
- =0.0833=8.33%
-❌ 3. False Acceptance Rate (FAR)
-How many forged documents were wrongly accepted as real?
-
-𝐹
-𝐴
-𝑅
-=
-False Acceptances
-Total Forged Documents
-=
-4
-40
-=
-0.10
-=
-10
-%
-FAR= 
-Total Forged Documents
-
-
-
-
-
-om PIL import Image
-
-# Load the image
-image_path = 'path_to_image.jpg'
-image = Image.open(image_path)
-
-# Coordinates (x1, y1, x2, y2)
-x1, y1, x2, y2 = 50, 50, 200, 200  # Replace with your coordinates
-
-# Crop the image based on coordinates
-cropped_image = image.crop((x1, y1, x2, y2))
-
-# Display the cropped image
-cropped_image.show()
-
-# Optionally, save t
-
-
-
-
-
-
-
-False Acceptances
-​
- = 
-40
-4
-​
- =0.10=10%
+# Example usage with your coordinates
+crop_small_region('path_to_image.jpg', 20, 20)
