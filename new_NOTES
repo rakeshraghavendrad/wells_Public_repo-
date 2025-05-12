@@ -1,129 +1,19 @@
-# Consolidated Code for Accurate Mapping of Coordinates on ID Card
-
-import cv2
-import numpy as np
-import pandas as pd
-from PIL import Image
-
-# Define field mapping
-mapping = {
-    0: 'Statename', 1: 'Title', 2: 'head_shot', 3: '4d DLN', 4: '4a ISS', 5: '4b EXP',
-    6: '3 DOB', 7: '1', 8: '2', 9: '8', 10: '15 SEX', 11: '16 HGT', 12: '18 EYES',
-    13: '17 WGT', 14: '9a ENDORSEMENTS', 15: '12 RESTRICTIONS', 16: '5 DD'
-}
-
-# Load image
-image_path = "/mnt/data/Screenshot 2025-05-08 at 7.38.22 PM.png"
-image = cv2.imread(image_path)
-
-# Convert to grayscale
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-# Enhance contrast using CLAHE
-clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-enhanced_contrast = clahe.apply(gray)
-
-# Apply Gaussian blur
-blurred = cv2.GaussianBlur(enhanced_contrast, (5, 5), 0)
-
-# Apply Otsu's thresholding
-_, otsu_thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
-# Morphological operations
-kernel = np.ones((3, 3), np.uint8)
-morphed = cv2.dilate(otsu_thresh, kernel, iterations=2)
-
-# Find contours
-contours, _ = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-# Store coordinates and field names
-coordinates = []
-field_names = []
-
-# Filter and map contours
-for i, cnt in enumerate(contours):
-    x, y, w, h = cv2.boundingRect(cnt)
-    if w * h > 50:  # Filter small noise
-        if i < len(mapping):
-            field_names.append(mapping[i])
-            coordinates.append((x, y, w, h))
-
-# Convert to DataFrame
-df = pd.DataFrame({"Field": field_names, "Coordinates": coordinates})
-print("Extracted Coordinates:")
-print(df)
-
-# Visualize the mapped coordinates
-for idx, (x, y, w, h) in enumerate(coordinates):
-    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 255), 2)
-    cv2.putText(image, field_names[idx], (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
-
-# Save the image with bounding boxes
-cv2.imwrite("/mnt/data/final_mapped_image.png", image)
-print("Image saved as final_mapped_image.png")
-
-
-
-
-
-import numpy as np
-from PIL import Image, ImageEnhance, ImageDraw
-
-# Load image
-image = Image.open("license.jpg").convert("L")  # Convert to grayscale
-
-# Enhance contrast
-enhancer = ImageEnhance.Contrast(image)
-image = enhancer.enhance(2.0)
-
-# Convert image to NumPy array
-image_array = np.array(image)
-
-# Apply thresholding to detect text-like regions
-binary_image = np.where(image_array > 128, 255, 0).astype(np.uint8)
-
-# Detect bounding boxes
-rows, cols = np.where(binary_image == 0)  # Identify dark regions (potential text)
-bounding_boxes = []
-visited = set()
-
-for i in range(len(rows)):
-    x, y = cols[i], rows[i]
-    
-    if (x, y) not in visited:
-        w, h = 100, 30  # Approximate width/height for text boxes
-        bounding_boxes.append((x, y, w, h))
-        visited.update([(x + dx, y + dy) for dx in range(w) for dy in range(h)])
-
-# Draw bounding boxes on the image
-draw = ImageDraw.Draw(image)
-for x, y, w, h in bounding_boxes:
-    draw.rectangle([x, y, x + w, y + h], outline="red", width=2)
-
-# Save and display the highlighted image
-image.save("highlighted_license.jpg")
-image.show()
-
-# Convert bounding boxes to DataFrame
-import pandas as pd
-df = pd.DataFrame({"Coordinates": bounding_boxes})
-df.to_csv("extracted_coordinates.csv", index=False)
-
-print(df)
-
-
 from PIL import Image, ImageDraw
 
-# Load image
-image = Image.open("license.jpg")
-
-# Define coordinates (x, y, width, height)
-x, y, w, h = 564, 17, 100, 30  # Replace this with your actual extracted coordinates
-
-# Draw rectangle
+# Load the image
+image = Image.open('path_to_image.jpg')
 draw = ImageDraw.Draw(image)
-draw.rectangle([x, y, x + w, y + h], outline="red", width=2)  # Draw a red bounding box
 
-# Save and display the highlighted image
-image.save("highlighted_license.jpg")
+# Coordinates for the area to cover
+xmin, ymin, xmax, ymax = 100, 50, 300, 100  # Adjust these coordinates as needed
+
+# Crop a small patch from the original background
+background_patch = image.crop((xmin, ymin, xmin + 10, ymin + 10))
+
+# Fill the area with the repeated background patch
+for x in range(xmin, xmax, 10):
+    for y in range(ymin, ymax, 10):
+        image.paste(background_patch, (x, y))
+
+# Save or display the modified image
 image.show()
