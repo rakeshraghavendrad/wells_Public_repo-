@@ -1,6 +1,6 @@
-def restore_original_color(masked_image, original_image, coordinates):
+def restore_background_color(masked_image, original_image, coordinates):
     """
-    Restores the original color from the original image to the masked region.
+    Restores the background color from the original image to the masked area.
     
     Parameters:
     - masked_image (PIL Image): Grayscale masked image with a white rectangle.
@@ -8,24 +8,24 @@ def restore_original_color(masked_image, original_image, coordinates):
     - coordinates (tuple): Coordinates in the format (xmin, ymin, xmax, ymax).
     
     Returns:
-    - color_restored_image (PIL Image): Image with original color restored to the masked area.
+    - background_restored_image (PIL Image): Image with background color restored.
     """
-    # Create a copy of the masked image to restore color
-    color_restored_image = masked_image.convert("RGB")
+    # Create a copy of the masked image to restore the background color
+    background_restored_image = masked_image.copy()
     
     # Extract coordinates
     xmin, ymin, xmax, ymax = coordinates
     
-    # Extract the original color from the original image
-    color_patch = original_image.crop((xmin, ymin, xmax, ymax))
+    # Extract the background color from the original image
+    background_patch = original_image.crop((xmin, ymin, xmax, ymax))
     
-    # Paste the original color onto the masked image
-    color_restored_image.paste(color_patch, (xmin, ymin))
+    # Paste the original background onto the masked area
+    background_restored_image.paste(background_patch, (xmin, ymin))
     
-    return color_restored_image
+    return background_restored_image
 
 # Example usage
-color_restored_image = restore_original_color(masked_image, cropped_image, (50, 50, 200, 100))
+background_restored_image = restore_background_color(masked_image, cropped_image, (50, 50, 200, 100))
 
-# Display the color restored image to verify
-color_restored_image.show()
+# Display the background restored image to verify
+background_restored_image.show()
