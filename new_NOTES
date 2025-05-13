@@ -99,3 +99,39 @@ plt.figure(figsize=(10, 8))
 plt.imshow(composite_img)
 plt.title(f"Image with moved text: {element}")
 plt.show()
+
+
+
+
+
+import pandas as pd
+import subprocess
+import json
+
+# Replace with your MongoDB connection string and database/collection names
+connection_string = "your_mongodb_connection_string"
+database_name = "dbn1"
+collection_name = "your_collection_name"
+
+try:
+    # Construct the MongoDB shell command to fetch data
+    command = f'mongo "{connection_string}" --quiet --eval "db.{collection_name}.find().toArray()"'
+
+    # Execute the command and capture output
+    result = subprocess.check_output(command, shell=True).decode('utf-8')
+
+    # Check if output is not empty
+    if result:
+        # Convert the string output to a list of JSON objects
+        data = json.loads(result)
+
+        # Load data into a pandas DataFrame
+        df = pd.DataFrame(data)
+
+        # Display the DataFrame
+        print(df)
+    else:
+        print("No data found in the collection.")
+
+except Exception as e:
+    print(f"An error occurred: {e}")
