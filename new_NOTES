@@ -1,56 +1,60 @@
-from PIL import Image, ImageEnhance, ImageFilter, ImageDraw
-import numpy as np
-import matplotlib.pyplot as plt
+def average_color(image, xmin, ymin, xmax, ymax):
+    """
+    Calculate the average color of a region.
+    """
+    region = image.crop((xmin, ymin, xmax, ymax))
+    np_region = np.array(region)
+    avg_color = np_region.mean(axis=(0, 1)).astype(int)
+    return tuple(avg_color)
 
-def move_text_preserve_background(image_path, coordinates, direction, percent):
-    # Load the original image
-    img = Image.open(image_path)
+def move_text_with_color(image, text_coords_list, move_x, move_y):
+    """
+    Moves text within an image without dragging the background, using given coordinates.
+    Arguments:
+        image: PIL Image object.
+        text_coords_list: List of tuples [(xmin, ymin, xmax, ymax), ...] with text bounding boxes.
+        move_x: Number of pixels to move in the x direction.
+        move_y: Number of pixels to move in the y direction.
+    Returns:
+        Modified image with moved text.
+    """
+    img = image.copy()
+    draw = ImageDraw.Draw(img)
 
-    # Step 1: Convert to grayscale and enhance contrast
-    gray = img.convert("L")
-    inc = ImageEnhance.Contrast(gray)
-    enhanced_gray = inc.enhance(2.0)
-    sharpened_gray = enhanced_gray.filter(ImageFilter.SHARPEN)
+    for text_coords in text_coords_list:
+        xmin, ymin, xmax, ymax = normalize_coordinates(*text_coords)
 
-    # Extract coordinates
-    xmin, ymin, xmax, ymax = coordinates
+        # Extract text region from the image
+        text_region = img.crop((xmin, ymin, xmax, ymax))
 
-    # Step 2: Crop the text region from the enhanced grayscale image
-    cropped_gray = sharpened_gray.crop((xmin, ymin, xmax, ymax))
+        # Calculate average background color for realistic masking
+        background_color = average_color(img, xmin, ymin, xmax, ymax)
 
-    # Step 3: Move the text based on direction and percentage
-    dx = int(img.width * percent / 100)
-    dy = int(img.height * percent / 100)
+        # Fill the original text area with the average background color
+        draw.rectangle((xmin, ymin, xmax, ymax), fill=background_color)
 
-    if direction == 'up':
-        new_y = max(0, ymin - dy)
-        moved_position = (xmin, new_y)
-    elif direction == 'down':
-        new_y = min(img.height - (ymax - ymin), ymin + dy)
-        moved_position = (xmin, new_y)
-    elif direction == 'left':
-        new_x = max(0, xmin - dx)
-        moved_position = (new_x, ymin)
-    elif direction == 'right':
-        new_x = min(img.width - (xmax - xmin), xmin + dx)
-        moved_position = (new_x, ymin)
+        # Calculate new position
+        new_xmin = xmin + move_x
+        new_ymin = ymin + move_y
 
-    # Step 4: Overlay the grayscale moved text on the original image
-    img_copy = img.copy()
-    img_copy.paste(cropped_gray, moved_position)
+        # Paste the text at the new location while maintaining original colors
+        img.paste(text_region, (new_xmin, new_ymin))
 
-    # Step 5: Restore color using the original image
-    colored_cropped = img.crop((xmin, ymin, xmax, ymax))
-    img_copy.paste(colored_cropped, moved_position, cropped_gray)
+    return img
 
-    # Display the final image
-    plt.figure(figsize=(10, 8))
-    plt.imshow(img_copy)
-    plt.title(f"Text moved {direction} by {percent}% while retaining background")
-    plt.axis('off')
-    plt.show()
+# Example list of coordinates (from latest image)
+text_coords_list = [(270, 84, 533, 154), (110, 158, 298, 158), (211, 276, 299, 158)]
+move_x, move_y = 15, 10  # Move right and down
 
-# Example usage
-image_path = "/mnt/data/Screenshot 2025-05-13 at 8.01.28 PM.png"
-coordinates = (50, 50, 200, 100)  # Example coordinates
-move_text_preserve_background(image_path, coordinates, 'right', 5)
+# Load the most recent uploaded image
+image = Image.open("/mnt/data/Screenshot 2025-05-13 at 8.34.05 PM.png")
+
+# Apply the updated text movement method
+modified_image_color = move_text_with_color(image, text_coords_list, move_x, move_y)
+
+# Display the modified image
+plt.figure(figsize=(8, 6))
+plt.imshow(modified_image_color)
+plt.title("Modified Image with Moved Text (Color Preserved)")
+plt.axis("off")
+plt.show()
