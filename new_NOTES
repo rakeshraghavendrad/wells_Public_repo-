@@ -1,24 +1,35 @@
-def add_color_back(sharp_image, original_image):
+def add_background_color(masked_image, original_image, coordinates):
     """
-    Adds back the original color to the sharpened grayscale image.
+    Restores the background color from the original image to the masked area only.
     
     Parameters:
-    - sharp_image (PIL Image): Grayscale sharpened image.
+    - masked_image (PIL Image): Grayscale masked image with a white rectangle.
     - original_image (PIL Image): Original colored image.
+    - coordinates (tuple): Coordinates in the format (xmin, ymin, xmax, ymax).
     
     Returns:
-    - colored_image (PIL Image): Image with color restored from the original image.
+    - background_colored_image (PIL Image): Image with the original background color restored.
     """
-    # Convert the sharpened grayscale image to RGB
-    sharp_rgb = sharp_image.convert("RGB")
-    
-    # Blend the color from the original image with the sharpened image
-    colored_image = Image.blend(original_image, sharp_rgb, alpha=0.5)
-    
-    return colored_image
+    # Create a copy of the original image to restore the background
+    background_colored_image = original_image.copy()
+    draw = ImageDraw.Draw(background_colored_image)
+
+    # Extract coordinates
+    xmin, ymin, xmax, ymax = coordinates
+
+    # Mask the original coordinates with a white rectangle
+    draw.rectangle((xmin, ymin, xmax, ymax), outline=None, fill='white', width=0)
+
+    # Extract the background from the original image
+    background_patch = original_image.crop((xmin, ymin, xmax, ymax))
+
+    # Overlay the background patch onto the masked area
+    background_colored_image.paste(background_patch, (xmin, ymin))
+
+    return background_colored_image
 
 # Example usage
-colored_image = add_color_back(sharpened_image, cropped_image)
+background_colored_image = add_background_color(masked_image, cropped_image, (50, 50, 200, 100))
 
-# Display the color restored image to verify
-colored_image.show()
+# Display the final image to verify
+background_colored_image.show()
