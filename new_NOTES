@@ -1,67 +1,56 @@
-from PIL import Image, ImageDraw, ImageEnhance
+from PIL import Image, ImageEnhance, ImageFilter, ImageDraw
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 
-def move_object(df, direction_list, percent_list, dir_path):
-    for index, row in df.iterrows():
-        image_path = os.path.join(dir_path, row['FILE_NAME'])
-        print(f"FILE NAME: {image_path}")
+def move_text_preserve_background(image_path, coordinates, direction, percent):
+    # Load the original image
+    img = Image.open(image_path)
 
-        # Load the image
-        img = Image.open(image_path)
-        print(f"Original image size: {img.size}")
+    # Step 1: Convert to grayscale and enhance contrast
+    gray = img.convert("L")
+    inc = ImageEnhance.Contrast(gray)
+    enhanced_gray = inc.enhance(2.0)
+    sharpened_gray = enhanced_gray.filter(ImageFilter.SHARPEN)
 
-        for element in row.index:
-            if pd.isna(row[element]):
-                continue
+    # Extract coordinates
+    xmin, ymin, xmax, ymax = coordinates
 
-            print(f"Operations performed on: {element}")
-            
-            # Extract coordinates
-            xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+    # Step 2: Crop the text region from the enhanced grayscale image
+    cropped_gray = sharpened_gray.crop((xmin, ymin, xmax, ymax))
 
-            # Extract the cropped image
-            cropped_img = img.crop((xmin, ymin, xmax, ymax))
-            background_color = cropped_img.getpixel((0, 0))
+    # Step 3: Move the text based on direction and percentage
+    dx = int(img.width * percent / 100)
+    dy = int(img.height * percent / 100)
 
-            # Create a new image with the same background
-            img_copy = img.copy()
-            draw = ImageDraw.Draw(img_copy)
+    if direction == 'up':
+        new_y = max(0, ymin - dy)
+        moved_position = (xmin, new_y)
+    elif direction == 'down':
+        new_y = min(img.height - (ymax - ymin), ymin + dy)
+        moved_position = (xmin, new_y)
+    elif direction == 'left':
+        new_x = max(0, xmin - dx)
+        moved_position = (new_x, ymin)
+    elif direction == 'right':
+        new_x = min(img.width - (xmax - xmin), xmin + dx)
+        moved_position = (new_x, ymin)
 
-            # Fill the original text area with the background color
-            draw.rectangle((xmin, ymin, xmax, ymax), fill=background_color)
+    # Step 4: Overlay the grayscale moved text on the original image
+    img_copy = img.copy()
+    img_copy.paste(cropped_gray, moved_position)
 
-            # Move the text based on direction and percentage
-            for direction in direction_list:
-                for percent in percent_list:
-                    print(f"Direction: {direction}, Percent: {percent}")
+    # Step 5: Restore color using the original image
+    colored_cropped = img.crop((xmin, ymin, xmax, ymax))
+    img_copy.paste(colored_cropped, moved_position, cropped_gray)
 
-                    dx = int(img.width * percent / 100)
-                    dy = int(img.height * percent / 100)
-
-                    if direction == 'up':
-                        new_y = max(0, ymin - dy)
-                        img_copy.paste(cropped_img, (xmin, new_y))
-                    elif direction == 'down':
-                        new_y = min(img.height - (ymax - ymin), ymin + dy)
-                        img_copy.paste(cropped_img, (xmin, new_y))
-                    elif direction == 'left':
-                        new_x = max(0, xmin - dx)
-                        img_copy.paste(cropped_img, (new_x, ymin))
-                    elif direction == 'right':
-                        new_x = min(img.width - (xmax - xmin), xmin + dx)
-                        img_copy.paste(cropped_img, (new_x, ymin))
-
-            # Plotting the modified image for verification
-            plt.figure(figsize=(10, 8))
-            plt.imshow(img_copy)
-            plt.title(f"Moved Text - Direction: {direction}, Percent: {percent}")
-            plt.axis('off')
-            plt.show()
+    # Display the final image
+    plt.figure(figsize=(10, 8))
+    plt.imshow(img_copy)
+    plt.title(f"Text moved {direction} by {percent}% while retaining background")
+    plt.axis('off')
+    plt.show()
 
 # Example usage
-direction_list = ['right']
-percent_list = [5]
-# Assuming the DataFrame 'df_new' and directory 'DIR' are provided
-# move_object(df_new, direction_list, percent_list, DIR)
+image_path = "/mnt/data/Screenshot 2025-05-13 at 8.01.28 PM.png"
+coordinates = (50, 50, 200, 100)  # Example coordinates
+move_text_preserve_background(image_path, coordinates, 'right', 5)
