@@ -3,15 +3,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+def create_plain_card(img, coordinates):
+    """ Create a plain card by removing text and headshot regions """
+    draw = ImageDraw.Draw(img)
+    for coord in coordinates:
+        xmin, ymin, xmax, ymax = coord
+        # Get the background color from the top-left corner of the region
+        background_color = img.getpixel((xmin, ymin))
+        # Replace the text region with the background color
+        draw.rectangle([xmin, ymin, xmax, ymax], fill=background_color)
+    return img
+
 def move_object(df, direction_list, percent_list):
     for index, row in df.iterrows():
         image_path = os.path.join(DIR, row['FILE_NAME'])
         print(f"FILE NAME: {image_path}")
         
-        # Load image and convert to grayscale
+        # Load the image
         img = Image.open(image_path)
-        grayscale_img = img.convert("L")  # Grayscale conversion
-        print(grayscale_img.size)
+        print(f"Image size: {img.size}")
+
+        # Create a plain card without text and headshot
+        coordinates = []
+        for element in columns:
+            print(f"Operations performed on: {element}")
+            xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+            coordinates.append((xmin, ymin, xmax, ymax))
+
+        plain_card = create_plain_card(img.copy(), coordinates)
 
         for element in columns:
             print(f"Operations performed on: {element}")
@@ -19,19 +38,14 @@ def move_object(df, direction_list, percent_list):
             # Extract coordinates
             xmin, ymin, xmax, ymax = map(int, row[element].split(','))
             cropped_img = img.crop((xmin, ymin, xmax, ymax))
-            grayscale_cropped = grayscale_img.crop((xmin, ymin, xmax, ymax))
-            background_colour = img.getpixel((xmin, ymin))
-            
-            # Create a grayscale background image
-            mod_img = Image.new('RGB', img.size, (255, 255, 255))
-            mod_img.paste(grayscale_img)
-            
+
             for direction in direction_list:
                 print(f"The direction is: {direction}")
                 for percent in percent_list:
                     print(f"The percent is: {percent}")
                     
                     # Determine new coordinates based on direction
+                    new_x, new_y = xmin, ymin
                     if direction == 'up':
                         new_y = max(0, ymin - int(img.height * percent / 100))
                     elif direction == 'down':
@@ -40,15 +54,12 @@ def move_object(df, direction_list, percent_list):
                         new_x = max(0, xmin - int(img.width * percent / 100))
                     elif direction == 'right':
                         new_x = min(img.width - (xmax - xmin), xmin + int(img.width * percent / 100))
-                    
-                    # Create an image with the grayscale text moved
-                    mod_img = img.copy()
-                    mod_img.paste(grayscale_cropped, (new_x, new_y))
-                    
-                    # Overlay the color from the original image on the grayscale text
-                    color_patch = img.crop((new_x, new_y, new_x + cropped_img.width, new_y + cropped_img.height))
-                    mod_img.paste(color_patch, (new_x, new_y))
 
+                    # Create a new image with the plain card and moved text
+                    mod_img = plain_card.copy()
+                    mod_img.paste(cropped_img, (new_x, new_y))
+
+                    # Display the final image
                     plt.figure(figsize=(10, 8))
                     plt.imshow(mod_img)
                     plt.title(f"Image with moved text: {element}")
@@ -60,78 +71,3 @@ def move_object(df, direction_list, percent_list):
 direction_list = ['left']
 percent_list = [10]
 move_object(df, direction_list, percent_list)
-
-
-
-
-
-# Initialize new coordinates to current coordinates
-new_x, new_y = xmin, ymin
-
-# Determine new coordinates based on direction
-if direction == 'up':
-    new_y = max(0, ymin - int(img.height * percent / 100))
-elif direction == 'down':
-    new_y = min(img.height - (ymax - ymin), ymin + int(img.height * percent / 100))
-elif direction == 'left':
-    new_x = max(0, xmin - int(img.width * percent / 100))
-elif direction == 'right':
-    new_x = min(img.width - (xmax - xmin), xmin + int(img.width * percent / 100))
-
-# Step 1: Convert to grayscale
-grayscale_img = img.convert("L")
-grayscale_cropped = grayscale_img.crop((xmin, ymin, xmax, ymax))
-
-# Step 2: Create a transparent text layer
-text_layer = Image.new("RGBA", img.size, (255, 255, 255, 0))
-
-# Step 3: Paste the grayscale text region onto the transparent layer
-text_layer.paste(grayscale_cropped, (new_x, new_y))
-
-# Step 4: Composite the grayscale text layer over the original image
-composite_img = Image.alpha_composite(img.convert("RGBA"), text_layer)
-
-# Step 5: Convert back to RGB
-composite_img = composite_img.convert("RGB")
-
-# Display the result
-plt.figure(figsize=(10, 8))
-plt.imshow(composite_img)
-plt.title(f"Image with moved text: {element}")
-plt.show()
-
-
-
-
-
-import pandas as pd
-import subprocess
-import json
-
-# Replace with your MongoDB connection string and database/collection names
-connection_string = "your_mongodb_connection_string"
-database_name = "dbn1"
-collection_name = "your_collection_name"
-
-try:
-    # Construct the MongoDB shell command to fetch data
-    command = f'mongo "{connection_string}" --quiet --eval "db.{collection_name}.find().toArray()"'
-
-    # Execute the command and capture output
-    result = subprocess.check_output(command, shell=True).decode('utf-8')
-
-    # Check if output is not empty
-    if result:
-        # Convert the string output to a list of JSON objects
-        data = json.loads(result)
-
-        # Load data into a pandas DataFrame
-        df = pd.DataFrame(data)
-
-        # Display the DataFrame
-        print(df)
-    else:
-        print("No data found in the collection.")
-
-except Exception as e:
-    print(f"An error occurred: {e}")
