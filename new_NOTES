@@ -1,29 +1,30 @@
-from PIL import ImageEnhance, ImageFilter
+from PIL import ImageDraw
 
-def gray_and_sharpen(image):
+def mask_coordinates_with_white(sharp_image, coordinates):
     """
-    Converts the given image to grayscale, enhances contrast, and sharpens it.
+    Draws a white rectangle over the specified coordinates on the sharpened image.
     
     Parameters:
-    - image (PIL Image): Original image to be processed.
+    - sharp_image (PIL Image): Sharpened grayscale image.
+    - coordinates (tuple): Coordinates in the format (xmin, ymin, xmax, ymax).
     
     Returns:
-    - sharpened_image (PIL Image): Grayscale, enhanced, and sharpened version of the image.
+    - masked_image (PIL Image): Image with a white rectangle over the specified coordinates.
     """
-    # Convert to grayscale
-    gray = image.convert("L")
+    # Create a copy of the sharpened image to draw on
+    masked_image = sharp_image.copy()
+    draw = ImageDraw.Draw(masked_image)
     
-    # Enhance contrast
-    enhancer = ImageEnhance.Contrast(gray)
-    enhanced_gray = enhancer.enhance(2.0)
+    # Extract coordinates
+    xmin, ymin, xmax, ymax = coordinates
     
-    # Apply sharpening
-    sharpened_image = enhanced_gray.filter(ImageFilter.SHARPEN)
+    # Draw a white rectangle over the coordinates
+    draw.rectangle((xmin, ymin, xmax, ymax), outline=None, fill='white', width=0)
     
-    return sharpened_image
+    return masked_image
 
 # Example usage
-sharpened_image = gray_and_sharpen(cropped_image)
+masked_image = mask_coordinates_with_white(sharpened_image, (50, 50, 200, 100))
 
-# Display the sharpened image to verify
-sharpened_image.show()
+# Display the masked image to verify
+masked_image.show()
