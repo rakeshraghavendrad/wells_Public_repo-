@@ -67,6 +67,20 @@ def move_object(df, direction_list, percent_list):
                     
                     print(f"Image with moved text: {element}")
 
+
+# Filter to include only columns that contain coordinates
+columns = [col for col in df.columns if ',' in str(df[col].iloc[0])]
+
+for element in columns:
+    print(f"Operations performed on: {element}")
+    try:
+        # Extract coordinates, ensuring the format is valid
+        xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+        coordinates.append((xmin, ymin, xmax, ymax))
+    except ValueError:
+        print(f"Skipping non-coordinate column: {element}")
+        continue
+
 # Example usage
 direction_list = ['left']
 percent_list = [10]
