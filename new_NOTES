@@ -1,60 +1,56 @@
-def average_color(image, xmin, ymin, xmax, ymax):
-    """
-    Calculate the average color of a region.
-    """
-    region = image.crop((xmin, ymin, xmax, ymax))
-    np_region = np.array(region)
-    avg_color = np_region.mean(axis=(0, 1)).astype(int)
-    return tuple(avg_color)
+import cv2
+from PIL import Image, ImageEnhance, ImageDraw
+import numpy as np
+import matplotlib.pyplot as plt
 
-def move_text_with_color(image, text_coords_list, move_x, move_y):
-    """
-    Moves text within an image without dragging the background, using given coordinates.
-    Arguments:
-        image: PIL Image object.
-        text_coords_list: List of tuples [(xmin, ymin, xmax, ymax), ...] with text bounding boxes.
-        move_x: Number of pixels to move in the x direction.
-        move_y: Number of pixels to move in the y direction.
-    Returns:
-        Modified image with moved text.
-    """
-    img = image.copy()
-    draw = ImageDraw.Draw(img)
+def move_text_seamless(image_path, coordinates, direction, percent):
+    # Load the original image
+    img = cv2.imread(image_path)
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-    for text_coords in text_coords_list:
-        xmin, ymin, xmax, ymax = normalize_coordinates(*text_coords)
+    # Convert to grayscale and enhance contrast
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    enhanced = cv2.convertScaleAbs(gray, alpha=1.5, beta=0)
 
-        # Extract text region from the image
-        text_region = img.crop((xmin, ymin, xmax, ymax))
+    # Extract coordinates
+    xmin, ymin, xmax, ymax = coordinates
 
-        # Calculate average background color for realistic masking
-        background_color = average_color(img, xmin, ymin, xmax, ymax)
+    # Crop the region to move
+    cropped = img[ymin:ymax, xmin:xmax]
 
-        # Fill the original text area with the average background color
-        draw.rectangle((xmin, ymin, xmax, ymax), fill=background_color)
+    # Move the text based on direction and percentage
+    dx = int((xmax - xmin) * percent / 100)
+    dy = int((ymax - ymin) * percent / 100)
 
-        # Calculate new position
-        new_xmin = xmin + move_x
-        new_ymin = ymin + move_y
+    if direction == 'up':
+        new_y = max(0, ymin - dy)
+        new_x = xmin
+    elif direction == 'down':
+        new_y = min(img.shape[0] - (ymax - ymin), ymin + dy)
+        new_x = xmin
+    elif direction == 'left':
+        new_x = max(0, xmin - dx)
+        new_y = ymin
+    elif direction == 'right':
+        new_x = min(img.shape[1] - (xmax - xmin), xmin + dx)
+        new_y = ymin
 
-        # Paste the text at the new location while maintaining original colors
-        img.paste(text_region, (new_xmin, new_ymin))
+    # Create a mask for seamless cloning
+    mask = np.zeros_like(cropped, dtype=np.uint8)
+    mask[:] = 255
 
-    return img
+    # Clone the moved text onto the background using seamless cloning
+    center = (new_x + cropped.shape[1] // 2, new_y + cropped.shape[0] // 2)
+    result = cv2.seamlessClone(cropped, img, mask, center, cv2.MIXED_CLONE)
 
-# Example list of coordinates (from latest image)
-text_coords_list = [(270, 84, 533, 154), (110, 158, 298, 158), (211, 276, 299, 158)]
-move_x, move_y = 15, 10  # Move right and down
+    # Display the result
+    plt.figure(figsize=(10, 8))
+    plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+    plt.title(f"Text moved {direction} by {percent}% using seamless cloning")
+    plt.axis('off')
+    plt.show()
 
-# Load the most recent uploaded image
-image = Image.open("/mnt/data/Screenshot 2025-05-13 at 8.34.05 PM.png")
-
-# Apply the updated text movement method
-modified_image_color = move_text_with_color(image, text_coords_list, move_x, move_y)
-
-# Display the modified image
-plt.figure(figsize=(8, 6))
-plt.imshow(modified_image_color)
-plt.title("Modified Image with Moved Text (Color Preserved)")
-plt.axis("off")
-plt.show()
+# Example usage
+image_path = "/mnt/data/Screenshot 2025-05-13 at 8.01.28 PM.png"
+coordinates = (50, 50, 200, 100)  # Example coordinates
+move_text_seamless(image_path, coordinates, 'right', 5)
