@@ -15,6 +15,9 @@ def create_plain_card(img, coordinates):
     return img
 
 def move_object(df, direction_list, percent_list):
+    # Dynamically extract columns that likely contain coordinates
+    columns = [col for col in df.columns if ',' in str(df[col].iloc[0])]
+
     for index, row in df.iterrows():
         image_path = os.path.join(DIR, row['FILE_NAME'])
         print(f"FILE NAME: {image_path}")
@@ -27,59 +30,55 @@ def move_object(df, direction_list, percent_list):
         coordinates = []
         for element in columns:
             print(f"Operations performed on: {element}")
-            xmin, ymin, xmax, ymax = map(int, row[element].split(','))
-            coordinates.append((xmin, ymin, xmax, ymax))
+            try:
+                # Extract coordinates, ensuring the format is valid
+                xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+                coordinates.append((xmin, ymin, xmax, ymax))
+            except ValueError:
+                print(f"Skipping non-coordinate column: {element}")
+                continue
 
+        # Create a plain card with background color instead of text
         plain_card = create_plain_card(img.copy(), coordinates)
 
         for element in columns:
             print(f"Operations performed on: {element}")
-            
-            # Extract coordinates
-            xmin, ymin, xmax, ymax = map(int, row[element].split(','))
-            cropped_img = img.crop((xmin, ymin, xmax, ymax))
+            try:
+                # Extract coordinates
+                xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+                cropped_img = img.crop((xmin, ymin, xmax, ymax))
 
-            for direction in direction_list:
-                print(f"The direction is: {direction}")
-                for percent in percent_list:
-                    print(f"The percent is: {percent}")
-                    
-                    # Determine new coordinates based on direction
-                    new_x, new_y = xmin, ymin
-                    if direction == 'up':
-                        new_y = max(0, ymin - int(img.height * percent / 100))
-                    elif direction == 'down':
-                        new_y = min(img.height - (ymax - ymin), ymin + int(img.height * percent / 100))
-                    elif direction == 'left':
-                        new_x = max(0, xmin - int(img.width * percent / 100))
-                    elif direction == 'right':
-                        new_x = min(img.width - (xmax - xmin), xmin + int(img.width * percent / 100))
+                for direction in direction_list:
+                    print(f"The direction is: {direction}")
+                    for percent in percent_list:
+                        print(f"The percent is: {percent}")
 
-                    # Create a new image with the plain card and moved text
-                    mod_img = plain_card.copy()
-                    mod_img.paste(cropped_img, (new_x, new_y))
+                        # Determine new coordinates based on direction
+                        new_x, new_y = xmin, ymin
+                        if direction == 'up':
+                            new_y = max(0, ymin - int(img.height * percent / 100))
+                        elif direction == 'down':
+                            new_y = min(img.height - (ymax - ymin), ymin + int(img.height * percent / 100))
+                        elif direction == 'left':
+                            new_x = max(0, xmin - int(img.width * percent / 100))
+                        elif direction == 'right':
+                            new_x = min(img.width - (xmax - xmin), xmin + int(img.width * percent / 100))
 
-                    # Display the final image
-                    plt.figure(figsize=(10, 8))
-                    plt.imshow(mod_img)
-                    plt.title(f"Image with moved text: {element}")
-                    plt.show()
-                    
-                    print(f"Image with moved text: {element}")
+                        # Create a new image with the plain card and moved text
+                        mod_img = plain_card.copy()
+                        mod_img.paste(cropped_img, (new_x, new_y))
 
+                        # Display the final image
+                        plt.figure(figsize=(10, 8))
+                        plt.imshow(mod_img)
+                        plt.title(f"Image with moved text: {element}")
+                        plt.show()
 
-# Filter to include only columns that contain coordinates
-columns = [col for col in df.columns if ',' in str(df[col].iloc[0])]
+                        print(f"Image with moved text: {element}")
 
-for element in columns:
-    print(f"Operations performed on: {element}")
-    try:
-        # Extract coordinates, ensuring the format is valid
-        xmin, ymin, xmax, ymax = map(int, row[element].split(','))
-        coordinates.append((xmin, ymin, xmax, ymax))
-    except ValueError:
-        print(f"Skipping non-coordinate column: {element}")
-        continue
+            except ValueError:
+                print(f"Skipping non-coordinate column: {element}")
+                continue
 
 # Example usage
 direction_list = ['left']
