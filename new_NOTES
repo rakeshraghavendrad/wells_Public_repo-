@@ -1,86 +1,67 @@
-from PIL import Image, ImageEnhance, ImageDraw
+from PIL import Image, ImageDraw, ImageEnhance
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-def create_plain_card(img, coordinates):
-    """ Create a plain card by removing text and headshot regions """
-    draw = ImageDraw.Draw(img)
-    for coord in coordinates:
-        xmin, ymin, xmax, ymax = coord
-        # Get the background color from the top-left corner of the region
-        background_color = img.getpixel((xmin, ymin))
-        # Replace the text region with the background color
-        draw.rectangle([xmin, ymin, xmax, ymax], fill=background_color)
-    return img
-
-def move_object(df, direction_list, percent_list):
-    # Dynamically extract columns that likely contain coordinates
-    columns = [col for col in df.columns if ',' in str(df[col].iloc[0])]
-
+def move_object(df, direction_list, percent_list, dir_path):
     for index, row in df.iterrows():
-        image_path = os.path.join(DIR, row['FILE_NAME'])
+        image_path = os.path.join(dir_path, row['FILE_NAME'])
         print(f"FILE NAME: {image_path}")
-        
+
         # Load the image
         img = Image.open(image_path)
-        print(f"Image size: {img.size}")
+        print(f"Original image size: {img.size}")
 
-        # Create a plain card without text and headshot
-        coordinates = []
-        for element in columns:
-            print(f"Operations performed on: {element}")
-            try:
-                # Extract coordinates, ensuring the format is valid
-                xmin, ymin, xmax, ymax = map(int, row[element].split(','))
-                coordinates.append((xmin, ymin, xmax, ymax))
-            except ValueError:
-                print(f"Skipping non-coordinate column: {element}")
+        for element in row.index:
+            if pd.isna(row[element]):
                 continue
 
-        # Create a plain card with background color instead of text
-        plain_card = create_plain_card(img.copy(), coordinates)
-
-        for element in columns:
             print(f"Operations performed on: {element}")
-            try:
-                # Extract coordinates
-                xmin, ymin, xmax, ymax = map(int, row[element].split(','))
-                cropped_img = img.crop((xmin, ymin, xmax, ymax))
+            
+            # Extract coordinates
+            xmin, ymin, xmax, ymax = map(int, row[element].split(','))
 
-                for direction in direction_list:
-                    print(f"The direction is: {direction}")
-                    for percent in percent_list:
-                        print(f"The percent is: {percent}")
+            # Extract the cropped image
+            cropped_img = img.crop((xmin, ymin, xmax, ymax))
+            background_color = cropped_img.getpixel((0, 0))
 
-                        # Determine new coordinates based on direction
-                        new_x, new_y = xmin, ymin
-                        if direction == 'up':
-                            new_y = max(0, ymin - int(img.height * percent / 100))
-                        elif direction == 'down':
-                            new_y = min(img.height - (ymax - ymin), ymin + int(img.height * percent / 100))
-                        elif direction == 'left':
-                            new_x = max(0, xmin - int(img.width * percent / 100))
-                        elif direction == 'right':
-                            new_x = min(img.width - (xmax - xmin), xmin + int(img.width * percent / 100))
+            # Create a new image with the same background
+            img_copy = img.copy()
+            draw = ImageDraw.Draw(img_copy)
 
-                        # Create a new image with the plain card and moved text
-                        mod_img = plain_card.copy()
-                        mod_img.paste(cropped_img, (new_x, new_y))
+            # Fill the original text area with the background color
+            draw.rectangle((xmin, ymin, xmax, ymax), fill=background_color)
 
-                        # Display the final image
-                        plt.figure(figsize=(10, 8))
-                        plt.imshow(mod_img)
-                        plt.title(f"Image with moved text: {element}")
-                        plt.show()
+            # Move the text based on direction and percentage
+            for direction in direction_list:
+                for percent in percent_list:
+                    print(f"Direction: {direction}, Percent: {percent}")
 
-                        print(f"Image with moved text: {element}")
+                    dx = int(img.width * percent / 100)
+                    dy = int(img.height * percent / 100)
 
-            except ValueError:
-                print(f"Skipping non-coordinate column: {element}")
-                continue
+                    if direction == 'up':
+                        new_y = max(0, ymin - dy)
+                        img_copy.paste(cropped_img, (xmin, new_y))
+                    elif direction == 'down':
+                        new_y = min(img.height - (ymax - ymin), ymin + dy)
+                        img_copy.paste(cropped_img, (xmin, new_y))
+                    elif direction == 'left':
+                        new_x = max(0, xmin - dx)
+                        img_copy.paste(cropped_img, (new_x, ymin))
+                    elif direction == 'right':
+                        new_x = min(img.width - (xmax - xmin), xmin + dx)
+                        img_copy.paste(cropped_img, (new_x, ymin))
+
+            # Plotting the modified image for verification
+            plt.figure(figsize=(10, 8))
+            plt.imshow(img_copy)
+            plt.title(f"Moved Text - Direction: {direction}, Percent: {percent}")
+            plt.axis('off')
+            plt.show()
 
 # Example usage
-direction_list = ['left']
-percent_list = [10]
-move_object(df, direction_list, percent_list)
+direction_list = ['right']
+percent_list = [5]
+# Assuming the DataFrame 'df_new' and directory 'DIR' are provided
+# move_object(df_new, direction_list, percent_list, DIR)
