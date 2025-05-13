@@ -1,30 +1,31 @@
-from PIL import ImageDraw
-
-def mask_coordinates_with_white(sharp_image, coordinates):
+def restore_original_color(masked_image, original_image, coordinates):
     """
-    Draws a white rectangle over the specified coordinates on the sharpened image.
+    Restores the original color from the original image to the masked region.
     
     Parameters:
-    - sharp_image (PIL Image): Sharpened grayscale image.
+    - masked_image (PIL Image): Grayscale masked image with a white rectangle.
+    - original_image (PIL Image): Original colored image.
     - coordinates (tuple): Coordinates in the format (xmin, ymin, xmax, ymax).
     
     Returns:
-    - masked_image (PIL Image): Image with a white rectangle over the specified coordinates.
+    - color_restored_image (PIL Image): Image with original color restored to the masked area.
     """
-    # Create a copy of the sharpened image to draw on
-    masked_image = sharp_image.copy()
-    draw = ImageDraw.Draw(masked_image)
+    # Create a copy of the masked image to restore color
+    color_restored_image = masked_image.convert("RGB")
     
     # Extract coordinates
     xmin, ymin, xmax, ymax = coordinates
     
-    # Draw a white rectangle over the coordinates
-    draw.rectangle((xmin, ymin, xmax, ymax), outline=None, fill='white', width=0)
+    # Extract the original color from the original image
+    color_patch = original_image.crop((xmin, ymin, xmax, ymax))
     
-    return masked_image
+    # Paste the original color onto the masked image
+    color_restored_image.paste(color_patch, (xmin, ymin))
+    
+    return color_restored_image
 
 # Example usage
-masked_image = mask_coordinates_with_white(sharpened_image, (50, 50, 200, 100))
+color_restored_image = restore_original_color(masked_image, cropped_image, (50, 50, 200, 100))
 
-# Display the masked image to verify
-masked_image.show()
+# Display the color restored image to verify
+color_restored_image.show()
