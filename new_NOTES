@@ -1,56 +1,53 @@
-import cv2
-from PIL import Image, ImageEnhance, ImageDraw
-import numpy as np
-import matplotlib.pyplot as plt
-
-def move_text_seamless(image_path, coordinates, direction, percent):
+def move_text_enhanced(image_path, coordinates, direction, percent):
     # Load the original image
-    img = cv2.imread(image_path)
-    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-    # Convert to grayscale and enhance contrast
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    enhanced = cv2.convertScaleAbs(gray, alpha=1.5, beta=0)
+    img = Image.open(image_path)
+    img_rgb = img.convert("RGB")
+    draw = ImageDraw.Draw(img_rgb)
 
     # Extract coordinates
     xmin, ymin, xmax, ymax = coordinates
 
-    # Crop the region to move
-    cropped = img[ymin:ymax, xmin:xmax]
+    # Step 1: Convert to grayscale and enhance contrast
+    gray = img.convert("L")
+    inc = ImageEnhance.Contrast(gray)
+    enhanced_gray = inc.enhance(2.0)
+    sharpened_gray = enhanced_gray.filter(ImageFilter.SHARPEN)
 
-    # Move the text based on direction and percentage
+    # Step 2: Mask the original coordinates with white after sharpening
+    draw.rectangle((xmin, ymin, xmax, ymax), outline=None, fill='white', width=0)
+
+    # Step 3: Restore color to the masked area
+    cropped_color = img.crop((xmin, ymin, xmax, ymax))
+    img_rgb.paste(cropped_color, (xmin, ymin))
+
+    # Step 4: Move the text based on direction and percentage
     dx = int((xmax - xmin) * percent / 100)
     dy = int((ymax - ymin) * percent / 100)
 
     if direction == 'up':
         new_y = max(0, ymin - dy)
-        new_x = xmin
+        moved_position = (xmin, new_y)
     elif direction == 'down':
-        new_y = min(img.shape[0] - (ymax - ymin), ymin + dy)
-        new_x = xmin
+        new_y = min(img.height - (ymax - ymin), ymin + dy)
+        moved_position = (xmin, new_y)
     elif direction == 'left':
         new_x = max(0, xmin - dx)
-        new_y = ymin
+        moved_position = (new_x, ymin)
     elif direction == 'right':
-        new_x = min(img.shape[1] - (xmax - xmin), xmin + dx)
-        new_y = ymin
+        new_x = min(img.width - (xmax - xmin), xmin + dx)
+        moved_position = (new_x, ymin)
 
-    # Create a mask for seamless cloning
-    mask = np.zeros_like(cropped, dtype=np.uint8)
-    mask[:] = 255
+    # Step 5: Overlay the moved text onto the original colored image
+    img_rgb.paste(cropped_color, moved_position)
 
-    # Clone the moved text onto the background using seamless cloning
-    center = (new_x + cropped.shape[1] // 2, new_y + cropped.shape[0] // 2)
-    result = cv2.seamlessClone(cropped, img, mask, center, cv2.MIXED_CLONE)
-
-    # Display the result
+    # Display the final image
     plt.figure(figsize=(10, 8))
-    plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-    plt.title(f"Text moved {direction} by {percent}% using seamless cloning")
+    plt.imshow(img_rgb)
+    plt.title(f"Text moved {direction} by {percent}% with background preservation")
     plt.axis('off')
     plt.show()
 
 # Example usage
 image_path = "/mnt/data/Screenshot 2025-05-13 at 8.01.28 PM.png"
 coordinates = (50, 50, 200, 100)  # Example coordinates
-move_text_seamless(image_path, coordinates, 'right', 5)
+move_text_enhanced(image_path, coordinates, 'right', 5)
