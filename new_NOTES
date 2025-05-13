@@ -1,31 +1,29 @@
-from PIL import Image
+from PIL import ImageEnhance, ImageFilter
 
-def extract_coordinates(image_path, coordinates):
+def gray_and_sharpen(image):
     """
-    Extracts the region specified by the coordinates from the image and saves it as a variable.
+    Converts the given image to grayscale, enhances contrast, and sharpens it.
     
     Parameters:
-    - image_path (str): Path to the image file.
-    - coordinates (tuple): Coordinates in the format (xmin, ymin, xmax, ymax).
+    - image (PIL Image): Original image to be processed.
     
     Returns:
-    - cropped_image (PIL Image): Cropped image based on coordinates.
+    - sharpened_image (PIL Image): Grayscale, enhanced, and sharpened version of the image.
     """
-    # Load the image
-    img = Image.open(image_path)
-
-    # Extract coordinates
-    xmin, ymin, xmax, ymax = coordinates
-
-    # Crop the specified region
-    cropped_image = img.crop((xmin, ymin, xmax, ymax))
-
-    return cropped_image
+    # Convert to grayscale
+    gray = image.convert("L")
+    
+    # Enhance contrast
+    enhancer = ImageEnhance.Contrast(gray)
+    enhanced_gray = enhancer.enhance(2.0)
+    
+    # Apply sharpening
+    sharpened_image = enhanced_gray.filter(ImageFilter.SHARPEN)
+    
+    return sharpened_image
 
 # Example usage
-image_path = "/mnt/data/Screenshot 2025-05-13 at 8.01.28 PM.png"
-coordinates = (50, 50, 200, 100)  # Example coordinates
-cropped_image = extract_coordinates(image_path, coordinates)
+sharpened_image = gray_and_sharpen(cropped_image)
 
-# Display the cropped image to verify
-cropped_image.show()
+# Display the sharpened image to verify
+sharpened_image.show()
