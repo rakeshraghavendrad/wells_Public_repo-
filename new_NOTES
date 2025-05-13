@@ -1,52 +1,31 @@
-def move_text_strict(image_path, coordinates, direction, percent):
-    # Step 1: Load the original image and extract coordinates
+from PIL import Image
+
+def extract_coordinates(image_path, coordinates):
+    """
+    Extracts the region specified by the coordinates from the image and saves it as a variable.
+    
+    Parameters:
+    - image_path (str): Path to the image file.
+    - coordinates (tuple): Coordinates in the format (xmin, ymin, xmax, ymax).
+    
+    Returns:
+    - cropped_image (PIL Image): Cropped image based on coordinates.
+    """
+    # Load the image
     img = Image.open(image_path)
-    img_rgb = img.convert("RGB")
+
+    # Extract coordinates
     xmin, ymin, xmax, ymax = coordinates
 
-    # Step 2: Convert the image to grayscale
-    gray = img.convert("L")
+    # Crop the specified region
+    cropped_image = img.crop((xmin, ymin, xmax, ymax))
 
-    # Step 3: Apply contrast enhancement and sharpening
-    enhancer = ImageEnhance.Contrast(gray)
-    enhanced_gray = enhancer.enhance(2.0)
-    sharpened_gray = enhanced_gray.filter(ImageFilter.SHARPEN)
-
-    # Step 4: Mask the original coordinates with white after sharpening
-    mask = Image.new("L", (xmax - xmin, ymax - ymin), "white")
-    sharpened_gray.paste(mask, (xmin, ymin))
-
-    # Step 5: Overlay the original color on the sharpened grayscale image
-    color_cropped = img.crop((xmin, ymin, xmax, ymax))
-    sharpened_gray.paste(color_cropped, (xmin, ymin))
-
-    # Step 6: Move the perturbed text
-    dx = int((xmax - xmin) * percent / 100)
-    dy = int((ymax - ymin) * percent / 100)
-    if direction == 'up':
-        new_y = max(0, ymin - dy)
-        moved_position = (xmin, new_y)
-    elif direction == 'down':
-        new_y = min(img.height - (ymax - ymin), ymin + dy)
-        moved_position = (xmin, new_y)
-    elif direction == 'left':
-        new_x = max(0, xmin - dx)
-        moved_position = (new_x, ymin)
-    elif direction == 'right':
-        new_x = min(img.width - (xmax - xmin), xmin + dx)
-        moved_position = (new_x, ymin)
-
-    # Step 7: Paste the moved text onto the colored image, retaining the original background and color
-    img_rgb.paste(color_cropped, moved_position)
-
-    # Display the final image
-    plt.figure(figsize=(10, 8))
-    plt.imshow(img_rgb)
-    plt.title(f"Text moved {direction} by {percent}% while retaining background and color")
-    plt.axis('off')
-    plt.show()
+    return cropped_image
 
 # Example usage
 image_path = "/mnt/data/Screenshot 2025-05-13 at 8.01.28 PM.png"
 coordinates = (50, 50, 200, 100)  # Example coordinates
-move_text_strict(image_path, coordinates, 'right', 5)
+cropped_image = extract_coordinates(image_path, coordinates)
+
+# Display the cropped image to verify
+cropped_image.show()
