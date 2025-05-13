@@ -1,31 +1,24 @@
-def restore_background_color(masked_image, original_image, coordinates):
+def add_color_back(sharp_image, original_image):
     """
-    Restores the background color from the original image to the masked area.
+    Adds back the original color to the sharpened grayscale image.
     
     Parameters:
-    - masked_image (PIL Image): Grayscale masked image with a white rectangle.
+    - sharp_image (PIL Image): Grayscale sharpened image.
     - original_image (PIL Image): Original colored image.
-    - coordinates (tuple): Coordinates in the format (xmin, ymin, xmax, ymax).
     
     Returns:
-    - background_restored_image (PIL Image): Image with background color restored.
+    - colored_image (PIL Image): Image with color restored from the original image.
     """
-    # Create a copy of the masked image to restore the background color
-    background_restored_image = masked_image.copy()
+    # Convert the sharpened grayscale image to RGB
+    sharp_rgb = sharp_image.convert("RGB")
     
-    # Extract coordinates
-    xmin, ymin, xmax, ymax = coordinates
+    # Blend the color from the original image with the sharpened image
+    colored_image = Image.blend(original_image, sharp_rgb, alpha=0.5)
     
-    # Extract the background color from the original image
-    background_patch = original_image.crop((xmin, ymin, xmax, ymax))
-    
-    # Paste the original background onto the masked area
-    background_restored_image.paste(background_patch, (xmin, ymin))
-    
-    return background_restored_image
+    return colored_image
 
 # Example usage
-background_restored_image = restore_background_color(masked_image, cropped_image, (50, 50, 200, 100))
+colored_image = add_color_back(sharpened_image, cropped_image)
 
-# Display the background restored image to verify
-background_restored_image.show()
+# Display the color restored image to verify
+colored_image.show()
