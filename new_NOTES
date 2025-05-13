@@ -1,19 +1,62 @@
-from PIL import Image, ImageDraw
+from PIL import Image, ImageEnhance, ImageDraw
+import numpy as np
+import matplotlib.pyplot as plt
+import os
 
-# Load the image
-image = Image.open('path_to_image.jpg')
-draw = ImageDraw.Draw(image)
+def move_object(df, direction_list, percent_list):
+    for index, row in df.iterrows():
+        image_path = os.path.join(DIR, row['FILE_NAME'])
+        print(f"FILE NAME: {image_path}")
+        
+        # Load image and convert to grayscale
+        img = Image.open(image_path)
+        grayscale_img = img.convert("L")  # Grayscale conversion
+        print(grayscale_img.size)
 
-# Coordinates for the area to cover
-xmin, ymin, xmax, ymax = 100, 50, 300, 100  # Adjust these coordinates as needed
+        for element in columns:
+            print(f"Operations performed on: {element}")
+            
+            # Extract coordinates
+            xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+            cropped_img = img.crop((xmin, ymin, xmax, ymax))
+            grayscale_cropped = grayscale_img.crop((xmin, ymin, xmax, ymax))
+            background_colour = img.getpixel((xmin, ymin))
+            
+            # Create a grayscale background image
+            mod_img = Image.new('RGB', img.size, (255, 255, 255))
+            mod_img.paste(grayscale_img)
+            
+            for direction in direction_list:
+                print(f"The direction is: {direction}")
+                for percent in percent_list:
+                    print(f"The percent is: {percent}")
+                    
+                    # Determine new coordinates based on direction
+                    if direction == 'up':
+                        new_y = max(0, ymin - int(img.height * percent / 100))
+                    elif direction == 'down':
+                        new_y = min(img.height - (ymax - ymin), ymin + int(img.height * percent / 100))
+                    elif direction == 'left':
+                        new_x = max(0, xmin - int(img.width * percent / 100))
+                    elif direction == 'right':
+                        new_x = min(img.width - (xmax - xmin), xmin + int(img.width * percent / 100))
+                    
+                    # Create an image with the grayscale text moved
+                    mod_img = img.copy()
+                    mod_img.paste(grayscale_cropped, (new_x, new_y))
+                    
+                    # Overlay the color from the original image on the grayscale text
+                    color_patch = img.crop((new_x, new_y, new_x + cropped_img.width, new_y + cropped_img.height))
+                    mod_img.paste(color_patch, (new_x, new_y))
 
-# Crop a small patch from the original background
-background_patch = image.crop((xmin, ymin, xmin + 10, ymin + 10))
+                    plt.figure(figsize=(10, 8))
+                    plt.imshow(mod_img)
+                    plt.title(f"Image with moved text: {element}")
+                    plt.show()
+                    
+                    print(f"Image with moved text: {element}")
 
-# Fill the area with the repeated background patch
-for x in range(xmin, xmax, 10):
-    for y in range(ymin, ymax, 10):
-        image.paste(background_patch, (x, y))
-
-# Save or display the modified image
-image.show()
+# Example usage
+direction_list = ['left']
+percent_list = [10]
+move_object(df, direction_list, percent_list)
