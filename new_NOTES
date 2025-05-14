@@ -1,4 +1,6 @@
 from PIL import Image, ImageDraw
+import os
+import matplotlib.pyplot as plt
 
 def rotate_object(df, list_of_angles):
     for index, row in df.iterrows():
@@ -16,17 +18,28 @@ def rotate_object(df, list_of_angles):
                 cropped_img = image.crop((xmin, ymin, xmax, ymax))
                 background_color = cropped_img.getpixel((0, 0))
 
+                # Create a blank canvas for rotation
+                mod_img = Image.new('RGB', image.size, (255, 255, 255))
+                mod_img.paste(image)
+
                 # Rotation Logic
                 for angle in list_of_angles:
                     print(f"Rotating by {angle} degrees")
+
+                    # Rotate the cropped image
                     rotated_cropped_img = cropped_img.rotate(angle, expand=True, fillcolor=background_color)
 
-                    # Create a blank image for drawing
-                    mod_img = Image.new('RGB', image.size, (255, 255, 255))
-                    mod_img.paste(image)
+                    # Calculate new position after rotation
+                    rotated_width, rotated_height = rotated_cropped_img.size
+                    new_x = xmin + (xmax - xmin - rotated_width) // 2
+                    new_y = ymin + (ymax - ymin - rotated_height) // 2
 
-                    # Paste the rotated object
-                    mod_img.paste(rotated_cropped_img, (xmin, ymin))
+                    # Paste the rotated image back to the canvas
+                    mod_img.paste(rotated_cropped_img, (new_x, new_y))
+
+                    # Draw the bounding box around the rotated area
+                    draw = ImageDraw.Draw(mod_img)
+                    draw.rectangle((new_x, new_y, new_x + rotated_width, new_y + rotated_height), outline="red", width=2)
 
                     # Display the rotated image
                     plt.figure(figsize=(10, 20))
@@ -35,3 +48,7 @@ def rotate_object(df, list_of_angles):
                     plt.xticks(fontsize=9)
                     plt.yticks(fontsize=9)
                     plt.show()
+
+# Usage
+list_of_angles = [10, 30, 45]
+rotate_object(df, list_of_angles)
