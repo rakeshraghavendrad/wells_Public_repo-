@@ -1,35 +1,37 @@
-def add_background_color(masked_image, original_image, coordinates):
-    """
-    Restores the background color from the original image to the masked area only.
-    
-    Parameters:
-    - masked_image (PIL Image): Grayscale masked image with a white rectangle.
-    - original_image (PIL Image): Original colored image.
-    - coordinates (tuple): Coordinates in the format (xmin, ymin, xmax, ymax).
-    
-    Returns:
-    - background_colored_image (PIL Image): Image with the original background color restored.
-    """
-    # Create a copy of the original image to restore the background
-    background_colored_image = original_image.copy()
-    draw = ImageDraw.Draw(background_colored_image)
+from PIL import Image, ImageDraw
 
-    # Extract coordinates
-    xmin, ymin, xmax, ymax = coordinates
+def rotate_object(df, list_of_angles):
+    for index, row in df.iterrows():
+        image_path = os.path.join(DIR, row['FILE_NAME'])
+        print(f"Processing: {image_path}")
 
-    # Mask the original coordinates with a white rectangle
-    draw.rectangle((xmin, ymin, xmax, ymax), outline=None, fill='white', width=0)
+        for element in columns:
+            if row[element] is not None:
+                # Load the image
+                image = Image.open(image_path)
+                print(f"Operations performed on: {element}")
 
-    # Extract the background from the original image
-    background_patch = original_image.crop((xmin, ymin, xmax, ymax))
+                # Extract coordinates
+                xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+                cropped_img = image.crop((xmin, ymin, xmax, ymax))
+                background_color = cropped_img.getpixel((0, 0))
 
-    # Overlay the background patch onto the masked area
-    background_colored_image.paste(background_patch, (xmin, ymin))
+                # Rotation Logic
+                for angle in list_of_angles:
+                    print(f"Rotating by {angle} degrees")
+                    rotated_cropped_img = cropped_img.rotate(angle, expand=True, fillcolor=background_color)
 
-    return background_colored_image
+                    # Create a blank image for drawing
+                    mod_img = Image.new('RGB', image.size, (255, 255, 255))
+                    mod_img.paste(image)
 
-# Example usage
-background_colored_image = add_background_color(masked_image, cropped_image, (50, 50, 200, 100))
+                    # Paste the rotated object
+                    mod_img.paste(rotated_cropped_img, (xmin, ymin))
 
-# Display the final image to verify
-background_colored_image.show()
+                    # Display the rotated image
+                    plt.figure(figsize=(10, 20))
+                    plt.imshow(mod_img)
+                    plt.title(f"Rotated: {angle}°")
+                    plt.xticks(fontsize=9)
+                    plt.yticks(fontsize=9)
+                    plt.show()
