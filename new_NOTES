@@ -1,3 +1,31 @@
+
+# Extract the region of interest (ROI)
+xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+
+# Instead of drawing a rectangle, do nothing to retain the background as it is
+# If you want to draw a rectangle with the same background color:
+background_color = tuple(map(int, cv2.mean(img[ymin:ymax, xmin:xmax])[:3]))
+
+# Drawing a rectangle with the background color to blend it
+cv2.rectangle(img, (xmin, ymin), (xmax, ymax), background_color, -1)  # -1 to fill
+
+print(f"Image processed without visible rectangle: {element}")
+
+# Display the updated image
+plt.figure(figsize=(10, 20))
+plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+plt.title(f"Processed Region: {element}")
+plt.xticks(fontsize=9)
+plt.yticks(fontsize=9)
+plt.show()
+
+
+
+
+
+
+
+
 # Extract the region of interest (ROI)
 xmin, ymin, xmax, ymax = map(int, row[element].split(','))
 cropped_img = img[ymin:ymax, xmin:xmax]
