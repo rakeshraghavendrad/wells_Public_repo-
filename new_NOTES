@@ -1,3 +1,28 @@
+# Extract the region of interest (ROI)
+xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+cropped_img = img[ymin:ymax, xmin:xmax]
+
+# Calculate the background color as the average color of the cropped region
+# Ensuring that the mean color values are properly cast to integers
+mean_color = cv2.mean(cropped_img)[:3]
+background_color = (int(mean_color[0]), int(mean_color[1]), int(mean_color[2]))
+
+# Correcting the cv2.rectangle usage
+# Use the correct format for the color and set thickness to -1 for filling
+cv2.rectangle(img, (xmin, ymin), (xmax, ymax), background_color, -1)
+
+print(f"Image with blurred background on object: {element}")
+
+# Display the updated image
+plt.figure(figsize=(10, 20))
+plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+plt.xticks(fontsize=9)
+plt.yticks(fontsize=9)
+plt.show()
+
+
+
+
 from PIL import Image, ImageDraw
 import os
 import matplotlib.pyplot as plt
