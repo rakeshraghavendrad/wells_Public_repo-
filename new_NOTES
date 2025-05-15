@@ -1,3 +1,60 @@
+import cv2
+import numpy as np
+import os
+from PIL import Image
+
+def apply_blur(df, kernels, kernel_types):
+    path = '/path/to/your/images'  # Update this path as needed
+    for index, row in df.iterrows():
+        image_path = os.path.join(path, row['FILE_NAME'])
+        print(f"Processing: {image_path}")
+        
+        image = cv2.imread(image_path)
+        if image is None:
+            print(f"Error loading image: {image_path}")
+            continue
+        
+        for element in columns:
+            if row[element][0] is not None:
+                # Extract coordinates
+                xmin, ymin, xmax, ymax = map(int, row[element].split(','))
+                print(f"Blurring area: {element} at {xmin, ymin, xmax, ymax}")
+                
+                # Crop the region of interest (ROI)
+                cropped_img = image[ymin:ymax, xmin:xmax]
+
+                for blur_type in kernel_types:
+                    for kernel_size in kernels:
+                        # Apply different blur techniques
+                        if blur_type == "average":
+                            blurred = cv2.blur(cropped_img, (kernel_size, kernel_size))
+                        elif blur_type == "gaussian":
+                            blurred = cv2.GaussianBlur(cropped_img, (kernel_size, kernel_size), 0)
+                        elif blur_type == "median":
+                            blurred = cv2.medianBlur(cropped_img, kernel_size)
+                        else:
+                            print(f"Unknown blur type: {blur_type}")
+                            continue
+                        
+                        # Maintain the original background color
+                        blurred = cv2.addWeighted(cropped_img, 0.4, blurred, 0.6, 0)
+                        
+                        # Replace the region with the blurred one
+                        image[ymin:ymax, xmin:xmax] = blurred
+
+                        # Save the processed image
+                        output_path = os.path.join('/path/to/save', f"blurred_{element}_{blur_type}_{kernel_size}.jpg")
+                        cv2.imwrite(output_path, image)
+                        print(f"Saved blurred image at: {output_path}")
+
+        # Display the result for verification
+        cv2.imshow("Blurred Image", image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
+
+
 
 # Extract the region of interest (ROI)
 xmin, ymin, xmax, ymax = map(int, row[element].split(','))
