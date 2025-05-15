@@ -1,11 +1,1 @@
-# Convert OpenCV image to PIL image
-img_deleted_object = Image.fromarray(image)
-
-# Manipulate the image (e.g., blurring or cropping)
-cropped_img = cv2.blur(image, (15, 15))
-
-# Convert PIL image back to numpy array after manipulation
-image_np = np.array(img_deleted_object)
-
-# Now perform color conversion using cv2
-image_rgb = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
+We are currently facing challenges in capturing the headshot photo due to the multi-colored pixel background. Extracting the image while retaining the original background at each pixel proves to be complex. However, we can consider exploring Generative AI models or DocAI as potential solutions.
