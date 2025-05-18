@@ -31,9 +31,9 @@ Pertubations :
 -> Some images were deliberately compressed to reflect mobile phone camera limitations.
 
 
+https://arxiv.org/html/2408.01690v2#bib.bib2
 
-
-1. Template Generation Using Image Diffusion Models
+1. Template Generation Using Image Diffusion Models from hugging face : 
 
 -> Employed image diffusion models, such as Stable Diffusion, to remove existing texts and photos from sample ID images.
 -> Masked customizable regions (e.g., name, photo areas) and prompted the model to inpaint these areas, generating clean templates.
@@ -47,3 +47,35 @@ Pertubations :
 -> Mixed Fraud: Combined multiple fraud types within a single document.
 -> Inpaint and Rewrite: Used inpainting techniques to modify specific fields without altering the overall layout.
 -> Crop and Replace: Swapped sections between different IDs to simulate tampering.
+
+
+https://arxiv.org/pdf/2409.12318
+
+Participant Recruitment and Consent : 
+-> A total of 3,991 participants were recruited for the study.
+-> Each participant provided informed consent, with the process approved by an Institutional Review Board (IRB), ensuring ethical standards were upheld.
+-> Participants were instructed to use their mobile devices to capture images of their government-issued identification cards and a self-portrait (selfie).
+->
+
+https://arxiv.org/pdf/2503.01085
+
+Dataset used : 
+ MIDV-500 Dataset
+-> it offers real-world variability in:
+-> Lighting conditions
+-> Background settings
+-> Document orientations
+-> Device diversity (videos recorded using different mobile devices)
+
+2.2 Preprocessing the Dataset:
+Frame Extraction:
+-> Extracted frames from each video clip at 10 frames per second (fps).
+-> Focused on the first 3 seconds of each video to ensure consistency.
+-> This resulted in approximately 15,000 image frames.
+Image Annotation:
+-> The MIDV-500 dataset already contains annotations specifying:
+-> Document boundaries
+-> Text fields
+-> Photo areas
+-> These annotations were utilized directly for training without additional modification.
+-> The model demonstrated a high IoU (>0.8) and accuracy (>0.75) when detecting document boundaries.
