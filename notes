@@ -1,5 +1,1 @@
-We have gathered a set of synthetic ID samples from publicly available datasets, which currently include driver's licenses from Arizona (AZ), South Dakota, and Nevada. We would like to evaluate the model's performance on this data.
-
-We kindly request you to score these sample IDs using the vendor model currently deployed in the dev environment. Once the scoring is complete, please share the results with us.
-
-Additionally, we will be sharing passport data as soon as it becomes available.
+After scoring using the AID model, we understand that the output is stored in the Risad Database. Could you please let us know if there is any documentation available that details the types of data stored in this database?
