@@ -27,3 +27,29 @@ except Exception as e:
 finally:
     # Close the connection
     client.close()
+
+
+
+from pymongo import MongoClient
+
+# Replace these with your actual URL and database name
+mongo_url = "your_mongo_url"  # Example: "mongodb://username:password@host:port/"
+database_name = "your_database_name"
+
+try:
+    # Create a MongoDB client
+    client = MongoClient(mongo_url)
+
+    # Access the specified database
+    db = client[database_name]
+    print(f"Successfully connected to database: {database_name}")
+
+    # Optionally, list collections to verify connection
+    collections = db.list_collection_names()
+    print(f"Available collections: {collections}")
+
+except Exception as e:
+    print(f"Error while connecting to MongoDB: {e}")
+finally:
+    # Close the connection
+    client.close()
