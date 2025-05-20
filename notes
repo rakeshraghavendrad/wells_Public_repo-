@@ -1,13 +1,24 @@
 from pymongo import MongoClient
+from urllib.parse import quote_plus
 
-# Replace with your actual MongoDB connection URL
-mongo_url = "mongodb://username:password@host:port/database_name"
+# Raw credentials
+username = "your_username"
+password = "your_password_with_special@characters"
+
+# Encode the username and password safely
+escaped_username = quote_plus(username)
+escaped_password = quote_plus(password)
+
+# MongoDB connection parts
+host = "host"
+port = "port"
+database_name = "your_database_name"
+
+# Final MongoDB URL
+mongo_url = f"mongodb://{escaped_username}:{escaped_password}@{host}:{port}/{database_name}"
 
 try:
-    # Create a MongoDB client
     client = MongoClient(mongo_url)
-
-    # Print the list of databases to confirm connection
     print("Connected to MongoDB")
     print("Databases available:", client.list_database_names())
 
@@ -15,10 +26,6 @@ except Exception as e:
     print(f"Error while connecting to MongoDB: {e}")
 
 finally:
-    # Check if client exists before closing
-    try:
-        if 'client' in locals():
-            client.close()
-            print("MongoDB connection closed.")
-    except Exception as e:
-        print(f"Error while closing MongoDB connection: {e}")
+    if 'client' in locals():
+        client.close()
+        print("MongoDB connection closed.")
