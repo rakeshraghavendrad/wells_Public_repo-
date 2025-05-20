@@ -1,52 +1,15 @@
 from pymongo import MongoClient
 
-# Taking user inputs for connection
-username = input("Enter your MongoDB username: ")
-password = input("Enter your MongoDB password: ")
-host = input("Enter your MongoDB host (e.g., localhost): ")
-port = input("Enter your MongoDB port (e.g., 27017): ")
-database_name = input("Enter the database name: ")
-
-# Constructing the MongoDB connection URL
-mongo_url = f"mongodb://{username}:{password}@{host}:{port}/"
+# Replace with your actual MongoDB connection URL
+mongo_url = "mongodb://username:password@host:port/database_name"
 
 try:
     # Create a MongoDB client
     client = MongoClient(mongo_url)
 
-    # Access the specified database
-    db = client[database_name]
-    print(f"Successfully connected to database: {database_name}")
-
-    # Optionally, list collections to verify connection
-    collections = db.list_collection_names()
-    print(f"Available collections: {collections}")
-
-except Exception as e:
-    print(f"Error while connecting to MongoDB: {e}")
-finally:
-    # Close the connection
-    client.close()
-
-
-
-from pymongo import MongoClient
-
-# Replace these with your actual URL and database name
-mongo_url = "your_mongo_url"  # Example: "mongodb://username:password@host:port/"
-database_name = "your_database_name"
-
-try:
-    # Create a MongoDB client
-    client = MongoClient(mongo_url)
-
-    # Access the specified database
-    db = client[database_name]
-    print(f"Successfully connected to database: {database_name}")
-
-    # Optionally, list collections to verify connection
-    collections = db.list_collection_names()
-    print(f"Available collections: {collections}")
+    # Print the list of databases to confirm connection
+    print("Connected to MongoDB")
+    print("Databases available:", client.list_database_names())
 
 except Exception as e:
     print(f"Error while connecting to MongoDB: {e}")
