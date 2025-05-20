@@ -1,1 +1,29 @@
-After scoring using the AID model, we understand that the output is stored in the Risad Database. Could you please let us know if there is any documentation available that details the types of data stored in this database?
+from pymongo import MongoClient
+
+# Taking user inputs for connection
+username = input("Enter your MongoDB username: ")
+password = input("Enter your MongoDB password: ")
+host = input("Enter your MongoDB host (e.g., localhost): ")
+port = input("Enter your MongoDB port (e.g., 27017): ")
+database_name = input("Enter the database name: ")
+
+# Constructing the MongoDB connection URL
+mongo_url = f"mongodb://{username}:{password}@{host}:{port}/"
+
+try:
+    # Create a MongoDB client
+    client = MongoClient(mongo_url)
+
+    # Access the specified database
+    db = client[database_name]
+    print(f"Successfully connected to database: {database_name}")
+
+    # Optionally, list collections to verify connection
+    collections = db.list_collection_names()
+    print(f"Available collections: {collections}")
+
+except Exception as e:
+    print(f"Error while connecting to MongoDB: {e}")
+finally:
+    # Close the connection
+    client.close()
