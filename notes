@@ -13,6 +13,12 @@ try:
 
 except Exception as e:
     print(f"Error while connecting to MongoDB: {e}")
+
 finally:
-    # Close the connection
-    client.close()
+    # Check if client exists before closing
+    try:
+        if 'client' in locals():
+            client.close()
+            print("MongoDB connection closed.")
+    except Exception as e:
+        print(f"Error while closing MongoDB connection: {e}")
