@@ -1,3 +1,24 @@
+from PIL import Image, ExifTags
+
+img = Image.open("not_verified.jpg")
+
+# Auto-orient based on EXIF
+for orientation in ExifTags.TAGS.keys():
+    if ExifTags.TAGS[orientation] == 'Orientation':
+        break
+
+exif = img._getexif()
+if exif and orientation in exif:
+    if exif[orientation] == 3:
+        img = img.rotate(180, expand=True)
+    elif exif[orientation] == 6:
+        img = img.rotate(270, expand=True)
+    elif exif[orientation] == 8:
+        img = img.rotate(90, expand=True)
+
+img.save("oriented.jpg", dpi=(300, 300))
+
+
 
 from PIL import Image
 
