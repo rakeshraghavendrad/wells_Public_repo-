@@ -1,3 +1,27 @@
+
+from PIL import Image
+
+# Load the image
+input_path = "IMG_037EF375-02C2-4DD2-BC48-18F8EC5257B6.jpeg"
+output_path = "IMG_fixed_dpi_300.jpeg"
+
+# Open image
+img = Image.open(input_path)
+
+# Optionally resize (simulate better resolution)
+width, height = img.size
+scale_factor = 300 / 123  # From 123 to 300 DPI
+new_size = (int(width * scale_factor), int(height * scale_factor))
+img_resized = img.resize(new_size, Image.LANCZOS)
+
+# Save with updated DPI
+img_resized.save(output_path, dpi=(300, 300))
+
+print(f"Image saved at {output_path} with simulated 300 DPI.")
+
+
+
+
 from pymongo import MongoClient
 from urllib.parse import quote_plus
 
