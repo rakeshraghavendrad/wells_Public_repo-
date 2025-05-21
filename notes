@@ -1,76 +1,20 @@
-from PIL import Image, ExifTags
+import cv2
 
-img = Image.open("not_verified.jpg")
+img = cv2.imread("id_photo.jpg")
+sharpen_kernel = np.array([[0, -1, 0],
+                           [-1, 5, -1],
+                           [0, -1, 0]])
 
-# Auto-orient based on EXIF
-for orientation in ExifTags.TAGS.keys():
-    if ExifTags.TAGS[orientation] == 'Orientation':
-        break
+sharpened = cv2.filter2D(img, -1, sharpen_kernel)
+cv2.imwrite("id_sharpened.jpg", sharpened)
 
-exif = img._getexif()
-if exif and orientation in exif:
-    if exif[orientation] == 3:
-        img = img.rotate(180, expand=True)
-    elif exif[orientation] == 6:
-        img = img.rotate(270, expand=True)
-    elif exif[orientation] == 8:
-        img = img.rotate(90, expand=True)
+lab = cv2.cvtColor(sharpened, cv2.COLOR_BGR2LAB)
+l, a, b = cv2.split(lab)
 
-img.save("oriented.jpg", dpi=(300, 300))
+# CLAHE for contrast enhancement
+clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+cl = clahe.apply(l)
 
-
-
-from PIL import Image
-
-# Load the image
-input_path = "IMG_037EF375-02C2-4DD2-BC48-18F8EC5257B6.jpeg"
-output_path = "IMG_fixed_dpi_300.jpeg"
-
-# Open image
-img = Image.open(input_path)
-
-# Optionally resize (simulate better resolution)
-width, height = img.size
-scale_factor = 300 / 123  # From 123 to 300 DPI
-new_size = (int(width * scale_factor), int(height * scale_factor))
-img_resized = img.resize(new_size, Image.LANCZOS)
-
-# Save with updated DPI
-img_resized.save(output_path, dpi=(300, 300))
-
-print(f"Image saved at {output_path} with simulated 300 DPI.")
-
-
-
-
-from pymongo import MongoClient
-from urllib.parse import quote_plus
-
-# Raw credentials
-username = "your_username"
-password = "your_password_with_special@characters"
-
-# Encode the username and password safely
-escaped_username = quote_plus(username)
-escaped_password = quote_plus(password)
-
-# MongoDB connection parts
-host = "host"
-port = "port"
-database_name = "your_database_name"
-
-# Final MongoDB URL
-mongo_url = f"mongodb://{escaped_username}:{escaped_password}@{host}:{port}/{database_name}"
-
-try:
-    client = MongoClient(mongo_url)
-    print("Connected to MongoDB")
-    print("Databases available:", client.list_database_names())
-
-except Exception as e:
-    print(f"Error while connecting to MongoDB: {e}")
-
-finally:
-    if 'client' in locals():
-        client.close()
-        print("MongoDB connection closed.")
+lab = cv2.merge((cl, a, b))
+color_restored = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+cv2.imwrite("id_color_restored.jpg", color_restored)
