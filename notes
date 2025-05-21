@@ -1,20 +1,14 @@
 import cv2
+import numpy as np
+from scipy.signal import convolve2d
+from scipy.signal import wiener
 
-img = cv2.imread("id_photo.jpg")
-sharpen_kernel = np.array([[0, -1, 0],
-                           [-1, 5, -1],
-                           [0, -1, 0]])
+# Convert to grayscale
+gray = cv2.imread("blurred_id.jpg", cv2.IMREAD_GRAYSCALE)
 
-sharpened = cv2.filter2D(img, -1, sharpen_kernel)
-cv2.imwrite("id_sharpened.jpg", sharpened)
+# Apply Wiener filter
+deblurred = wiener(gray, (5, 5))
 
-lab = cv2.cvtColor(sharpened, cv2.COLOR_BGR2LAB)
-l, a, b = cv2.split(lab)
-
-# CLAHE for contrast enhancement
-clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-cl = clahe.apply(l)
-
-lab = cv2.merge((cl, a, b))
-color_restored = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-cv2.imwrite("id_color_restored.jpg", color_restored)
+# Convert back to image
+deblurred = np.uint8(np.clip(deblurred, 0, 255))
+cv2.imwrite("id_deblurred.jpg", deblurred)
