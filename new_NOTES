@@ -1,1 +1,58 @@
+import cv2
+import numpy as np
+
+# Step 1: Load images
+test_img = cv2.imread('test_image.jpg')           # Verified image
+gen_img = cv2.imread('generated_image.jpg')       # Fraudulent image
+
+# Resize to same size if needed
+if test_img.shape != gen_img.shape:
+    gen_img = cv2.resize(gen_img, (test_img.shape[1], test_img.shape[0]))
+
+# Step 2: Compare Histograms
+print("Color Histogram Correlation (BGR):")
+for i, col in enumerate(['B', 'G', 'R']):
+    hist1 = cv2.calcHist([test_img], [i], None, [256], [0, 256])
+    hist2 = cv2.calcHist([gen_img], [i], None, [256], [0, 256])
+    diff = cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
+    print(f"{col} Channel: {diff:.4f}")
+
+# Step 3: Visual Difference Map
+diff = cv2.absdiff(test_img, gen_img)
+gray_diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+_, thresh_diff = cv2.threshold(gray_diff, 30, 255, cv2.THRESH_BINARY)
+cv2.imwrite('diff_map.jpg', thresh_diff)
+
+# Step 4: Match Color Statistics
+def match_color_stats(source, target):
+    result = target.copy().astype(np.float32)
+    for i in range(3):  # BGR
+        src_mean, src_std = cv2.meanStdDev(source[:,:,i])
+        tgt_mean, tgt_std = cv2.meanStdDev(target[:,:,i])
+        result[:,:,i] = (result[:,:,i] - tgt_mean) * (src_std / (tgt_std + 1e-6)) + src_mean
+    result = np.clip(result, 0, 255).astype(np.uint8)
+    return result
+
+color_matched = match_color_stats(test_img, gen_img)
+cv2.imwrite('color_matched.jpg', color_matched)
+
+# Step 5: Enhance Contrast with CLAHE
+def enhance_contrast(img):
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    cl = clahe.apply(l)
+    enhanced = cv2.merge((cl, a, b))
+    return cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
+
+enhanced_img = enhance_contrast(color_matched)
+cv2.imwrite('enhanced_generated_image.jpg', enhanced_img)
+
+print("Saved outputs:")
+print("- diff_map.jpg")
+print("- color_matched.jpg")
+print("- enhanced_generated_image.jpg")
+
+
+
 We are currently facing challenges in capturing the headshot photo due to the multi-colored pixel background. Extracting the image while retaining the original background at each pixel proves to be complex. However, we can consider exploring Generative AI models or DocAI as potential solutions.
