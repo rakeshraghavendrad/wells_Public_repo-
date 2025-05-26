@@ -1,14 +1,15 @@
-import cv2
-import numpy as np
-from scipy.signal import convolve2d
-from scipy.signal import wiener
+Led the design and implementation of machine learning-based diagnostic models, enhancing digital user experience for over 1.3 million monthly users by identifying pain points and delivering predictive solutions with measurable business impact.
 
-# Convert to grayscale
-gray = cv2.imread("blurred_id.jpg", cv2.IMREAD_GRAYSCALE)
+Collaborated with cross-functional teams, including Product, Engineering, and Risk, to identify high-impact analytical use cases. Developed modular, reusable code assets to streamline model development and accelerate deployment timelines.
 
-# Apply Wiener filter
-deblurred = wiener(gray, (5, 5))
+Developed robust data pipelines and dashboards using Power BI to monitor operational KPIs and behavioral drivers, enabling real-time decision-making and performance tracking.
 
-# Convert back to image
-deblurred = np.uint8(np.clip(deblurred, 0, 255))
-cv2.imwrite("id_deblurred.jpg", deblurred)
+Built and deployed propensity models to segment and re-engage low-activity users, achieving a measurable reduction in customer churn and improving digital engagement metrics.
+
+Architected and led end-to-end development of scalable entity-matching systems for bank transfers, integrating real-time inference using Kafka and Spark for high-throughput environments.
+
+Established standardized ML pipelines, automating workflows for data preprocessing, model training, evaluation, and monitoring—enabling reproducibility and compliance with internal audit requirements.
+
+Utilized scalable ML frameworks including H2O Sparkling Water with PySpark, leveraging algorithms such as Random Forest, XGBoost, and GLM to evaluate model performance. The best-performing models were promoted for production scoring.
+
+Worked closely with MLOps and Model Risk Management (MRM) teams to ensure rigorous model validation, audit documentation, and seamless deployment to production environments in line with regulatory guidelines.
