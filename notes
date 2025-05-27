@@ -1,15 +1,47 @@
-Led the design and implementation of machine learning-based diagnostic models, enhancing digital user experience for over 1.3 million monthly users by identifying pain points and delivering predictive solutions with measurable business impact.
+from PIL import Image
+import cv2
+import numpy as np
 
-Collaborated with cross-functional teams, including Product, Engineering, and Risk, to identify high-impact analytical use cases. Developed modular, reusable code assets to streamline model development and accelerate deployment timelines.
+# Load original low DPI image
+input_path = "photosAZ_300.jpg"  # your original image
+output_path = "photosAZ_upscaled_final.jpg"
 
-Developed robust data pipelines and dashboards using Power BI to monitor operational KPIs and behavioral drivers, enabling real-time decision-making and performance tracking.
+# Step 1: Upscale image (simulate higher resolution)
+original = Image.open(input_path)
+width, height = original.size
 
-Built and deployed propensity models to segment and re-engage low-activity users, achieving a measurable reduction in customer churn and improving digital engagement metrics.
+# Assume original DPI is ~123, to simulate 300 DPI we scale dimensions
+scale_factor = 300 / 123
+new_size = (int(width * scale_factor), int(height * scale_factor))
 
-Architected and led end-to-end development of scalable entity-matching systems for bank transfers, integrating real-time inference using Kafka and Spark for high-throughput environments.
+# Use LANCZOS for high-quality upscaling
+img_resized = original.resize(new_size, Image.LANCZOS)
 
-Established standardized ML pipelines, automating workflows for data preprocessing, model training, evaluation, and monitoring—enabling reproducibility and compliance with internal audit requirements.
+# Save with updated DPI metadata
+img_resized.save(output_path, dpi=(300, 300))
+print(f"Image saved to {output_path} with size {new_size} and simulated 300 DPI.")
 
-Utilized scalable ML frameworks including H2O Sparkling Water with PySpark, leveraging algorithms such as Random Forest, XGBoost, and GLM to evaluate model performance. The best-performing models were promoted for production scoring.
+# Step 2: Enhance Contrast
+def enhance_contrast(img):
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    cl = clahe.apply(l)
+    enhanced = cv2.merge((cl, a, b))
+    return cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
 
-Worked closely with MLOps and Model Risk Management (MRM) teams to ensure rigorous model validation, audit documentation, and seamless deployment to production environments in line with regulatory guidelines.
+# Step 3: Sharpen the image
+def sharpen_image(img):
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    return cv2.filter2D(img, -1, kernel)
+
+# Reload with OpenCV, apply enhancements
+gen_img = cv2.imread(output_path)
+enhanced_img = sharpen_image(enhance_contrast(gen_img))
+
+# Save final enhanced version
+cv2.imwrite("photosAZ_enhanced_final.jpg", enhanced_img)
+print("Enhanced image saved as 'photosAZ_enhanced_final.jpg'")
+
