@@ -1,52 +1,5 @@
-# Re-import necessary libraries due to code execution environment reset
-import cv2
-import numpy as np
-from PIL import Image
-
-# Reload the uploaded image
-input_path = "/mnt/data/IMG_40F9AF5C-78AC-42CB-B088-7F83467355DF.jpeg"
-original = Image.open(input_path)
-width, height = original.size
-
-# Step 1: Upscale to simulate 300 DPI (assume original is ~123 DPI)
-scale_factor = 300 / 123
-new_size = (int(width * scale_factor), int(height * scale_factor))
-resized = original.resize(new_size, Image.LANCZOS)
-
-# Save upscaled image with 300 DPI metadata
-upscaled_path = "/mnt/data/southdakota_upscaled.jpg"
-resized.save(upscaled_path, dpi=(300, 300))
-
-# Load with OpenCV for enhancement
-img = cv2.imread(upscaled_path)
-
-# Step 2: Enhance contrast
-def enhance_contrast(img):
-    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-    l, a, b = cv2.split(lab)
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    cl = clahe.apply(l)
-    enhanced = cv2.merge((cl, a, b))
-    return cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
-
-# Step 3: Sharpen the image
-def sharpen_image(img):
-    kernel = np.array([[0, -1, 0],
-                       [-1, 6, -1],
-                       [0, -1, 0]])  # increased sharpening
-    return cv2.filter2D(img, -1, kernel)
-
-# Step 4: Reduce noise
-def denoise_image(img):
-    return cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
-
-# Apply all enhancements
-contrast = enhance_contrast(img)
-sharpened = sharpen_image(contrast)
-denoised = denoise_image(sharpened)
-
-# Save final enhanced image
-final_path = "/mnt/data/southdakota_enhanced_final.jpg"
-cv2.imwrite(final_path, denoised)
-
-final_path
+# Step 1: Resize to high resolution (maximizing DPI perception)
+target_width = 1800
+aspect_ratio = original.height / original.width
+target_height = int(target_width * aspect_ratio)
+resized = original.resize((target_width, target_height), Image.Resampling.LANCZOS)
