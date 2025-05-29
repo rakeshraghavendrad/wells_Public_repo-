@@ -1,47 +1,7 @@
-from PIL import Image
-import cv2
-import numpy as np
+Advantages:
+	•	Strong leadership and clear direction in project execution
+	•	Approachable and open to feedback
+	•	Effectively balances team priorities and deadlines
+	•	Encourages collaboration and knowledge sharing
 
-# Load original low DPI image
-input_path = "photosAZ_300.jpg"  # your original image
-output_path = "photosAZ_upscaled_final.jpg"
-
-# Step 1: Upscale image (simulate higher resolution)
-original = Image.open(input_path)
-width, height = original.size
-
-# Assume original DPI is ~123, to simulate 300 DPI we scale dimensions
-scale_factor = 300 / 123
-new_size = (int(width * scale_factor), int(height * scale_factor))
-
-# Use LANCZOS for high-quality upscaling
-img_resized = original.resize(new_size, Image.LANCZOS)
-
-# Save with updated DPI metadata
-img_resized.save(output_path, dpi=(300, 300))
-print(f"Image saved to {output_path} with size {new_size} and simulated 300 DPI.")
-
-# Step 2: Enhance Contrast
-def enhance_contrast(img):
-    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-    l, a, b = cv2.split(lab)
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    cl = clahe.apply(l)
-    enhanced = cv2.merge((cl, a, b))
-    return cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
-
-# Step 3: Sharpen the image
-def sharpen_image(img):
-    kernel = np.array([[0, -1, 0],
-                       [-1, 5, -1],
-                       [0, -1, 0]])
-    return cv2.filter2D(img, -1, kernel)
-
-# Reload with OpenCV, apply enhancements
-gen_img = cv2.imread(output_path)
-enhanced_img = sharpen_image(enhance_contrast(gen_img))
-
-# Save final enhanced version
-cv2.imwrite("photosAZ_enhanced_final.jpg", enhanced_img)
-print("Enhanced image saved as 'photosAZ_enhanced_final.jpg'")
-
+Suggestions : 
