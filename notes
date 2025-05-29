@@ -1,4 +1,14 @@
+1. Entity Matching Project (Jan–Feb):
+Led the development of a robust solution for generating similarity scores for address fields in the Entity Matching project. Successfully completed the module and ensured a seamless handover to the Predictive Analytics team prior to the team transition.
 
-I truly appreciate your leadership and the clarity you bring to the team’s goals and expectations. Your approach creates a motivating and well-structured work environment.
+2. Transition to GenAI Initiatives:
+	•	Gained deep understanding of vendor model evaluation frameworks, particularly focusing on fraud detection mechanisms involving providers like Mitek.
+	•	Conducted in-depth research on model robustness, resulting in the design and development of a modular framework for testing model performance under image perturbations.
+	•	Implemented and validated multiple image perturbation techniques including blur, grayscale, block movement (2%), and rotation—demonstrating model behavior under diverse input conditions.
 
-One small suggestion would be to allow a bit more flexibility in task timelines where possible, as it can help accommodate different working styles and ensure consistent quality across the team.
+3. AID Integration and Evaluation:
+	•	Successfully completed the end-to-end integration of the AID system with MongoDB using PyMongo, enabling seamless access and querying of image metadata collections.
+	•	Integrated and tested the AID API via Postman, facilitating the evaluation of synthetic images. Identified a few inconsistencies in image verification and initiated clarification with the AID support team.
+
+4. Research Contribution:
+Currently contributing to an upcoming micropaper focused on Noise Awareness in AI Models, with submission and publication in progress.
