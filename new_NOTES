@@ -1,1 +1,8 @@
-Created image perturbation scripts for synthetic IDs to evaluate the consistency of vendor model performance.
+# Min createdDate
+min_doc = collection.find().sort("createdDate", 1).limit(1)[0]["createdDate"]
+
+# Max createdDate
+max_doc = collection.find().sort("createdDate", -1).limit(1)[0]["createdDate"]
+
+print("Min createdDate:", min_doc)
+print("Max createdDate:", max_doc)
