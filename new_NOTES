@@ -1,6 +1,1 @@
-Successfully delivered the address similarity scoring module for the Entity Matching project, which was handed over to the Predictive team ahead of schedule.
-Transitioned into the GenAI team and quickly ramped up on vendor model evaluation, especially in fraud detection scenarios involving Mitek.
-Built a framework for model robustness testing using image perturbations like blur, grayscale, block shifts, and rotation.
-Integrated the AID system with MongoDB via PyMongo and tested its API via Postman to evaluate synthetic images.
-Identified and escalated inconsistencies in image verification with the AID team.
-Currently contributing to a micropaper on noise awareness in AI models, which is in progress for publication.
+Created image perturbation scripts for synthetic IDs to evaluate the consistency of vendor model performance.
