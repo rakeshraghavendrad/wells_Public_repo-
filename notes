@@ -3,6 +3,14 @@
   "supplementalData.DocumentRiskConditions.DQL_Default_Results.DQL_Classification_IssuerName": "Cheap"
 }
 
+{
+  "supplementalData.DocumentRiskConditions.DQL_Default_Results": {
+    "$elemMatch": {
+      "DQL_Classification_IssuerName": "Cheap"
+    }
+  }
+}
+
 
 
 
