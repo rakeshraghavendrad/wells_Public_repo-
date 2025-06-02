@@ -1,4 +1,13 @@
-1. Entity Matching Project (Jan–Feb):
+1. 
+{
+  "supplementalData.DocumentRiskConditions.DQL_Default_Results.DQL_Classification_IssuerName": "Cheap"
+}
+
+
+
+
+
+Entity Matching Project (Jan–Feb):
 Led the development of a robust solution for generating similarity scores for address fields in the Entity Matching project. Successfully completed the module and ensured a seamless handover to the Predictive Analytics team prior to the team transition.
 
 2. Transition to GenAI Initiatives:
