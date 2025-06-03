@@ -1,3 +1,18 @@
+
+# Extract 'transactionId' from 'transactionDetails' for each doc
+tx_ids = [
+    doc['transactionDetails']['transactionId']
+    for doc in docs
+    if 'transactionDetails' in doc and 'transactionId' in doc['transactionDetails']
+]
+
+# Count of unique transaction IDs
+unique_tx_cnt = len(set(tx_ids))
+unique_tx_cnt
+
+
+
+
 #
 from datetime import datetime
 
