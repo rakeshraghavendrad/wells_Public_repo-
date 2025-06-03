@@ -1,4 +1,21 @@
-# Min createdDate
+#
+from datetime import datetime
+
+start_date = datetime(2025, 5, 25)
+end_date = datetime(2025, 5, 26)  # exclusive upper bound
+
+query = {
+    "eventName": "IDV_REPORTING_REQUEST",
+    "createdDate": {
+        "$gte": start_date,
+        "$lt": end_date
+
+
+
+
+
+
+Min createdDate
 min_doc = collection.find().sort("createdDate", 1).limit(1)[0]["createdDate"]
 
 # Max createdDate
