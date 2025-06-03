@@ -1,5 +1,15 @@
+# Extract 'transactionId' from nested 'supplementalData' → 'transactionDetails'
+tx_ids = [
+    doc['supplementalData']['transactionDetails']['transactionId']
+    for doc in docs
+    if 'supplementalData' in doc 
+       and 'transactionDetails' in doc['supplementalData'] 
+       and 'transactionId' in doc['supplementalData']['transactionDetails']
+]
 
-# Extract 'transactionId' from 'transactionDetails' for each doc
+# Count of unique transaction IDs
+unique_tx_cnt = len(set(tx_ids))
+unique_tx_cntExtract 'transactionId' from 'transactionDetails' for each doc
 tx_ids = [
     doc['transactionDetails']['transactionId']
     for doc in docs
