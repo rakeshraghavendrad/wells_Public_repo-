@@ -1,50 +1,9 @@
-# Extract 'transactionId' from nested 'supplementalData' → 'transactionDetails'
-tx_ids = [
-    doc['supplementalData']['transactionDetails']['transactionId']
-    for doc in docs
-    if 'supplementalData' in doc 
-       and 'transactionDetails' in doc['supplementalData'] 
-       and 'transactionId' in doc['supplementalData']['transactionDetails']
-]
-
-# Count of unique transaction IDs
-unique_tx_cnt = len(set(tx_ids))
-unique_tx_cntExtract 'transactionId' from 'transactionDetails' for each doc
-tx_ids = [
-    doc['transactionDetails']['transactionId']
-    for doc in docs
-    if 'transactionDetails' in doc and 'transactionId' in doc['transactionDetails']
-]
-
-# Count of unique transaction IDs
-unique_tx_cnt = len(set(tx_ids))
-unique_tx_cnt
-
-
-
-
-#
 from datetime import datetime
+import pytz
 
-start_date = datetime(2025, 5, 25)
-end_date = datetime(2025, 5, 26)  # exclusive upper bound
+# Define EST timezone
+est = pytz.timezone("America/New_York")
 
-query = {
-    "eventName": "IDV_REPORTING_REQUEST",
-    "createdDate": {
-        "$gte": start_date,
-        "$lt": end_date
-
-
-
-
-
-
-Min createdDate
-min_doc = collection.find().sort("createdDate", 1).limit(1)[0]["createdDate"]
-
-# Max createdDate
-max_doc = collection.find().sort("createdDate", -1).limit(1)[0]["createdDate"]
-
-print("Min createdDate:", min_doc)
-print("Max createdDate:", max_doc)
+# Create datetime for full day in EST
+start_date_est = est.localize(datetime(2025, 5, 29, 0, 0, 0))
+end_date_est = est.localize(datetime(2025, 5, 29, 23, 59, 59, 999999))
