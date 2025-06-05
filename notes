@@ -1,3 +1,17 @@
+
+import pytz
+import pandas as pd
+
+# Define Pacific Time zone
+pst = pytz.timezone("America/Los_Angeles")
+
+# Localize the datetime to Pacific Time
+start = pst.localize(pd.to_datetime('2025-06-03 00:00:00'))
+end = pst.localize(pd.to_datetime('2025-06-04 00:00:00'))
+
+
+
+
 1. 
 {
   "supplementalData.DocumentRiskConditions.DQL_Default_Results.DQL_Classification_IssuerName": "Cheap"
