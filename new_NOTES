@@ -1,9 +1,1 @@
-from datetime import datetime
-import pytz
-
-# Define EST timezone
-est = pytz.timezone("America/New_York")
-
-# Create datetime for full day in EST
-start_date_est = est.localize(datetime(2025, 5, 29, 0, 0, 0))
-end_date_est = est.localize(datetime(2025, 5, 29, 23, 59, 59, 999999))
+In a U.S. DL fraud detection model, stress testing checks the model’s robustness under extreme conditions like blurred images, tampered fields, unseen formats, or occluded regions. It also simulates high traffic to ensure stability under load. The goal is to verify if the model can handle real-world adversities and fail safely when pushed to its limits. In contrast, sensitivity analysis examines how small changes in inputs (like brightness or contrast) affect predictions, helping identify which features the model relies on most. Stress testing focuses on resilience; sensitivity analysis focuses on influence.
