@@ -1,1 +1,5 @@
-In a U.S. DL fraud detection model, stress testing checks the model’s robustness under extreme conditions like blurred images, tampered fields, unseen formats, or occluded regions. It also simulates high traffic to ensure stability under load. The goal is to verify if the model can handle real-world adversities and fail safely when pushed to its limits. In contrast, sensitivity analysis examines how small changes in inputs (like brightness or contrast) affect predictions, helping identify which features the model relies on most. Stress testing focuses on resilience; sensitivity analysis focuses on influence.
+# Ensure 'create_dt' column is in datetime format and timezone-aware
+df['create_dt'] = pd.to_datetime(df['create_dt'], utc=True)
+
+# Apply the filter between start_date and end_date
+filtered_df = df[(df['create_dt'] >= start_date) & (df['create_dt'] < end_date)]
