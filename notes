@@ -1,4 +1,33 @@
 
+from pymongo import MongoClient
+from datetime import datetime
+import pytz
+
+# Connect to MongoDB
+client = MongoClient("your_mongodb_connection_string")
+db = client["your_database_name"]
+collection = db["your_collection_name"]
+
+# Define start and end dates (in UTC)
+start_date = datetime(2025, 2, 20, 0, 0, 0, tzinfo=pytz.UTC)
+end_date = datetime(2025, 2, 21, 0, 0, 0, tzinfo=pytz.UTC)
+
+# Query filter using UTC datetime
+query = {
+    "CreatedDate": {
+        "$gte": start_date,
+        "$lt": end_date
+    }
+}
+
+# Execute query
+results = collection.find(query)
+
+# Print results (optional)
+for doc in results:
+    print(doc)
+
+
 import pytz
 
 # Define timezone objects
