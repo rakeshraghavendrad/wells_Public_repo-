@@ -1,2 +1,16 @@
 
-df_miss = df_failed_phone[~df_failed_phone['transactionId'].isin(df_business99['transactionId'])]
+df_miss = df_failed_phone[~df_failed_phone['transactionId'].isin(df_business99['transactionId'
+])]
+
+# Make sure it's a datetime column
+df_failed_phone['create_dt_PST'] = pd.to_datetime(df_failed_phone['create_dt_PST'])
+
+# Define start and end dates
+start_date = '2025-06-01'
+end_date = '2025-06-03'
+
+# Filter between start and end dates (inclusive)
+filtered_df = df_failed_phone[
+    (df_failed_phone['create_dt_PST'] >= start_date) &
+    (df_failed_phone['create_dt_PST'] <= end_date)
+]
