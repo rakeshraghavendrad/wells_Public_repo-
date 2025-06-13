@@ -1,32 +1,91 @@
-Here’s a refined and professionally worded version of your updated email:
+1. Basic Distribution & Overview
+Classification Count:
 
-Subject: Follow-up on Data Count Validation and Clarifications
+Count of records per classification status (Verified, Not Verified, Fraud, Inconclusive, Recapture Needed).
 
-Hi Nandu,
+Identify the most frequent classification category.
 
-Thank you very much for your time yesterday. With your help, we were able to successfully match the base population count for both PST and IST. Below is the filter that was used.
+Time-Based Trends:
 
-We do have a few follow-up questions and observations:
+Analyze the number of IDs processed over time (daily, weekly, monthly).
 
-1. Mismatch in Counts for Specific Dates
-We are currently trying to reconcile the counts for the following dates:
-6/1/2025, 6/2/2025, 6/3/2025, and 6/5/2025.
+Look for trends or spikes in specific classifications over time.
 
-When comparing our results with the shared Excel file (attached), we are seeing discrepancies in the counts.
-I’ve used the same code that was shared earlier (also attached), but the mismatch still persists. The table below includes the numbers I’m currently seeing.
+2. Fraud and Error Pattern Analysis
+Age-Wise Fraud Analysis:
 
-2. UTC to PST Conversion Logic in Code
-Within the code, we noticed that the UTC timestamps are being converted to PST, yet the overall count remains unchanged.
-We understand that PST is 7 hours behind UTC, and based on the logic, numbers from the previous UTC day are being added to the next PST day’s count.
-However, shouldn’t those previous-day transactions be excluded from the next day's PST count? Could you help us understand why they’re being included?
+Check if certain age groups are more likely to have IDs flagged as "Fraud" or "Not Verified".
 
-Next Steps / Requests:
+Inconclusive vs Recapture Needed:
 
-Could you please share the overall counts for the above dates using the filter provided?
+Compare the frequency and characteristics of records marked as “Inconclusive” and “Recapture Needed”.
 
-To help us identify the cause of the mismatch, could you also share the Transaction IDs along with their datetime stamps for the following dates and descriptions?
+Identify any common features or patterns leading to these classifications.
 
-Looking forward to your insights and support on this.
+Repeat Recapture Cases:
 
-Best regards,
-Rakesh
+Identify users who are repeatedly flagged as “Recapture Needed”.
+
+Investigate if there are common reasons (e.g., poor image quality, specific demographics).
+
+3. Name and Demographic Patterns
+Common Names in Fraud Cases:
+
+List frequently occurring names in records marked as "Fraud".
+
+Age Distribution by Classification:
+
+Analyze how age varies across different ID classification statuses.
+
+Plot age distributions for each class (e.g., boxplots or histograms).
+
+4. Operational Metrics and Quality Control
+Failure Rate:
+
+Calculate the percentage of IDs classified as “Not Verified”, “Inconclusive”, or “Recapture Needed”.
+
+Helps in assessing overall system accuracy and performance.
+
+Conversion Funnel:
+
+Analyze how many IDs progress from submission to final verification.
+
+Identify dropout points in the pipeline (e.g., recapture requests, inconclusive outcomes).
+
+Turnaround Time Analysis (if timestamps are available):
+
+Measure the time taken from submission to final classification.
+
+Identify any bottlenecks or delays.
+
+5. Cross-Feature Exploration
+Co-Occurrence of Labels:
+
+Examine if certain classifications (e.g., Not Verified and Recapture Needed) co-occur frequently.
+
+Useful for detecting systemic validation issues.
+
+Correlation Matrix:
+
+If numerical features are present (e.g., age, submission count), use a correlation heatmap to detect relationships between variables and classification outcomes.
+
+6. Optional Analyses (if data is available)
+Geographical or State-Wise Analysis:
+
+Map classification results to regions or issuing authorities to identify areas with high fraud or error rates.
+
+Issuing Authority Evaluation:
+
+Evaluate whether certain DL issuing authorities are associated with higher rates of invalid or fraudulent IDs.
+
+Visualization Recommendations
+Pie chart or bar chart for classification distribution.
+
+Time series plots for tracking classification trends.
+
+Box plots for comparing age across classification types.
+
+Heatmaps for regional patterns in ID outcomes.
+
+Bar charts for most common names in fraud classifications.
+
